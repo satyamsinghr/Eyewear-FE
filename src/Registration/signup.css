@@ -1,0 +1,109 @@
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Montserrat', sans-serif;
+    box-sizing: border-box;
+    background-color: #FBFBFB;
+  }
+  a
+  {
+    text-decoration: none;
+  }
+  ul,li
+  {
+    margin: 0;
+    padding: 0;
+  }
+  
+  /*=== login page ===*/
+  .login_card {
+    padding: 60px 16px 40px;
+    text-align: center;
+  }
+  
+  .login_card h4 {
+    font-size: 40px;
+    color: #5282EB;
+    line-height: 60px;
+    font-weight: 600;
+  }
+  
+  .login_card h6 {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 500;
+    color: #666666;
+  }
+  
+  .login_form input {
+    padding-left: 3.5rem;
+    padding-right: 3.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    background-color: #EDEDEDB2;
+    border-radius: 0.25rem !important;
+    height: 48px;
+    border: none;
+    width: 100%;
+    outline: none;
+    color: rgb(102 102 102);
+    box-shadow: none;
+  }
+  
+  .login_form img
+  {
+    width: 28px;
+    height: 28px;
+    object-fit: contain;
+  }
+  
+  .login_form a {
+    font-size: 16px;
+    color: #5282EB;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  
+  .btn.btn-primary {
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    background-color: rgb(82 130 235) !important;
+    border-radius: 0.25rem !important;
+    height: 48px;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  
+  .login_form h5 {
+    font-size: 16px;
+    color: #989898;
+    line-height: 24px;
+    font-weight: 500;
+  }
+  
+  button.google_btn {
+    font-weight: 500;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    border-color: #66666680;
+    border-width: 1px;
+    border-radius: 0.25rem;
+    height: 48px;
+    width: 100%;
+    background: transparent;
+  }
+  
+  .register_now {
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 28px;
+    color: #666666;
+  }
+  
+  .register_now a {
+    color: #5282EB;
+  }
