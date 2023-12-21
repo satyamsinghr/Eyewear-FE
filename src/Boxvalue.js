@@ -22,6 +22,7 @@ const Boxvalue = () => {
   const [selectedBoxId, SetSelectedBoxId] = useState("");
   const [todoEditing, setTodoEditing] = useState(false);
   const [userId, setUserId] = useState("");
+  const [role, setRole] = useState('');
   const childRef = useRef();
   const columns = [
     {
@@ -60,7 +61,9 @@ const Boxvalue = () => {
 
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem('userId'))
-    setUserId(userId)
+    setUserId(userId);
+    const role = JSON.parse(localStorage.getItem('role'));
+    setRole(role);
 
   }, []);
 
@@ -396,7 +399,8 @@ const Boxvalue = () => {
                   columns={columns}
                   data={boxListing}
                   selectOptions={collection}
-                  handleSubmit={handleSubmit} />
+                  handleSubmit={handleSubmit} 
+                  role={role}/>
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>
             </div>

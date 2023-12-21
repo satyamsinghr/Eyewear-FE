@@ -23,7 +23,7 @@ const FileCollection = () => {
     const [todoEditing, setTodoEditing] = useState(false);
     const [editingText, seteditingText] = useState({});
     const [userId, setUserId] = useState("");
-
+    const [role, setRole] = useState('');
     const columns = [
         {
             Header: 'Id',
@@ -61,7 +61,9 @@ const FileCollection = () => {
 
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem('userId'))
-        setUserId(userId)
+        setUserId(userId);
+        const role = JSON.parse(localStorage.getItem('role'));
+        setRole(role);
         // getdata();
     }, []);
 
@@ -388,7 +390,7 @@ const FileCollection = () => {
                                 </tbody>
                             </table> */}
                                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
-                                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} />
+                                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}  role={role}/>
                             </div>
                         </div>
                     </div>

@@ -28,7 +28,7 @@ const Layout = () => {
                         <Route path='/patient' element={<Patient />} />
                         <Route path='/lenses' element={<Lenses />} />
                         <Route path='/boxvalue' element={<Boxvalue />} />
-						<Route path='/analysis/:id?' element={<Analysis />} />
+						<Route path='/search/:id?' element={<Analysis />} />
                     </Routes>
                 </div>
             </div>
