@@ -6,7 +6,7 @@ import moment from 'moment';
 
 const Boxvalue = () => {
   const [inputValue, setInputValue] = useState({
-    id : "",
+    id: "",
     Box_id: "",
     Box_Name: "",
     Box_date: "",
@@ -15,9 +15,11 @@ const Boxvalue = () => {
   });
   const navigate = useNavigate();
   const [validation, setValidation] = useState({});
-  const [collectionListing, setCollectionListing] = useState([]);
-
+  const [boxListing, setBoxListing] = useState([]);
+  const [filteredBox, setFilteredBox] = useState([]);
   const [collection, setCollection] = useState([]);
+  const [currentBoxId, setCurrentBoxId] = useState("");
+  const [selectedBoxId, SetSelectedBoxId] = useState("");
   const [todoEditing, setTodoEditing] = useState(false);
   const [userId, setUserId] = useState("");
   const childRef = useRef();
@@ -106,7 +108,7 @@ const Boxvalue = () => {
     if (!validateForm(inputValue)) {
       const collectionName = collection.find(x => x.id == Col_type);
       const data = {
-        Box_id : Box_id,
+        Box_id: Box_id,
         Col_type: collectionName.Coll_name,
         Box_date: Box_date,
         Box_Name: Box_Name,
@@ -156,6 +158,50 @@ const Boxvalue = () => {
     }
   }
 
+  const handleFiltedId = (selectedBoxRow) => {
+    const data = filteredBox.find(x => x.id == selectedBoxRow.id)
+    setCurrentBoxId(data.Box_id)
+    SetSelectedBoxId(selectedBoxRow.id)
+    setFilteredBox([]);
+
+    const newData = {
+      id: data.id,
+      Box_id: data.Box_id,
+      Box_Name: data.Box_Name,
+      Col_type: data.Coll_id,
+      Box_date: data.Box_date ? data.Box_date.split('T')[0] : '',
+    }
+    setBoxListing((state) => [newData]);
+  }
+
+  const handleFilterChange = async (e) => {
+    if (e.target.value === '') {
+      setFilteredBox([]);
+      setCurrentBoxId('')
+      return;
+    }
+    setCurrentBoxId(e.target.value)
+    const getResponse = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}&boxId=${e.target.value}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': JSON.parse(localStorage.getItem('token'))
+      }
+
+    });
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const boxData = data.Boxes_Data.map(x => ({
+        ...x,
+        Box_date: moment(x.Box_date).format('YYYY-MM-DD')
+      }))
+      setFilteredBox(boxData)
+      setBoxListing(boxData);
+    } else {
+      console.log('Get Failed');
+    }
+  }
+
   const getdata = async () => {
     const getResponse = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}`, {
       method: "GET",
@@ -169,9 +215,9 @@ const Boxvalue = () => {
       const data = await getResponse.json();
       const boxData = data.Boxes_Data.map(x => ({
         ...x,
-        Box_date : moment(x.Box_date).format('YYYY-MM-DD')
+        Box_date: moment(x.Box_date).format('YYYY-MM-DD')
       }))
-      setCollectionListing(boxData);
+      setBoxListing(boxData);
     } else {
       console.log('Get Failed');
     }
@@ -204,7 +250,7 @@ const Boxvalue = () => {
   function update(x) {
     setTodoEditing(true);
     setInputValue({
-      id : x.id,
+      id: x.id,
       Box_id: x.Box_id,
       Box_Name: x.Box_Name,
       Col_type: x.Coll_id,
@@ -217,7 +263,7 @@ const Boxvalue = () => {
       const { Box_id, Box_Name, Box_date, Col_type, id } = inputValue;
       // const collectionName = collection.find(x => x.id == id);
       const data = {
-        id : id,
+        id: id,
         Col_type: Col_type,
         Box_date: Box_date,
         Box_Name: Box_Name,
@@ -240,7 +286,7 @@ const Boxvalue = () => {
         console.log('Edit failed');
       }
       setInputValue({
-        id : '',
+        id: '',
         Box_id: "",
         Box_date: "",
         Col_type: "",
@@ -272,19 +318,46 @@ const Boxvalue = () => {
     <>
       <div className="col p-5" style={{ marginRight: 34 }}>
         <div className='user_style'>
-        <div className="user_name">
-          <h2>Box Value</h2>
-          <hr className="mt-4" />
-        </div>
-        <div className="row">
+          <div className="user_name">
+            <h2>Box Value</h2>
+            <hr className="mt-4" />
+          </div>
+          {/* <div className="row">
           <div className="col-12 mb-3 mt-3">
             <label className="form_title">Box Date & Lens Type</label>
           </div>
-        </div>
-        <div className="row mt-4">
-          <div className="col-12">
-            <div className="table_card rounded overflow-hidden">
-              {/* <table className="table w-full m-0">
+        </div> */}
+          <div className="row search_input">
+            <div className="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="floatingInput"
+                  placeholder="Box Id"
+                  name='boxId'
+                  value={currentBoxId}
+                  onChange={(e) => { handleFilterChange(e) }}
+                />
+                <label htmlFor="selectBoxDate">Box Id</label>
+                <span className="text-danger">{validation.selectedBoxId}</span>
+                <div className='filter_sugestions'>
+                  {
+                    filteredBox && filteredBox.map(x => {
+                      return (
+                        <span className='d-block' onClick={() => handleFiltedId(x)}>{x.Box_id}</span>
+                      );
+                    })
+                  }
+                </div>
+
+              </div>
+            </div>
+          </div>
+          <div className="row mt-4">
+            <div className="col-12">
+              <div className="table_card rounded overflow-hidden">
+                {/* <table className="table w-full m-0">
                 <thead className="rounded">
                   <tr>
                     <th className="py-3 px-3 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -318,17 +391,17 @@ const Boxvalue = () => {
                   ))}
                 </tbody>
               </table> */}
-              <ReactTable 
-                 ref={childRef}
-                 columns={columns}
-                 data={collectionListing} 
-                 selectOptions ={collection}
-                 handleSubmit={handleSubmit}/>
-              {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
+                <ReactTable
+                  ref={childRef}
+                  columns={columns}
+                  data={boxListing}
+                  selectOptions={collection}
+                  handleSubmit={handleSubmit} />
+                {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
+              </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
 
     </>

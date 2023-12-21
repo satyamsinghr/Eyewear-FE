@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import moment from 'moment';
 
 const collectionValues = {
-    id : "",
+    id: "",
     Coll_id: "",
     Coll_name: "",
     Coll_date: "",
@@ -104,7 +104,7 @@ const FileCollection = () => {
         const { Coll_name, Coll_date, Coll_desc, Coll_id } = collection;
         if (!validateForm(collection)) {
             const data = {
-                Coll_id  : Coll_id,
+                Coll_id: Coll_id,
                 Coll_name: Coll_name,
                 Coll_date: Coll_date,
                 Coll_desc: Coll_desc,
@@ -125,7 +125,7 @@ const FileCollection = () => {
                 console.log('Post Failed')
             }
             setCollection({
-                id : '',
+                id: '',
                 Coll_id: "",
                 Coll_name: "",
                 Coll_date: "",
@@ -229,7 +229,7 @@ const FileCollection = () => {
         seteditingText(x);
         setTodoEditing(true);
         setCollection({
-            id : x.id,
+            id: x.id,
             Coll_id: x.Coll_id,
             Coll_name: x.Coll_name,
             Coll_date: x.Coll_date ? x.Coll_date.split('T')[0] : '',
@@ -263,7 +263,7 @@ const FileCollection = () => {
                 console.log('Edit failed');
             }
             setCollection({
-                Coll_id : "",
+                Coll_id: "",
                 Coll_name: "",
                 Coll_date: "",
                 Coll_desc: ""
@@ -288,7 +288,6 @@ const FileCollection = () => {
         </td>
     );
 
-    console.log('filteredColl', filteredColl)
     return (
         <>
             <div className="col p-5" style={{ marginRight: 34 }}>
