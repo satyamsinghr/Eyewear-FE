@@ -7,8 +7,8 @@ import ReactTable from './ReactTable';
 
 const Lenses = () => {
   const [formData, setFormData] = useState({
-    id : '',
-    lensId : '',
+    id: '',
+    lensId: '',
     Box_id: '',
     Box_Name: '',
     Lens_Status: '',
@@ -33,7 +33,10 @@ const Lenses = () => {
   const navigate = useNavigate();
   const [validation, setValidation] = useState({});
   const [modelvalid, setModelvalid] = useState({});
+  const [filteredLens, setFilteredLens] = useState([]);
+  const [currentLensId, setCurrentLensId] = useState("");
   const [collectionListing, setCollectionListing] = useState([]);
+  const [selectedLensId, SetSelectedLensId] = useState("");
   const [todoEditing, setTodoEditing] = useState(false);
   const [patientData, setPatientData] = useState([])
   const childRef = useRef();
@@ -167,7 +170,7 @@ const Lenses = () => {
       getdata();
       getBoxes();
     }
-}, [userId]);
+  }, [userId]);
 
   const changeHandle = (e) => {
     setBoxModel({ ...boxModel, [e.target.name]: e.target.value })
@@ -681,6 +684,63 @@ const Lenses = () => {
     </td>
   );
 
+  const handleFilterChange = async (e) => {
+    if (e.target.value === '') {
+      setFilteredLens([]);
+      setCurrentLensId('')
+      return;
+    }
+    setCurrentLensId(e.target.value)
+    const queryParams = new URLSearchParams(boxModel).toString();
+    const getResponse = await fetch(`http://localhost:8080/api/v1/lens?${queryParams}&&userId=${userId}&lensId=${e.target.value}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': JSON.parse(localStorage.getItem('token'))
+      }
+
+    });
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      console.log('data.Lenses_Data', data.Lenses_Data);
+      setCollectionListing(data.Lenses_Data);
+    } else {
+      console.log('Get Failed');
+    }
+  }
+
+
+  const handleFiltedId = (selectedLensRow) => {
+    const data = filteredLens.find(x => x.id == selectedLensRow.id)
+    setCurrentLensId(data.id)
+    SetSelectedLensId(selectedLensRow.id)
+    setFilteredLens([]);
+
+    const newData = {
+      iLens_id: data.id,
+      Patient_id: data.Patient_id,
+      Lens_Status: data.Lens_Status,
+      Lens_Gender: data.Lens_Gender,
+      Lens_Type: data.Lens_Type,
+      RCylinder: data.RCylinder,
+      RSphere: data.RSphere,
+      RAxis: data.RAxis,
+      RAdd: data.RAdd,
+      LSphere: data.LSphere,
+      LCylinder: data.LCylinder,
+      LAxis: data.LAxis,
+      LAdd: data.LAdd,
+      Lens_DTS: data.Lens_DTS,
+      Is_Blocked: data.Is_Blocked,
+      Is_Booked: data.Is_Booked,
+      Box_id: data.Box_id,
+      Box_Name: data.Box_Name,
+      LLBIF: data.LLBIF,
+      LRBIF: data.LRBIF
+    }
+    setCollectionListing((state) => [newData]);
+  }
+
   return (
     <>
       <div class="col p-5">
@@ -688,6 +748,33 @@ const Lenses = () => {
           <div className="user_name">
             <h2>Lenses</h2>
             <hr className="mt-4" />
+          </div>
+          <div className="row search_input">
+            <div className="col-lg-4 col-md-6 col-sm-12 col-12">
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="floatingInput"
+                  placeholder="Lens Id"
+                  name='lensId'
+                  value={currentLensId}
+                  onChange={(e) => { handleFilterChange(e) }}
+                />
+                <label htmlFor="selectBoxDate">Lens Id</label>
+                <span className="text-danger">{validation.selectedLensId}</span>
+                <div className='filter_sugestions'>
+                  {
+                    filteredLens && filteredLens.map(x => {
+                      return (
+                        <span className='d-block' onClick={() => handleFiltedId(x)}>{x.id}</span>
+                      );
+                    })
+                  }
+                </div>
+
+              </div>
+            </div>
           </div>
           {/* <div className="row">
             <div className="col-12 mb-3 mt-3">
@@ -1054,11 +1141,11 @@ const Lenses = () => {
               </div>
             </div>
           </div> */}
-          
+
           <div className="row mt-4">
             <div className="col-12">
               <div className="table_card rounded lenses_table">
-                 <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
+                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>
             </div>
