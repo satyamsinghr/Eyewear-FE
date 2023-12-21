@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import ReactTable from './ReactTable';
+import { useNavigate } from 'react-router';
+import moment from 'moment';
 
 const collectionValues = {
+    id : "",
     Coll_id: "",
     Coll_name: "",
     Coll_date: "",
@@ -8,13 +12,49 @@ const collectionValues = {
 }
 
 const FileCollection = () => {
-
+    const childRef = useRef();
+    const navigate = useNavigate();
     const [collection, setCollection] = useState(collectionValues)
     const [validation, setValidation] = useState({});
     const [collectionListing, setCollectionListing] = useState([]);
     const [todoEditing, setTodoEditing] = useState(false);
     const [editingText, seteditingText] = useState({});
     const [userId, setUserId] = useState("");
+   
+    const columns = [
+        {
+          Header: 'Id',
+          accessor: 'Coll_id',
+          className: 'px-3 py-3',
+        },
+        {
+          Header: 'Collection Name',
+          accessor: 'Coll_name',
+          className: 'px-3 py-3',
+        },
+        {
+          Header: 'Collection Date',
+          accessor: 'Coll_date',
+          className: 'px-3 py-3',
+        },
+        {
+          Header: 'Collection Description',
+          accessor: 'Coll_desc',
+          className: 'px-3 py-3',
+        },
+        {
+          Header: 'Action',
+          accessor: 'action',
+          Cell: ({ row }) => (
+            <ActionCell
+              row={row}
+              submitEdits={submitEdits} // Pass your update function here
+              handleDelete={handleDelete} // Pass your handleDelete function here
+            />
+          ),
+          className: 'px-3 py-3',
+        },
+      ];
 
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem('userId'))
@@ -32,10 +72,14 @@ const FileCollection = () => {
         setCollection({ ...collection, [e.target.name]: e.target.value })
     }
 
-    const validateForm = () => {
-        const { Coll_name, Coll_date, Coll_desc } = collection;
+    const validateForm = (collection) => {
+        const { Coll_name, Coll_date, Coll_desc, Coll_id } = collection;
         let error = {};
         let isError = false;
+        if (!Coll_id) {
+            error.Coll_id = "Required !";
+            isError = true;
+        }
         if (!Coll_name) {
             error.Coll_name = "Required !";
             isError = true;
@@ -52,11 +96,12 @@ const FileCollection = () => {
         return isError;
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e, collection) => {
         e.preventDefault();
-        const { Coll_name, Coll_date, Coll_desc, coll_id } = collection;
-        if (!validateForm()) {
+        const { Coll_name, Coll_date, Coll_desc, Coll_id } = collection;
+        if (!validateForm(collection)) {
             const data = {
+                Coll_id  : Coll_id,
                 Coll_name: Coll_name,
                 Coll_date: Coll_date,
                 Coll_desc: Coll_desc,
@@ -77,6 +122,7 @@ const FileCollection = () => {
                 console.log('Post Failed')
             }
             setCollection({
+                id : '',
                 Coll_id: "",
                 Coll_name: "",
                 Coll_date: "",
@@ -96,7 +142,11 @@ const FileCollection = () => {
         });
         if (getResponse.ok) {
             const data = await getResponse.json();
-            setCollectionListing(data.Collection_Data);
+            const collectionData = data.Collection_Data.map(x => ({
+                ...x,
+                Coll_date : moment(x.Coll_date).format('YYYY-MM-DD')
+            }))
+            setCollectionListing(collectionData);
 
         } else {
             console.log('Get Failed');
@@ -130,7 +180,8 @@ const FileCollection = () => {
         seteditingText(x);
         setTodoEditing(true);
         setCollection({
-            Coll_id: x.id,
+            id : x.id,
+            Coll_id: x.Coll_id,
             Coll_name: x.Coll_name,
             Coll_date: x.Coll_date ? x.Coll_date.split('T')[0] : '',
             Coll_desc: x.Coll_desc
@@ -138,10 +189,17 @@ const FileCollection = () => {
         return;
     }
 
-    const submitEdits = async (e) => {
-        e.preventDefault();
-        if (!validateForm()) {
-            const response = await fetch(`http://localhost:8080/api/v1/collection`, {
+    const submitEdits = async (coll) => {
+        debugger
+        const { id } = coll
+        const collection = {
+            Coll_name: coll.Coll_name,
+            Coll_date: coll.Coll_date,
+            Coll_desc: coll.Coll_desc,
+        }
+        // e.preventDefault();
+        if (!validateForm(coll)) {
+            const response = await fetch(`http://localhost:8080/api/v1/collection?id=${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(collection),
                 headers: {
@@ -157,6 +215,7 @@ const FileCollection = () => {
                 console.log('Edit failed');
             }
             setCollection({
+                Coll_id : "",
                 Coll_name: "",
                 Coll_date: "",
                 Coll_desc: ""
@@ -165,6 +224,22 @@ const FileCollection = () => {
         }
     };
 
+    const ActionCell = ({ row, submitEdits, handleDelete }) => (
+        <td>
+          <div>
+            <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
+              <strong>Edit</strong>
+            </button>
+            <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
+              <strong>Delete</strong>
+            </button>
+            {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
+              <strong>Analyse</strong>
+            </button> */}
+          </div>
+        </td>
+      );
+
     return (
         <>
             <div className="col p-5 ps-0">
@@ -172,12 +247,12 @@ const FileCollection = () => {
                     <h2>Collection</h2>
                     <hr className="mt-4" />
                 </div>
-                <div className="row">
+                {/* <div className="row">
                     <div className="col-12 mb-3 mt-3">
                         <label className="form_title">Add a Collection</label>
                     </div>
-                </div>
-                <div className="row search_input">
+                </div> */}
+                {/* <div className="row search_input">
                     <div className="col">
                         <div className="form-floating mb-3">
                             <input type="text" className="form-control" id="floatingInput"
@@ -203,11 +278,11 @@ const FileCollection = () => {
                             <button className="btn btn-primary w-100" onClick={todoEditing === true ? submitEdits : handleSubmit} >{todoEditing ? <span>Update</span> : <span>Submit</span>}</button>
                         </div>
                     </div>
-                </div>
+                </div> */}
                 <div className="row mt-4">
                     <div className="col-12">
-                        <div className="table_card bg-white rounded">
-                            <table className="table w-full m-0">
+                        <div className="table_card rounded">
+                            {/* <table className="table w-full m-0">
                                 <thead className="rounded">
                                     <tr>
                                         <td
@@ -240,7 +315,9 @@ const FileCollection = () => {
                                         </>
                                     ))}
                                 </tbody>
-                            </table>
+                            </table> */}
+                            {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
+                            <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
                         </div>
                     </div>
                 </div>

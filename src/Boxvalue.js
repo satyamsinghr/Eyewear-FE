@@ -1,20 +1,60 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import InlineEditingTable from './InlineEditingTable';
+import { useNavigate } from 'react-router';
+import ReactTable from './ReactTable';
+import moment from 'moment';
 
 const Boxvalue = () => {
   const [inputValue, setInputValue] = useState({
+    id : "",
     Box_id: "",
     Box_Name: "",
     Box_date: "",
     Col_type: "",
     Coll_id: "",
   });
+  const navigate = useNavigate();
   const [validation, setValidation] = useState({});
   const [collectionListing, setCollectionListing] = useState([]);
 
   const [collection, setCollection] = useState([]);
   const [todoEditing, setTodoEditing] = useState(false);
   const [userId, setUserId] = useState("");
-
+  const childRef = useRef();
+  const columns = [
+    {
+      Header: 'Id',
+      accessor: 'Box_id',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Collection Type',
+      accessor: 'Col_type',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Box Name',
+      accessor: 'Box_Name',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Box Date',
+      accessor: 'Box_date',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Action',
+      accessor: 'action',
+      Cell: ({ row }) => (
+        <ActionCell
+          row={row}
+          submitEdits={submitEdits} // Pass your update function here
+          handleDelete={handleDelete} // Pass your handleDelete function here
+        />
+      ),
+      className: 'px-3 py-3',
+    },
+  ];
 
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem('userId'))
@@ -36,10 +76,14 @@ const Boxvalue = () => {
     setInputValue((prevalue) => ({ ...prevalue, [name]: value }));
   };
 
-  const validateForm = () => {
-    const { Box_date, Col_type, Box_Name } = inputValue;
+  const validateForm = (inputValue = inputValue) => {
+    const { Box_date, Col_type, Box_Name, Box_id } = inputValue;
     let error = {};
     let isError = false;
+    if (!Box_id) {
+      error.Box_Name = "Required !";
+      isError = true;
+    }
     if (!Box_Name) {
       error.Box_Name = "Required !";
       isError = true;
@@ -56,12 +100,14 @@ const Boxvalue = () => {
     return isError;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, inputValue) => {
+    debugger
     e.preventDefault();
-    const { Box_Name, Box_date, Col_type } = inputValue;
-    if (!validateForm()) {
+    const { Box_Name, Box_date, Col_type, Box_id } = inputValue;
+    if (!validateForm(inputValue)) {
       const collectionName = collection.find(x => x.id == Col_type);
       const data = {
+        Box_id : Box_id,
         Col_type: collectionName.Coll_name,
         Box_date: Box_date,
         Box_Name: Box_Name,
@@ -122,7 +168,11 @@ const Boxvalue = () => {
     });
     if (getResponse.ok) {
       const data = await getResponse.json();
-      setCollectionListing(data.Boxes_Data);
+      const boxData = data.Boxes_Data.map(x => ({
+        ...x,
+        Box_date : moment(x.Box_date).format('YYYY-MM-DD')
+      }))
+      setCollectionListing(boxData);
     } else {
       console.log('Get Failed');
     }
@@ -155,20 +205,22 @@ const Boxvalue = () => {
   function update(x) {
     setTodoEditing(true);
     setInputValue({
-      Box_id: x.id,
+      id : x.id,
+      Box_id: x.Box_id,
       Box_Name: x.Box_Name,
       Col_type: x.Coll_id,
       Box_date: x.Box_date ? x.Box_date.split('T')[0] : '',
     });
   }
 
-  const submitEdits = async (e) => {
-    e.preventDefault();
-    if (!validateForm()) {
-      const { Box_id, Box_Name, Box_date, Col_type } = inputValue;
-      const collectionName = collection.find(x => x.id == Col_type);
+  const submitEdits = async (inputValue) => {
+    debugger
+    if (!validateForm(inputValue)) {
+      const { Box_id, Box_Name, Box_date, Col_type, id } = inputValue;
+      //const collectionName = collection.find(x => x.id == Col_type);
       const data = {
-        Col_type: collectionName.Coll_name,
+        id : id,
+        Col_type: Col_type,
         Box_date: Box_date,
         Box_Name: Box_Name,
         Coll_id: Col_type,
@@ -191,6 +243,7 @@ const Boxvalue = () => {
         console.log('Edit failed');
       }
       setInputValue({
+        id : '',
         Box_id: "",
         Box_date: "",
         Col_type: "",
@@ -200,6 +253,22 @@ const Boxvalue = () => {
       setTodoEditing(false);
     }
   }
+
+  const ActionCell = ({ row, submitEdits, handleDelete }) => (
+    <td>
+      <div>
+        <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
+          <strong>Edit</strong>
+        </button>
+        <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
+          <strong>Delete</strong>
+        </button>
+        {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
+          <strong>Analyse</strong>
+        </button> */}
+      </div>
+    </td>
+  );
 
 
   return (
@@ -214,7 +283,7 @@ const Boxvalue = () => {
             <label className="form_title">Box Date & Lens Type</label>
           </div>
         </div>
-        <div className="row search_input">
+        {/* <div className="row search_input">
           <div className="col">
             <div className="form-floating mb-3">
               <input
@@ -274,11 +343,11 @@ const Boxvalue = () => {
               <button className="btn btn-primary w-100" onClick={todoEditing === true ? submitEdits : handleSubmit}>{todoEditing ? <span>Update</span> : <span>Submit</span>}</button>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="row mt-4">
           <div className="col-12">
-            <div className="table_card bg-white rounded">
-              <table className="table w-full m-0">
+            <div className="table_card rounded">
+              {/* <table className="table w-full m-0">
                 <thead className="rounded">
                   <tr>
                     <th className="py-3 px-3 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -311,7 +380,14 @@ const Boxvalue = () => {
                     </>
                   ))}
                 </tbody>
-              </table>
+              </table> */}
+              <ReactTable 
+                 ref={childRef}
+                 columns={columns}
+                 data={collectionListing} 
+                 selectOptions ={collection}
+                 handleSubmit={handleSubmit}/>
+              {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
             </div>
           </div>
         </div>

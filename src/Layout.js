@@ -7,6 +7,7 @@ import Patient from './Patient'
 import Lenses from './Lenses'
 import Boxvalue from './Boxvalue'
 import Sidebar from './Sidebar'
+import Analysis from './Analysis'
 
 const Layout = () => {
 
@@ -27,6 +28,7 @@ const Layout = () => {
                         <Route path='/patient' element={<Patient />} />
                         <Route path='/lenses' element={<Lenses />} />
                         <Route path='/boxvalue' element={<Boxvalue />} />
+						<Route path='/analysis/:id?' element={<Analysis />} />
                     </Routes>
                 </div>
             </div>

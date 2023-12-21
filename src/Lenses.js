@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Button, Modal } from 'react-bootstrap';
+import InlineEditingTable from './InlineEditingTable';
+import { useNavigate } from 'react-router';
+import moment from 'moment';
+import ReactTable from './ReactTable';
 
 const Lenses = () => {
   const [formData, setFormData] = useState({
+    id : '',
+    lensId : '',
     Box_id: '',
     Box_Name: '',
     Lens_Status: '',
@@ -20,13 +26,111 @@ const Lenses = () => {
     Is_Blocked: false,
     Is_Booked: false,
     Patient_id: "",
+    LLBIF:"",
+    LRBIF:""
   });
   // const [pidvalid, setPidvalid] = useState({});
+  const navigate = useNavigate();
   const [validation, setValidation] = useState({});
   const [modelvalid, setModelvalid] = useState({});
   const [collectionListing, setCollectionListing] = useState([]);
   const [todoEditing, setTodoEditing] = useState(false);
   const [patientData, setPatientData] = useState([])
+  const childRef = useRef();
+  const columns = [
+    {
+      Header: 'Id',
+      accessor: 'LensId',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Lens Status',
+      accessor: 'Lens_Status',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Lens Gender',
+      accessor: 'Lens_Gender',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Lens Type',
+      accessor: 'Lens_Type',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LAdd',
+      accessor: 'LAdd',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LAxis',
+      accessor: 'LAxis',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LCylinder',
+      accessor: 'LCylinder',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LSphere',
+      accessor: 'LSphere',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Lens_DTS',
+      accessor: 'Lens_DTS',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'RAdd',
+      accessor: 'RAdd',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'RAxis',
+      accessor: 'RAxis',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'RCylinder',
+      accessor: 'RCylinder',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'RSphere',
+      accessor: 'RSphere',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Box Name',
+      accessor: 'Box Names',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LBIF',
+      accessor: 'LBIF',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'LRBIF',
+      accessor: 'LRBIF',
+      className: 'px-3 py-3',
+    },
+    {
+      Header: 'Action',
+      accessor: 'action',
+      Cell: ({ row }) => (
+        <ActionCell
+          row={row}
+          submitEdits={submitEdits} // Pass your update function here
+          handleDelete={handleDelete} // Pass your handleDelete function here
+        />
+      ),
+      className: 'px-3 py-3',
+    },
+  ];
   const [modalData, setModalData] = useState({
     modalPatient_id: ''
 
@@ -70,7 +174,7 @@ const Lenses = () => {
   }
 
   const validateForm = () => {
-    const { Lens_Status, Lens_Gender, Lens_Type, RSphere, RCylinder, RAxis, RAdd, LSphere, LCylinder, LAxis, LAdd, Lens_DTS, Patient_id, Box_id } = formData;
+    const { Lens_Status, Lens_Gender, Lens_Type, RSphere, RCylinder, RAxis, RAdd, LSphere, LCylinder, LAxis, LAdd, Lens_DTS, Patient_id, Box_id, LLBIF,LRBIF } = formData;
     let error = {};
     let isError = false;
     if (!Lens_Status) {
@@ -115,6 +219,14 @@ const Lenses = () => {
     }
     if (!LAdd) {
       error.LAdd = "Required !";
+      isError = true;
+    }
+    if (!LLBIF) {
+      error.LLBIF = "Required !";
+      isError = true;
+    }
+    if (!LRBIF) {
+      error.LRBIF = "Required !";
       isError = true;
     }
     // if (!Lens_DTS) {
@@ -201,7 +313,6 @@ const Lenses = () => {
 
   const submitBlockLensModal = async (e) => {
     e.preventDefault();
-    debugger
     if(activePatientId){
       const info = {
         patient_id: activePatientId,
@@ -286,9 +397,11 @@ const Lenses = () => {
     });
   };
 
-  const handleSubmit = async (e) => {
+
+  const handleSubmit = async (e, formData = formData) => {
+    debugger
     e.preventDefault();
-    const { Lens_Status, Lens_Gender, Lens_Type, RSphere, RCylinder, RAxis, RAdd, LSphere, LCylinder, LAxis, LAdd, Lens_DTS, Patient_id, Is_Blocked, Is_Booked, Box_id, Box_Name } = formData;
+    const { Lens_Status, Lens_Gender, Lens_Type, RSphere, RCylinder, RAxis, RAdd, LSphere, LCylinder, LAxis, LAdd, Lens_DTS, Patient_id, Is_Blocked, Is_Booked, Box_id, Box_Name, LLBIF,LRBIF } = formData;
     if (!validateForm()) {
       const box = boxes.find(x => x.id == Box_id);
       const data = {
@@ -307,6 +420,8 @@ const Lenses = () => {
         Is_Blocked: Is_Blocked,
         Is_Booked: Is_Booked,
         Patient_id: Patient_id,
+        LLBIF:LLBIF,
+        LRBIF:LRBIF,
         Box_id: Box_id ? Box_id : null,
         Box_Name: box ? box.Box_Name : ''
       }
@@ -322,6 +437,7 @@ const Lenses = () => {
       if (res.ok) {
         const values = await res.json();
         getdata();
+        childRef.current.resetNewRowData();
       }
       else {
         console.log('Post Failed')
@@ -344,7 +460,9 @@ const Lenses = () => {
         Is_Blocked: false,
         Is_Booked: false,
         Box_id: "",
-        Box_Name: ''
+        Box_Name: '',
+        LLBIF:"",
+        LRBIF:""
       })
       // }
     }
@@ -362,6 +480,7 @@ const Lenses = () => {
     });
     if (getResponse.ok) {
       const data = await getResponse.json();
+      console.log('data.Lenses_Data', data.Lenses_Data);
       setCollectionListing(data.Lenses_Data);
     } else {
       console.log('Get Failed');
@@ -411,12 +530,14 @@ const Lenses = () => {
       Is_Blocked: x.Is_Blocked,
       Is_Booked: x.Is_Booked,
       Box_id: x.Box_id,
-      Box_Name: x.Box_Name
+      Box_Name: x.Box_Name,
+      LLBIF:x.LLBIF,
+      LRBIF:x.LRBIF
     })
   }
 
   const submitEdits = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     debugger
     if (!validateForm()) {
       const box = boxes.find(x => x.id == formData.Box_id)
@@ -442,7 +563,9 @@ const Lenses = () => {
         Is_Blocked: false,
         Is_Booked: false,
         Box_id: "",
-        Box_Name: ""
+        Box_Name: "",
+        LLBIF:"",
+        LRBIF:""
       })
       setTodoEditing(false);
     }
@@ -545,6 +668,22 @@ const Lenses = () => {
     }
   }
 
+  const ActionCell = ({ row, submitEdits, handleDelete }) => (
+    <td>
+      <div>
+        <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
+          <strong>Edit</strong>
+        </button>
+        <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
+          <strong>Delete</strong>
+        </button>
+        <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
+          <strong>Analyse</strong>
+        </button>
+      </div>
+    </td>
+  );
+
   return (
     <>
       <div class="col p-5">
@@ -553,7 +692,7 @@ const Lenses = () => {
             <h2>Lenses</h2>
             <hr className="mt-4" />
           </div>
-          <div className="row">
+          {/* <div className="row">
             <div className="col-12 mb-3 mt-3">
               <label className="form_title">Right Eye</label>
             </div>
@@ -576,8 +715,8 @@ const Lenses = () => {
                 <span className="text-danger">{validation.Lens_Status}</span>
               </div>
             </div>
-          </div>
-          <div className="row search_input">
+          </div> */}
+          {/* <div className="row search_input">
             <div className="col">
               <div className="form-floating mb-3">
                 <input
@@ -617,6 +756,19 @@ const Lenses = () => {
                 />
                 <label htmlFor="floatingInput">R Sphere</label>
                 <span className="text-danger">{validation.RSphere}</span>
+              </div>
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="floatingInput"
+                  placeholder="LR BIF"
+                  name='LRBIF'
+                  value={formData.LRBIF}
+                  onChange={handleChange}
+                />
+                <label htmlFor="floatingInput">LR BIF</label>
+                <span className="text-danger">{validation.LRBIF}</span>
               </div>
             </div>
             <div className="col">
@@ -658,6 +810,28 @@ const Lenses = () => {
                 />
                 <label htmlFor="floatingInput">L Axis</label>
                 <span className="text-danger">{validation.LAxis}</span>
+              </div>
+              
+              <div className="form-floating mb-3">
+                <select
+                  className="form-control"
+                  id="floatingInput"
+                  placeholder="Box Name"
+                  name="Box_id"
+                  onChange={handleChange}
+                  value={formData.Box_id}
+                >
+                  <option disabled selected value="">Select a Name</option>
+                  {
+                    boxes.map((val, index) => {
+                      return (
+                        <option value={val.id}>{val.Box_Name}</option>
+                      );
+                    })
+                  }
+                </select>
+                <label htmlFor="floatingInput">Box Name</label>
+                <span className="text-danger">{validation.Box_id}</span>
               </div>
             </div>
             <div className="col">
@@ -730,25 +904,17 @@ const Lenses = () => {
                 <span className="text-danger">{validation.LAdd}</span>
               </div>
               <div className="form-floating mb-3">
-                <select
+                <input
+                  type="text"
                   className="form-control"
                   id="floatingInput"
-                  placeholder="Box Name"
-                  name="Box_id"
+                  placeholder="LL BIF"
+                  name='LLBIF'
+                  value={formData.LLBIF}
                   onChange={handleChange}
-                  value={formData.Box_id}
-                >
-                  <option disabled selected value="">Select a Name</option>
-                  {
-                    boxes.map((val, index) => {
-                      return (
-                        <option value={val.id}>{val.Box_Name}</option>
-                      );
-                    })
-                  }
-                </select>
-                <label htmlFor="floatingInput">Box Name</label>
-                <span className="text-danger">{validation.Box_id}</span>
+                />
+                <label htmlFor="floatingInput">LL BIF</label>
+                <span className="text-danger">{validation.LLBIF}</span>
               </div>
               <div className="form-floating mb-3 d-flex align-items-center">
                 <button className="btn btn-primary w-100" onClick={openCsvModel}>Import</button>
@@ -890,11 +1056,12 @@ const Lenses = () => {
                 </div>
               </div>
             </div>
-          </div>
+          </div> */}
+          
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card bg-white rounded">
-                <table className="table w-full m-0">
+              <div className="table_card rounded">
+                {/* <table className="table w-full m-0">
                   <thead className="rounded">
                     <tr>
                       <th
@@ -954,6 +1121,14 @@ const Lenses = () => {
                       </th>
                       <th
                         className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
+                        LLBIF
+                      </th>
+                      <th
+                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
+                        LRBIF
+                      </th>
+                      <th
+                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         Action
                       </th>
                     </tr>
@@ -975,6 +1150,8 @@ const Lenses = () => {
                           <td className='py-3 px-3'>{x.RCylinder}</td>
                           <td className='py-3 px-3'>{x.RSphere}</td>
                           <td className='py-3 px-3'>{x.Box_Name}</td>
+                          <td className='py-3 px-3'>{x.LLBIF}</td>
+                          <td className='py-3 px-3'>{x.LRBIF}</td>
                           <td className="todo-actions py-3 px-3" style={{ display: "inline-flex" }}>
                             <button disabled={x.Is_Blocked} className="btn btn-primary me-3" onClick={() => update(x)}><strong>Edit</strong></button>
                             <button disabled={x.Is_Blocked} className="btn me-3 btn-primary bg-danger" onClick={() => handleDelete(x.id)}><strong>Delete</strong></button>
@@ -995,7 +1172,9 @@ const Lenses = () => {
                       </>
                     ))}
                   </tbody>
-                </table>
+                </table> */}
+                 <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
+                {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>
             </div>
           </div>
