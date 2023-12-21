@@ -215,13 +215,12 @@ const Boxvalue = () => {
   const submitEdits = async (inputValue) => {
     if (!validateForm(inputValue)) {
       const { Box_id, Box_Name, Box_date, Col_type, id } = inputValue;
-      //const collectionName = collection.find(x => x.id == Col_type);
+      // const collectionName = collection.find(x => x.id == id);
       const data = {
         id : id,
         Col_type: Col_type,
         Box_date: Box_date,
         Box_Name: Box_Name,
-        Coll_id: Col_type,
         Box_id: Box_id
       }
 
