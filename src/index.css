@@ -495,17 +495,55 @@ table.patitnet_table thead tr:first-child th:nth-child(5) {
 }
 
 table.patitnet_table tr th,
-table.patitnet_table tr td {
+table.patitnet_table tr td,
+table.collection_table tr th,
+table.collection_table tr td {
   padding: 8px;
 }
-.patitnet_table tr td input {
+
+.patitnet_table tr td input,
+.collection_table tr td input,
+.table_card tr td select, .table_card tr td input {
   width: 100%;
   font-size: 14px;
+  border: 1px solid #000;
+  height: 35px;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: none  ;
 }
+
+.lenses_table tr td input {
+  min-width: 100px;
+}
+
+.table_card::-webkit-scrollbar {
+  width: 10px;
+  height: 6px;
+  border-radius: 10px;
+}
+
+.table_card::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table_card::-webkit-scrollbar-thumb {
+  background: #e4e4e4;
+  border-radius: 10px;
+}
+
+.table_card::-webkit-scrollbar-thumb:hover {
+  background: rgb(82 130 235);
+  border-radius: 10px;
+}
+
 .analysis_table table.table tr th,
 .analysis_table table.table tr td,
 table.patitnet_table tr th,
-table.patitnet_table tr td {
+table.patitnet_table tr td,
+.collection_table tr th,
+.collection_table tr td {
   border: 1px solid #e2e2e2 !important;
 }
 
@@ -528,6 +566,7 @@ table.patitnet_table tr th:nth-child(12),
 table.patitnet_table tr td:nth-child(12) {
   border-right-color: #000 !important;
 }
+
 table.patitnet_table tr td .btn.btn-primary {
   font-size: 12px !important;
   padding: 6px;
@@ -536,9 +575,8 @@ table.patitnet_table tr td .btn.btn-primary {
 }
 
 
-.analysis_table 
- table tr td.data_highlighted {
-    color: #5282eb !important;
-    background: #f4f4f4;
-    font-weight: 600;
+.analysis_table table tr td.data_highlighted {
+  color: #5282eb !important;
+  background: #f4f4f4;
+  font-weight: 600;
 }

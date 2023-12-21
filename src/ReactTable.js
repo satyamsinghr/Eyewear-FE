@@ -80,7 +80,7 @@ const ReactTable = forwardRef(({ columns, data, handleSubmit, selectOptions }, r
 
 
     return (
-        <table {...getTableProps()} style={{ width: '100%' }}>
+        <table {...getTableProps()} style={{ width: '100%' }} className='collection_table'>
             <thead>
                 {headerGroups.map((headerGroup) => (
                     <tr {...headerGroup.getHeaderGroupProps()}>
@@ -95,7 +95,7 @@ const ReactTable = forwardRef(({ columns, data, handleSubmit, selectOptions }, r
                     </tr>
                 ))}
             </thead>
-            <tbody {...getTableBodyProps()}>
+            <tbody {...getTableBodyProps()} >
                 <tr>
                     {columns.map((column, columnIndex) => (
                         // Check if the current column is not the action column

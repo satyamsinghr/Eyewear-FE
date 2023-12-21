@@ -399,7 +399,6 @@ const Lenses = () => {
 
 
   const handleSubmit = async (e, formData = formData) => {
-    debugger
     e.preventDefault();
     const { Lens_Status, Lens_Gender, Lens_Type, RSphere, RCylinder, RAxis, RAdd, LSphere, LCylinder, LAxis, LAdd, Lens_DTS, Patient_id, Is_Blocked, Is_Booked, Box_id, Box_Name, LLBIF,LRBIF } = formData;
     if (!validateForm()) {
@@ -511,7 +510,6 @@ const Lenses = () => {
 
   function update(x) {
     setTodoEditing(true);
-    debugger
     setFormData({
       Lens_id: x.id,
       Patient_id: x.Patient_id,
@@ -538,7 +536,6 @@ const Lenses = () => {
 
   const submitEdits = async (e) => {
     // e.preventDefault();
-    debugger
     if (!validateForm()) {
       const box = boxes.find(x => x.id == formData.Box_id)
       let data = {
@@ -1060,119 +1057,7 @@ const Lenses = () => {
           
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded">
-                {/* <table className="table w-full m-0">
-                  <thead className="rounded">
-                    <tr>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Lens Status
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Lens Gender
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Lens Type
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LAdd
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LAxis
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LCylinder
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LSphere
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Lens_DTS
-                      </th>
-
-
-
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        RAdd
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        RAxis
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        RCylinder
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        RSphere
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Box Name
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LLBIF
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        LRBIF
-                      </th>
-                      <th
-                        className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        Action
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {collectionListing.map((x, id) => (
-                      <>
-                        <tr key={x.id} className="data">
-                          <td className='py-3 px-3'>{x.Lens_Status}</td>
-                          <td className='py-3 px-3'>{x.Lens_Gender}</td>
-                          <td className='py-3 px-3'>{x.Lens_Type}</td>
-                          <td className='py-3 px-3'>{x.LAdd}</td>
-                          <td className='py-3 px-3'>{x.LAxis}</td>
-                          <td className='py-3 px-3'>{x.LCylinder}</td>
-                          <td className='py-3 px-3'>{x.LSphere}</td>
-                          <td className='py-3 px-3'>{x.Lens_DTS}</td>
-                          <td className='py-3 px-3'>{x.RAdd}</td>
-                          <td className='py-3 px-3'>{x.RAxis}</td>
-                          <td className='py-3 px-3'>{x.RCylinder}</td>
-                          <td className='py-3 px-3'>{x.RSphere}</td>
-                          <td className='py-3 px-3'>{x.Box_Name}</td>
-                          <td className='py-3 px-3'>{x.LLBIF}</td>
-                          <td className='py-3 px-3'>{x.LRBIF}</td>
-                          <td className="todo-actions py-3 px-3" style={{ display: "inline-flex" }}>
-                            <button disabled={x.Is_Blocked} className="btn btn-primary me-3" onClick={() => update(x)}><strong>Edit</strong></button>
-                            <button disabled={x.Is_Blocked} className="btn me-3 btn-primary bg-danger" onClick={() => handleDelete(x.id)}><strong>Delete</strong></button>
-                            {
-                              x.Is_Blocked
-                                ?
-                                (<button className={x.Is_Booked ? "btn btn-primary bg-secondary" : "btn btn-primary bg-warning"} onClick={() => { openBlockedModal(x.id, x.Is_Booked) }}>
-                                  {!x.Is_Booked ? <strong>Blocked</strong> : <strong>Booked</strong>}
-                                </button>)
-                                :
-                                (<button className="btn btn-primary bg-success" onClick={() => openBlockLensModal(x.id)}>
-                                  <strong>Block Lens</strong>
-                                </button>)
-                            }
-
-                          </td>
-                        </tr >
-                      </>
-                    ))}
-                  </tbody>
-                </table> */}
+              <div className="table_card rounded lenses_table">
                  <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>

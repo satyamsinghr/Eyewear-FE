@@ -101,7 +101,6 @@ const Boxvalue = () => {
   };
 
   const handleSubmit = async (e, inputValue) => {
-    debugger
     e.preventDefault();
     const { Box_Name, Box_date, Col_type, Box_id } = inputValue;
     if (!validateForm(inputValue)) {
@@ -214,7 +213,6 @@ const Boxvalue = () => {
   }
 
   const submitEdits = async (inputValue) => {
-    debugger
     if (!validateForm(inputValue)) {
       const { Box_id, Box_Name, Box_date, Col_type, id } = inputValue;
       //const collectionName = collection.find(x => x.id == Col_type);
@@ -273,7 +271,8 @@ const Boxvalue = () => {
 
   return (
     <>
-      <div className="col p-5 ps-0" style={{ marginRight: 34 }}>
+      <div className="col p-5" style={{ marginRight: 34 }}>
+        <div className='user_style'>
         <div className="user_name">
           <h2>Box Value</h2>
           <hr className="mt-4" />
@@ -283,70 +282,9 @@ const Boxvalue = () => {
             <label className="form_title">Box Date & Lens Type</label>
           </div>
         </div>
-        {/* <div className="row search_input">
-          <div className="col">
-            <div className="form-floating mb-3">
-              <input
-                type="text"
-                className="form-control"
-                id="floatingInput"
-                placeholder="Box Name"
-                name="Box_Name"
-                onChange={handleChange}
-                value={inputValue.Box_Name}
-              />
-              <label htmlFor="floatingInput">Box Name</label>
-              <span className="text-danger">{validation.Box_Name}</span>
-            </div>
-          </div>
-          <div className="col">
-            <div className="form-floating mb-3">
-              <input
-                type="date"
-                className="form-control"
-                id="floatingInput"
-                placeholder="Box Date"
-                name="Box_date"
-                onChange={handleChange}
-                value={inputValue.Box_date}
-              />
-              <label htmlFor="floatingInput">Box Date</label>
-              <span className="text-danger">{validation.Box_date}</span>
-            </div>
-          </div>
-          <div className="col">
-            <div className="form-floating mb-3">
-              <select
-                className="form-control"
-                id="floatingInput"
-                placeholder="Lens Type"
-                name="Col_type"
-                onChange={handleChange}
-                value={inputValue.Col_type}
-                defaultValue=""
-              >
-                <option disabled selected value="">Select a Name</option>
-                {
-                  collection.map((val, index) => {
-                    return (
-                      <option value={val.id}>{val.Coll_name}</option>
-                    );
-                  })
-                }
-              </select>
-              <label htmlFor="floatingInput">Collection Type</label>
-              <span className="text-danger">{validation.Col_type}</span>
-            </div>
-          </div>
-          <div className="col-lg-2">
-            <div className="form-floating mb-3">
-              <button className="btn btn-primary w-100" onClick={todoEditing === true ? submitEdits : handleSubmit}>{todoEditing ? <span>Update</span> : <span>Submit</span>}</button>
-            </div>
-          </div>
-        </div> */}
         <div className="row mt-4">
           <div className="col-12">
-            <div className="table_card rounded">
+            <div className="table_card rounded overflow-hidden">
               {/* <table className="table w-full m-0">
                 <thead className="rounded">
                   <tr>
@@ -391,6 +329,7 @@ const Boxvalue = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
     </>

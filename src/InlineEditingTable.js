@@ -270,7 +270,6 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit }, ref) => 
 
     const resetNewRowData = () => {
         const initialRow = {};
-        debugger
 
         columnName.forEach(async (column) => {
             // if (column.accessor != 'action')

@@ -125,7 +125,6 @@ const Analysis = () => {
 	}
 
 	const handleFilter = () => {
-		debugger
 		if (!CollectionLensListing && CollectionLensListing.length === 0) return;
 		if (!selectedPatientId) return;
 		if (!validateForm()) {
@@ -243,7 +242,6 @@ const Analysis = () => {
 			//filteredLens.push(collectionObject);
 			let newArray = [collectionPaientListing[0],...filteredLens]
 			console.log(newArray);
-debugger
 				// Now you can use the filteredLens array as needed
 				SetLenseListing(newArray);
 
@@ -275,7 +273,6 @@ debugger
 
 	}
 	const getpatientData = async () => {
-		debugger
 		const getResponse = await fetch(`http://localhost:8080/api/v1/patient?userId=${userId}`, {
 			method: "GET",
 			headers: {

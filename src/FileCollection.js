@@ -17,44 +17,47 @@ const FileCollection = () => {
     const [collection, setCollection] = useState(collectionValues)
     const [validation, setValidation] = useState({});
     const [collectionListing, setCollectionListing] = useState([]);
+    const [filteredColl, setFilteredCollection] = useState([]);
+    const [currentcollectionId, setCurrentCollectionId] = useState("");
+    const [selectedCollectionId, SetSelectedCollectionId] = useState("");
     const [todoEditing, setTodoEditing] = useState(false);
     const [editingText, seteditingText] = useState({});
     const [userId, setUserId] = useState("");
-   
+
     const columns = [
         {
-          Header: 'Id',
-          accessor: 'Coll_id',
-          className: 'px-3 py-3',
+            Header: 'Id',
+            accessor: 'Coll_id',
+            className: 'px-3 py-3',
         },
         {
-          Header: 'Collection Name',
-          accessor: 'Coll_name',
-          className: 'px-3 py-3',
+            Header: 'Collection Name',
+            accessor: 'Coll_name',
+            className: 'px-3 py-3',
         },
         {
-          Header: 'Collection Date',
-          accessor: 'Coll_date',
-          className: 'px-3 py-3',
+            Header: 'Collection Date',
+            accessor: 'Coll_date',
+            className: 'px-3 py-3',
         },
         {
-          Header: 'Collection Description',
-          accessor: 'Coll_desc',
-          className: 'px-3 py-3',
+            Header: 'Collection Description',
+            accessor: 'Coll_desc',
+            className: 'px-3 py-3',
         },
         {
-          Header: 'Action',
-          accessor: 'action',
-          Cell: ({ row }) => (
-            <ActionCell
-              row={row}
-              submitEdits={submitEdits} // Pass your update function here
-              handleDelete={handleDelete} // Pass your handleDelete function here
-            />
-          ),
-          className: 'px-3 py-3',
+            Header: 'Action',
+            accessor: 'action',
+            Cell: ({ row }) => (
+                <ActionCell
+                    row={row}
+                    submitEdits={submitEdits} // Pass your update function here
+                    handleDelete={handleDelete} // Pass your handleDelete function here
+                />
+            ),
+            className: 'px-3 py-3',
         },
-      ];
+    ];
 
     useEffect(() => {
         const userId = JSON.parse(localStorage.getItem('userId'))
@@ -131,7 +134,37 @@ const FileCollection = () => {
         }
     }
 
+    const handleFilterChange = async (e) => {
+        if (e.target.value === '') {
+            setFilteredCollection([]);
+            setCurrentCollectionId('')
+            return;
+        }
+        setCurrentCollectionId(e.target.value)
+        const getResponse = await fetch(`http://localhost:8080/api/v1/collection?userId=${userId}&colId=${e.target.value}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                'Authorization': JSON.parse(localStorage.getItem('token'))
+            }
+
+        });
+        if (getResponse.ok) {
+            const data = await getResponse.json();
+            const collectionData = data.Collection_Data.map(x => ({
+                ...x,
+                Coll_date: moment(x.Coll_date).format('YYYY-MM-DD')
+            }))
+            setFilteredCollection(collectionData)
+            setCollectionListing(collectionData);
+
+        } else {
+            console.log('Get Failed');
+        }
+    }
+
     const getdata = async () => {
+
         const getResponse = await fetch(`http://localhost:8080/api/v1/collection?userId=${userId}`, {
             method: "GET",
             headers: {
@@ -144,7 +177,7 @@ const FileCollection = () => {
             const data = await getResponse.json();
             const collectionData = data.Collection_Data.map(x => ({
                 ...x,
-                Coll_date : moment(x.Coll_date).format('YYYY-MM-DD')
+                Coll_date: moment(x.Coll_date).format('YYYY-MM-DD')
             }))
             setCollectionListing(collectionData);
 
@@ -153,6 +186,22 @@ const FileCollection = () => {
         }
 
     }
+
+    const handleFiltedId = (selectedCollectionRow) => {
+        const data = filteredColl.find(x => x.id == selectedCollectionRow.id)
+        setCurrentCollectionId(data.Coll_id)
+        SetSelectedCollectionId(selectedCollectionRow.id)
+        setFilteredCollection([]);
+
+        const newData = {
+            id: data.id,
+            Coll_id: data.Coll_id,
+            Coll_date: data.Coll_date,
+            Coll_desc: data.Coll_desc
+        }
+        setCollectionListing((state) => [newData]);
+    }
+
 
     const handleDelete = async (id) => {
         const data = {
@@ -190,7 +239,6 @@ const FileCollection = () => {
     }
 
     const submitEdits = async (coll) => {
-        debugger
         const { id } = coll
         const collection = {
             Coll_name: coll.Coll_name,
@@ -226,33 +274,57 @@ const FileCollection = () => {
 
     const ActionCell = ({ row, submitEdits, handleDelete }) => (
         <td>
-          <div>
-            <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
-              <strong>Edit</strong>
-            </button>
-            <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
-              <strong>Delete</strong>
-            </button>
-            {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
+            <div>
+                <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
+                    <strong>Edit</strong>
+                </button>
+                <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
+                    <strong>Delete</strong>
+                </button>
+                {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
               <strong>Analyse</strong>
             </button> */}
-          </div>
+            </div>
         </td>
-      );
+    );
 
+    console.log('filteredColl', filteredColl)
     return (
         <>
-            <div className="col p-5 ps-0">
-                <div className="user_name">
-                    <h2>Collection</h2>
-                    <hr className="mt-4" />
-                </div>
-                {/* <div className="row">
-                    <div className="col-12 mb-3 mt-3">
-                        <label className="form_title">Add a Collection</label>
+            <div className="col p-5" style={{ marginRight: 34 }}>
+                <div className='user_style'>
+                    <div className="user_name">
+                        <h2>Filter</h2>
+                        <hr className="mt-4" />
                     </div>
-                </div> */}
-                {/* <div className="row search_input">
+                    <div className="row search_input">
+                        <div className="col-lg-4 col-md-6 col-sm-12 col-12">
+                            <div className="form-floating mb-3">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="floatingInput"
+                                    placeholder="Collection Id"
+                                    name='collectionId'
+                                    value={currentcollectionId}
+                                    onChange={(e) => { handleFilterChange(e) }}
+                                />
+                                <label htmlFor="selectBoxDate">Collection Id</label>
+                                <span className="text-danger">{validation.selectedCollectionId}</span>
+                                <div className='filter_sugestions'>
+                                    {
+                                        filteredColl && filteredColl.map(x => {
+                                            return (
+                                                <span className='d-block' onClick={() => handleFiltedId(x)}>{x.Coll_id}</span>
+                                            );
+                                        })
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    {/* <div className="row search_input">
                     <div className="col">
                         <div className="form-floating mb-3">
                             <input type="text" className="form-control" id="floatingInput"
@@ -279,10 +351,10 @@ const FileCollection = () => {
                         </div>
                     </div>
                 </div> */}
-                <div className="row mt-4">
-                    <div className="col-12">
-                        <div className="table_card rounded">
-                            {/* <table className="table w-full m-0">
+                    <div className="row mt-4">
+                        <div className="col-12">
+                            <div className="table_card rounded overflow-hidden">
+                                {/* <table className="table w-full m-0">
                                 <thead className="rounded">
                                     <tr>
                                         <td
@@ -316,8 +388,9 @@ const FileCollection = () => {
                                     ))}
                                 </tbody>
                             </table> */}
-                            {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
-                            <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}/>
+                                {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
+                                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} />
+                            </div>
                         </div>
                     </div>
                 </div>

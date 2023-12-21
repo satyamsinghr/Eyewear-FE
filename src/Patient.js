@@ -1165,7 +1165,6 @@ const Patient = () => {
 
   const handleSubmit = async (e, patient = patient) => {
     e.preventDefault();
-    debugger
     console.log('patient', patient)
     const {
       PatientId,
