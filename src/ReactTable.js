@@ -82,8 +82,10 @@ const ReactTable = forwardRef(
     // };
 
     const statusArray = [
+        { name: "selected", value: "selected" },
         { name: "available", value: "available" },
         { name: "missing", value: "missing" },
+        { name: "dispensed", value: "dispensed" },
         { name: "trashed", value: "trashed" }
       ];
     const CellRenderer = ({ cell, row, selectOptions, setNewRow }) => {

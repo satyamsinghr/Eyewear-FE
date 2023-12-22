@@ -269,11 +269,13 @@ const Analysis = () => {
     }
   };
 
-  const handleLensAlgorithm = async (e,lensData = CollectionLensListing) => {
+  const handleLensAlgorithm = async (e, lensData = CollectionLensListing) => {
     console.log("lensData", lensData);
     let analysedData = [];
 
-    let patient = collectionPaientListing.find((x) => x.PatientId === id);
+    let patient = collectionPaientListing.find(
+      (x) => x.PatientId === currentPatientId
+    );
     //configration
     const RSphMult = 0.4;
     const LSphMult = 0.4;
@@ -411,25 +413,42 @@ const Analysis = () => {
       let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RCylFactor;
       let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LCylFactor;
 
-      let MatchPercentageS = ((RMatchPercentageS + LMatchPercentageS) / 2).toFixed(2);
+      let MatchPercentageS = (
+        (RMatchPercentageS + LMatchPercentageS) /
+        2
+      ).toFixed(2);
 
       let RMatchPercentageB =
         100 - RSphFactor - RCylFactor - RCylFactor - RAddFactor;
       let LMatchPercentageB =
         100 - LSphFactor - LCylFactor - LCylFactor - LAddFactor;
 
-      let MatchPercentageB = ((RMatchPercentageB + LMatchPercentageB) / 2).toFixed(2);
+      let MatchPercentageB = (
+        (RMatchPercentageB + LMatchPercentageB) /
+        2
+      ).toFixed(2);
 
       const lensData = {
-		...lens,
-		MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
-		MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
-	  };
+        ...lens,
+        MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
+        MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
+      };
 
       analysedData = [...analysedData, lensData];
     }
-	analysedData.sort((a, b) => b.MatchPercentageB - a.MatchPercentageB && b.MatchPercentageS - a.MatchPercentageS);
-    SetLenseListing(analysedData);
+
+    const newLensList = analysedData.filter(
+      (x) => !x.Patient_id || x.Patient_id == currentPatientId
+    );
+
+    newLensList.sort(
+      (a, b) =>
+        b.MatchPercentageB - a.MatchPercentageB &&
+        b.MatchPercentageS - a.MatchPercentageS
+    );
+
+    const newArray = [collectionPaientListing[0], ...newLensList];
+    SetLenseListing(newArray);
   };
 
   const axisMax = (CylPat) => {
@@ -775,7 +794,29 @@ const Analysis = () => {
     // handleFilter();
   }, [CollectionLensListing]);
 
-  console.log("CollectionLensListing", CollectionLensListing);
+
+  const handleStatusChange = async (e, selectedRow) => {
+    const selectedStatus = e.target.value;
+    selectedRow.Lens_Status = selectedStatus;
+    selectedRow.Patient_id = currentPatientId;
+
+    const response = await fetch(`http://localhost:8080/api/v1/lens`, {
+      method: "PUT",
+      body: JSON.stringify(selectedRow),
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: JSON.parse(localStorage.getItem("token")),
+      },
+    });
+    if (response.ok) {
+      console.log("Lens Blocked Successfully");
+      //   getdata(false);
+      //handleFilter();
+      await getLensdata();
+    } else {
+      console.log("Lens not Blocked");
+    }
+  };
   return (
     <>
       <div className="col p-5" style={{ marginRight: 34 }}>
@@ -802,28 +843,30 @@ const Analysis = () => {
                 <span className="text-danger">
                   {validation.selectedPatientId}
                 </span>
-                {filteredLens &&
-                  filteredLens.map((x) => {
-                    return (
-                      <>
-                        <div className="filter_sugestions">
+                <div className="filter_sugestions">
+                  {filteredLens &&
+                    filteredLens.map((x) => {
+                      return (
+                        <>
                           <span
                             className="d-block"
                             onClick={() => handleFiltedId(x)}
                           >
                             {x.PatientId}
                           </span>
-                        </div>
-                      </>
-                    );
-                  })}
+                        </>
+                      );
+                    })}
+                </div>
               </div>
             </div>
             <div className="col-lg-2 col-md-4 col-sm-12 col-12 mt-lg-0 mt-md-0 mt-4">
               <button
                 type="button"
                 className="btn btn-primary w-100"
-                onClick={(e) => {handleLensAlgorithm(e)}}
+                onClick={(e) => {
+                  handleLensAlgorithm(e);
+                }}
               >
                 <span>Filter</span>
               </button>
@@ -918,7 +961,7 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {x.lensId}
+                              {id === 0 ? x.PatientId : x.lensId}
                             </td>
                             <td
                               className={
@@ -927,7 +970,7 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {x.MatchPercentageB}
+                              {id === 0 ? "66" : x.MatchPercentageB}
                             </td>
                             <td
                               className={
@@ -936,7 +979,7 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {x.MatchPercentageS}
+                              {id === 0 ? "80" : x.MatchPercentageS}
                             </td>
 
                             <td
@@ -1024,12 +1067,47 @@ const Analysis = () => {
                                 "patient"
                               ) : (
                                 //	dispensed, Missing, Trashed
-                                <select>
-                                  <option value="selected">Selected</option>
-                                  <option value="available">Available</option>
-                                  <option value="dispensed">Dispensed</option>
-                                  <option value="missing">Missing</option>
-                                  <option value="trashed">Trashed</option>
+                                // <select>
+                                //   <option value="selected">Selected</option>
+                                //   <option value="available">Available</option>
+                                //   <option value="dispensed">Dispensed</option>
+                                //   <option value="missing">Missing</option>
+                                //   <option value="trashed">Trashed</option>
+                                // </select>
+                                <select
+                                  onChange={(e) => handleStatusChange(e, x)}
+                                >
+                                  <option value="">Select Status</option>
+                                  <option
+                                    value="selected"
+                                    selected={x.Lens_Status === "selected"}
+                                  >
+                                    Selected
+                                  </option>
+                                  <option
+                                    value="available"
+                                    selected={x.Lens_Status === "available"}
+                                  >
+                                    Available
+                                  </option>
+                                  <option
+                                    value="dispensed"
+                                    selected={x.Lens_Status === "dispensed"}
+                                  >
+                                    Dispensed
+                                  </option>
+                                  <option
+                                    value="missing"
+                                    selected={x.Lens_Status === "missing"}
+                                  >
+                                    Missing
+                                  </option>
+                                  <option
+                                    value="trashed"
+                                    selected={x.Lens_Status === "trashed"}
+                                  >
+                                    Trashed
+                                  </option>
                                 </select>
                               )}
                             </td>
