@@ -777,15 +777,10 @@ const Lenses = () => {
   );
 
   const handleFilterChange = async (e) => {
-    if (e.target.value === "") {
-      setFilteredLens([]);
-      setCurrentLensId("");
-      return;
-    }
     setCurrentLensId(e.target.value);
     const queryParams = new URLSearchParams(boxModel).toString();
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/lens?${queryParams}&&userId=${userId}&lensId=${e.target.value}`,
+      `http://localhost:8080/api/v1/lens?${queryParams}&userId=${userId}&lensId=${e.target.value}`,
       {
         method: "GET",
         headers: {
@@ -797,6 +792,13 @@ const Lenses = () => {
     if (getResponse.ok) {
       const data = await getResponse.json();
       console.log("data.Lenses_Data", data.Lenses_Data);
+      if (e.target.value === "") {
+        setFilteredLens([]);
+        setCurrentLensId("");
+      }
+      else{
+        setFilteredLens(data.Lenses_Data);
+      }
       setCollectionListing(data.Lenses_Data);
     } else {
       console.log("Get Failed");
@@ -805,12 +807,12 @@ const Lenses = () => {
 
   const handleFiltedId = (selectedLensRow) => {
     const data = filteredLens.find((x) => x.id == selectedLensRow.id);
-    setCurrentLensId(data.id);
-    SetSelectedLensId(selectedLensRow.id);
+    setCurrentLensId(data.lensId);
+    SetSelectedLensId(selectedLensRow.lensId);
     setFilteredLens([]);
 
     const newData = {
-      iLens_id: data.id,
+      lensId: data.lensId,
       Patient_id: data.Patient_id,
       Lens_Status: data.Lens_Status,
       Lens_Gender: data.Lens_Gender,
@@ -866,7 +868,7 @@ const Lenses = () => {
                           className="d-block"
                           onClick={() => handleFiltedId(x)}
                         >
-                          {x.id}
+                          {x.lensId}
                         </span>
                       );
                     })}

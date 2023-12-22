@@ -137,11 +137,7 @@ const FileCollection = () => {
     }
 
     const handleFilterChange = async (e) => {
-        if (e.target.value === '') {
-            setFilteredCollection([]);
-            setCurrentCollectionId('')
-            return;
-        }
+       
         setCurrentCollectionId(e.target.value)
         const getResponse = await fetch(`http://localhost:8080/api/v1/collection?userId=${userId}&colId=${e.target.value}`, {
             method: "GET",
@@ -157,7 +153,13 @@ const FileCollection = () => {
                 ...x,
                 Coll_date: moment(x.Coll_date).format('YYYY-MM-DD')
             }))
-            setFilteredCollection(collectionData)
+            if (e.target.value === '') {
+                setFilteredCollection([]);
+                setCurrentCollectionId('')
+            }
+            else{
+                setFilteredCollection(collectionData)
+            }
             setCollectionListing(collectionData);
 
         } else {
@@ -190,7 +192,7 @@ const FileCollection = () => {
     }
 
     const handleFiltedId = (selectedCollectionRow) => {
-        const data = filteredColl.find(x => x.id == selectedCollectionRow.id)
+                const data = filteredColl.find(x => x.id == selectedCollectionRow.id)
         setCurrentCollectionId(data.Coll_id)
         SetSelectedCollectionId(selectedCollectionRow.id)
         setFilteredCollection([]);
@@ -198,6 +200,7 @@ const FileCollection = () => {
         const newData = {
             id: data.id,
             Coll_id: data.Coll_id,
+            Coll_name: data.Coll_name,
             Coll_date: data.Coll_date,
             Coll_desc: data.Coll_desc
         }
@@ -278,14 +281,14 @@ const FileCollection = () => {
         <td>
             <div>
                 <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
-                    <strong>Edit</strong>
+                <strong>Edit</strong>
                 </button>
                 <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
                     <strong>Delete</strong>
                 </button>
                 {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
-              <strong>Analyse</strong>
-            </button> */}
+                <strong>Analyse</strong>
+                </button> */}
             </div>
         </td>
     );

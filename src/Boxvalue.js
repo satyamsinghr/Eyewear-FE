@@ -171,18 +171,13 @@ const Boxvalue = () => {
       id: data.id,
       Box_id: data.Box_id,
       Box_Name: data.Box_Name,
-      Col_type: data.Coll_id,
+      Col_type: data.Col_type,
       Box_date: data.Box_date ? data.Box_date.split('T')[0] : '',
     }
     setBoxListing((state) => [newData]);
   }
 
   const handleFilterChange = async (e) => {
-    if (e.target.value === '') {
-      setFilteredBox([]);
-      setCurrentBoxId('')
-      return;
-    }
     setCurrentBoxId(e.target.value)
     const getResponse = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}&boxId=${e.target.value}`, {
       method: "GET",
@@ -198,7 +193,13 @@ const Boxvalue = () => {
         ...x,
         Box_date: moment(x.Box_date).format('YYYY-MM-DD')
       }))
-      setFilteredBox(boxData)
+      if (e.target.value === '') {
+        setFilteredBox([]);
+        setCurrentBoxId('')
+      }
+      else{
+        setFilteredBox(boxData)
+      }
       setBoxListing(boxData);
     } else {
       console.log('Get Failed');
