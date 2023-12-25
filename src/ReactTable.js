@@ -37,6 +37,11 @@ const ReactTable = forwardRef(
         if (column.accessor != "action") {
           initialRow[column.accessor] = "";
         }
+        if (column.accessor === "Lens_Status") {
+          initialRow[column.accessor] = "available";
+        } else {
+          initialRow[column.accessor] = "";
+        }
       });
       setNewRowData(initialRow);
     };

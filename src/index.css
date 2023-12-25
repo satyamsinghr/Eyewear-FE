@@ -543,7 +543,9 @@ table.collection_table tr td {
 table.patitnet_table tr th,
 table.patitnet_table tr td,
 .collection_table tr th,
-.collection_table tr td {
+.collection_table tr td,
+.setting_table table tr td,
+.setting_table table tr th {
   border: 1px solid #e2e2e2 !important;
 }
 

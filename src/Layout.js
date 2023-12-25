@@ -8,6 +8,7 @@ import Lenses from './Lenses'
 import Boxvalue from './Boxvalue'
 import Sidebar from './Sidebar'
 import Analysis from './Analysis'
+import SettingCollection from './Settings'
 
 const Layout = () => {
 
@@ -29,6 +30,7 @@ const Layout = () => {
                         <Route path='/lenses' element={<Lenses />} />
                         <Route path='/boxvalue' element={<Boxvalue />} />
 						<Route path='/search/:id?' element={<Analysis />} />
+						<Route path='/setting' element={<SettingCollection />} />
                     </Routes>
                 </div>
             </div>

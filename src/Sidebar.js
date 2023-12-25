@@ -1,15 +1,18 @@
-import React, { useEffect ,useState} from "react";
+import React, { useEffect, useState } from "react";
 import Img0 from './images/hopefulWaysLogo.JPG'
 import Img1 from './images/user.png'
-import { useNavigate, Link ,useLocation} from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation()
-  const[firstName, setFirstName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [role, setRole] = useState('');
   useEffect(() => {
+    const role = JSON.parse(localStorage.getItem('role'));
+    setRole(role);
     setFirstName(JSON.parse(localStorage.getItem('firstName')))
-  },[])
+  }, [])
   const handleSignOut = async () => {
     const response = await fetch('http://localhost:8080/api/v1/signOut', {
       method: 'POST',
@@ -60,7 +63,7 @@ const Sidebar = () => {
           <div className="sidebar_menu mt-4">
             <ul className="menu_list">
               <li className={location.pathname == '/collection' ? 'px-3 active' : 'px-3'} >
-              {/* <li className="px-3 active" onClick={() => {setActive('collection')}}> */}
+                {/* <li className="px-3 active" onClick={() => {setActive('collection')}}> */}
                 <Link to="/collection" >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-collection-fill" viewBox="0 0 16 16">
                     <path d="M0 13a1.5 1.5 0 0 0 1.5 1.5h13A1.5 1.5 0 0 0 16 13V6a1.5 1.5 0 0 0-1.5-1.5h-13A1.5 1.5 0 0 0 0 6v7zM2 3a.5.5 0 0 0 .5.5h11a.5.5 0 0 0 0-1h-11A.5.5 0 0 0 2 3zm2-2a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 0-1h-7A.5.5 0 0 0 4 1z" />
@@ -69,8 +72,8 @@ const Sidebar = () => {
                   Collection
                 </Link>
               </li>
-              <li className={location.pathname == '/boxvalue'  ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
-              {/* <li className="px-3 mt-2" onClick={() => {setActive('box')}}> */}
+              <li className={location.pathname == '/boxvalue' ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
+                {/* <li className="px-3 mt-2" onClick={() => {setActive('box')}}> */}
                 <Link to="/boxvalue" >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-seam-fill" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M15.528 2.973a.75.75 0 0 1 .472.696v8.662a.75.75 0 0 1-.472.696l-7.25 2.9a.75.75 0 0 1-.557 0l-7.25-2.9A.75.75 0 0 1 0 12.331V3.669a.75.75 0 0 1 .471-.696L7.443.184l.01-.003.268-.108a.75.75 0 0 1 .558 0l.269.108.01.003 6.97 2.789ZM10.404 2 4.25 4.461 1.846 3.5 1 3.839v.4l6.5 2.6v7.922l.5.2.5-.2V6.84l6.5-2.6v-.4l-.846-.339L8 5.961 5.596 5l6.154-2.461L10.404 2Z" />
@@ -78,7 +81,7 @@ const Sidebar = () => {
                   Box Values
                 </Link>
               </li>
-              <li className={( location.pathname == '/lenses' ) ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
+              <li className={(location.pathname == '/lenses') ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
                 <Link to="/lenses">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                     <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
@@ -124,7 +127,7 @@ const Sidebar = () => {
                   Patients
                 </Link>
               </li>
-              <li className={( location.pathname == '/search' ) ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
+              <li className={(location.pathname == '/search') ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
                 <Link to="/search">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
                     <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
@@ -133,6 +136,19 @@ const Sidebar = () => {
                   Search
                 </Link>
               </li>
+
+              {role == 1 && (
+                <li className={(location.pathname == '/setting') ? 'px-3 mt-2 active' : 'px-3 mt-2'} >
+                  <Link to="/setting">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-eye-fill" viewBox="0 0 16 16">
+                      <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                      <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                    </svg>
+                    Setting
+                  </Link>
+                </li>
+              )}
+
             </ul>
           </div>
         </div>

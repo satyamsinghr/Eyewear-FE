@@ -122,6 +122,7 @@ const FileCollection = () => {
             if (res.ok) {
                 const values = await res.json();
                 getdata(values.Collection_Data._id);
+                childRef.current.resetNewRowData();
             }
             else {
                 console.log('Post Failed')
@@ -137,7 +138,7 @@ const FileCollection = () => {
     }
 
     const handleFilterChange = async (e) => {
-       
+
         setCurrentCollectionId(e.target.value)
         const getResponse = await fetch(`http://localhost:8080/api/v1/collection?userId=${userId}&colId=${e.target.value}`, {
             method: "GET",
@@ -157,7 +158,7 @@ const FileCollection = () => {
                 setFilteredCollection([]);
                 setCurrentCollectionId('')
             }
-            else{
+            else {
                 setFilteredCollection(collectionData)
             }
             setCollectionListing(collectionData);
@@ -192,7 +193,7 @@ const FileCollection = () => {
     }
 
     const handleFiltedId = (selectedCollectionRow) => {
-                const data = filteredColl.find(x => x.id == selectedCollectionRow.id)
+        const data = filteredColl.find(x => x.id == selectedCollectionRow.id)
         setCurrentCollectionId(data.Coll_id)
         SetSelectedCollectionId(selectedCollectionRow.id)
         setFilteredCollection([]);
@@ -281,10 +282,16 @@ const FileCollection = () => {
         <td>
             <div>
                 <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
-                <strong>Edit</strong>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+                    </svg>
                 </button>
                 <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
-                    <strong>Delete</strong>
+                    {/* <strong>Delete</strong> */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+</svg>
                 </button>
                 {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
                 <strong>Analyse</strong>
@@ -328,33 +335,6 @@ const FileCollection = () => {
                             </div>
                         </div>
                     </div>
-                    {/* <div className="row search_input">
-                    <div className="col">
-                        <div className="form-floating mb-3">
-                            <input type="text" className="form-control" id="floatingInput"
-                                placeholder="Collection Name" name='Coll_name' value={collection.Coll_name} onChange={handleChange} />
-                            <label htmlFor="floatingInput">Collection Name</label>
-                            <span className="text-danger">{validation.Coll_name}</span>
-                        </div>
-                        <div className="form-floating mb-3">
-                            <input type="date" className="form-control" id="floatingInput"
-                                placeholder="Collection Date" name='Coll_date' value={collection.Coll_date} onChange={handleChange} />
-                            <label htmlFor="floatingInput">Collection Date</label>
-                            <span className="text-danger">{validation.Coll_date}</span>
-                        </div>
-                    </div>
-                    <div className="col">
-                        <div className="form-floating mb-3">
-                            <textarea className="form-control" placeholder="Leave a comment here"
-                                id="floatingTextarea" name='Coll_desc' value={collection.Coll_desc} onChange={handleChange}></textarea>
-                            <label htmlFor="floatingTextarea">Collection Description</label>
-                            <span className="text-danger">{validation.Coll_desc}</span>
-                        </div>
-                        <div className="form-floating mb-3">
-                            <button className="btn btn-primary w-100" onClick={todoEditing === true ? submitEdits : handleSubmit} >{todoEditing ? <span>Update</span> : <span>Submit</span>}</button>
-                        </div>
-                    </div>
-                </div> */}
                     <div className="row mt-4">
                         <div className="col-12">
                             <div className="table_card rounded overflow-hidden">
@@ -393,7 +373,7 @@ const FileCollection = () => {
                                 </tbody>
                             </table> */}
                                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
-                                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit}  role={role}/>
+                                <ReactTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} role={role} />
                             </div>
                         </div>
                     </div>
