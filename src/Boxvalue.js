@@ -60,8 +60,13 @@ const Boxvalue = () => {
   ];
 
   useEffect(() => {
-    const userId = JSON.parse(localStorage.getItem('userId'))
-    setUserId(userId);
+    const userId = JSON.parse(localStorage.getItem("userId"));
+    if (userId) {
+      setUserId(userId);
+    }
+    else{
+        navigate('/')
+    }
     const role = JSON.parse(localStorage.getItem('role'));
     setRole(role);
 

@@ -147,8 +147,13 @@ const Patient = () => {
 
 
   useEffect(() => {
-    const userId = JSON.parse(localStorage.getItem('userId'))
-    setUserId(userId)
+    const userId = JSON.parse(localStorage.getItem("userId"));
+    if (userId) {
+      setUserId(userId);
+    }
+    else{
+        navigate('/')
+    }
   }, []);
 
   useEffect(() => {

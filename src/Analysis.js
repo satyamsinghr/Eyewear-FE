@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import moment from "moment";
 
 const Analysis = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [collectionListing, setCollectionListing] = useState([]);
   const [BoxValue, setBoxValue] = useState("");
@@ -37,7 +38,12 @@ const Analysis = () => {
     }
     getAlgoData();
     const userId = JSON.parse(localStorage.getItem("userId"));
-    setUserId(userId);
+    if (userId) {
+      setUserId(userId);
+    }
+    else{
+        navigate('/')
+    }
   }, []);
 
   // const setdataForPatient = async (value) => {
