@@ -128,8 +128,8 @@ button.google_btn {
 }
 
 ul.menu_list li {
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
 }
 
 ul.menu_list li svg {
@@ -400,7 +400,8 @@ button.btn.btn-primary.bg-danger:hover {
 
 .user_style {
   width: auto;
-  margin-left: 261px;
+  margin-left: 34px;
+  margin-top: 20px;
 }
 
 .table_card tbody tr td,
@@ -513,9 +514,9 @@ table.collection_table tr td {
   box-shadow: none  ;
 }
 
-.lenses_table tr td input {
+/* .lenses_table tr td input {
   min-width: 100px;
-}
+} */
 
 .table_card::-webkit-scrollbar {
   width: 10px;

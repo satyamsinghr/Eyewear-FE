@@ -174,11 +174,11 @@ const Lenses = () => {
   const [csvModel, setCsvModel] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
   const [csvName, setCsvName] = useState("");
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState("");
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem("userId"));
     setUserId(userId);
-    const role = JSON.parse(localStorage.getItem('role'));
+    const role = JSON.parse(localStorage.getItem("role"));
     setRole(role);
   }, []);
 
@@ -758,19 +758,33 @@ const Lenses = () => {
           onClick={() => submitEdits(row.original)}
         >
           {/* //<strong>Edit</strong> */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-                    </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            fill="currentColor"
+            class="bi bi-check"
+            viewBox="0 0 16 16"
+          >
+            <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+          </svg>
         </button>
         <button
           className="btn btn-primary bg-danger"
           onClick={() => handleDelete(row.original.id)}
         >
-         {/* //<strong>Delete</strong> */}
-         <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-</svg>
+          {/* //<strong>Delete</strong> */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="25"
+            height="25"
+            fill="currentColor"
+            class="bi bi-trash"
+            viewBox="0 0 16 16"
+          >
+            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+          </svg>
         </button>
         {/* <button
           className="btn btn-primary bg-primary"
@@ -802,8 +816,7 @@ const Lenses = () => {
       if (e.target.value === "") {
         setFilteredLens([]);
         setCurrentLensId("");
-      }
-      else{
+      } else {
         setFilteredLens(data.Lenses_Data);
       }
       setCollectionListing(data.Lenses_Data);
@@ -845,7 +858,7 @@ const Lenses = () => {
 
   return (
     <>
-      <div class="col p-5">
+      <div class="col p-5" style={{ marginRight: 34 }}>
         <div class="user_style">
           <div className="user_name">
             <h2>Lenses</h2>
@@ -882,11 +895,18 @@ const Lenses = () => {
                 </div>
               </div>
             </div>
+            <div className="col-lg-2 col-md-3 col-sm-12 co-12 mt-lg-0 mt-md-0 mt-3">
+              <div className="left-button">
+                <Button onClick={openModal} className="model">
+                  Filter
+                </Button>
+              </div>
+            </div>
           </div>
-          
+
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded lenses_table">
+              <div className="table_card rounded lenses_table overflow-hidden">
                 <ReactTable
                   ref={childRef}
                   columns={columns}
@@ -901,12 +921,6 @@ const Lenses = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      <div className="left-button">
-        <Button onClick={openModal} className="model">
-          Filter
-        </Button>
       </div>
 
       <Modal show={showblockLensModal} onHide={closeBlockLensModel}>
