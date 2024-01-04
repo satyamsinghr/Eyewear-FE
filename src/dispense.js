@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router";
 import moment from "moment";
 import { API_URL } from "./helper/common";
 
-const Analysis = () => {
+const dispense = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [collectionListing, setCollectionListing] = useState([]);
@@ -576,8 +576,9 @@ const Analysis = () => {
       // SetLenseListing(newArray);
       const newArray = [newPatient];
       const newLensListData = [...newLensList];
-      const selectedLenseStatus = newLensListData.filter(x => x.Lens_Status === "available")
+      const selectedLenseStatus = newLensListData.filter(x => x.Lens_Status === "selected")
       const mergedArray = [...newArray, ...selectedLenseStatus];
+      debugger
       SetLenseListing(mergedArray);
     }
 
@@ -1339,6 +1340,4 @@ const Analysis = () => {
     </>
   );
 };
-
-export default Analysis;
-
+export default dispense

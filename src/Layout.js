@@ -9,6 +9,7 @@ import Boxvalue from './Boxvalue'
 import Sidebar from './Sidebar'
 import Analysis from './Analysis'
 import SettingCollection from './Settings'
+import Dispense from './dispense'
 import Users from './Users'
 
 const Layout = () => {
@@ -30,6 +31,7 @@ const Layout = () => {
                         <Route path='/patient' element={<Patient />} />
                         <Route path='/lenses' element={<Lenses />} />
                         <Route path='/boxvalue' element={<Boxvalue />} />
+                        <Route path='/dispense' element={<Dispense />} />
 						<Route path='/search/:id?' element={<Analysis />} />
 						<Route path='/setting' element={<SettingCollection />} />
                         {(role && role === "1") && (<Route path='/users' element={<Users />} />)}
