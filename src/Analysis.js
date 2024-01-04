@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
 import moment from "moment";
+import { API_URL } from "./helper/common";
 
 const Analysis = () => {
   const navigate = useNavigate();
@@ -31,23 +32,25 @@ const Analysis = () => {
   const [activePatientName, setActivePatientName] = useState("");
   const [filterPatientName, setFilterPatientName] = useState("");
   const [patientData, setPatientData] = useState([]);
+  const [eyewearConfig, setEyeWearConfig] = useState({
+    RSphMult: "",
+    LSphMult: "",
+    RCylMult: "",
+    LCylMult: "",
+    RAxisMult: "",
+    LAxisMult: "",
+    RAddMult: "",
+    LAddMult: "",
+    RSphEqMult: "",
+    LSphEqMult: "",
+  });
 
-  useEffect(() => {
-    if (id) {
-      setCurrentPatientId(id);
-    }
-    getAlgoData();
-    const userId = JSON.parse(localStorage.getItem("userId"));
-    if (userId) {
-      setUserId(userId);
-    }
-    else{
-        navigate('/')
-    }
-  }, []);
+  const [pointer,setPointer] = useState(0);
+
+  
 
   // const setdataForPatient = async (value) => {
-  // 	const response = await fetch(`http://localhost:8080/api/v1/filterpatientById?id=${value}`, {
+  // 	const response = await fetch(`${API_URL}/v1/filterpatientById?id=${value}`, {
   // 		method: "GET",
   // 		headers: {
   // 			"Content-Type": "application/json",
@@ -63,33 +66,116 @@ const Analysis = () => {
   // 	}
   // }
 
-  useEffect(() => {
-    if (userId) {
-      getdata();
-      getpatientData();
-      getLensdata();
+  const loadData = async () => {
+    const checkuserId = JSON.parse(localStorage.getItem("userId"));
+    if (checkuserId) {
+      await getdata();
+      await getpatientData();
+      await getLensdata();
+      await getConfigurationData();
+     
+      if (checkuserId) {
+        setUserId(checkuserId);
+        if (id) {
+          setCurrentPatientId(id);
+          if (currentPatientId && CollectionLensListing.length > 0) {
+            handleLensAlgorithm('', CollectionLensListing);
+          }
+        }
+      }
+      else {
+        navigate('/')
+      }
+    } else {
+      navigate('/')
     }
-  }, [userId]);
+  }
 
-  const getAlgoData = async () => {
-    const response = await fetch(`http://localhost:8080/api/v1/algoData`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: JSON.parse(localStorage.getItem("token")),
-      },
-    });
-    const data = await response.json();
-    // console.log('data',data);
-    if (data && data.algoData && data.algoData.length > 0) {
-      SetWC(data.algoData[0].WC);
-      SetWS(data.algoData[0].WS);
-      SetWA(data.algoData[0].WA);
-      SetWB(data.algoData[0].WB);
-      SetWMR(data.algoData[0].WMR);
-      SetWML(data.algoData[0].WML);
+  useEffect(() => {
+    if(pointer < 5) {
+
+      loadData();
+      setPointer(pointer+1)
+    }
+    // if (userId) {
+    //   getdata();
+    //   getpatientData();
+    //   getLensdata();
+    //   getConfigurationData();
+    // }
+  }, [userId,CollectionLensListing]);
+
+  // useEffect(() => {
+    
+  //   // getAlgoData();
+  //   const userId = JSON.parse(localStorage.getItem("userId"));
+  //   if (userId) {
+  //     setUserId(userId);
+  //     if (id) {
+  //       setCurrentPatientId(id);
+  //       if (currentPatientId && CollectionLensListing.length > 0) {
+  //         handleLensAlgorithm('', CollectionLensListing);
+  //       }
+  //     }
+  //   }
+  //   else {
+  //     navigate('/')
+  //   }
+
+    
+  // }, [id,currentPatientId, CollectionLensListing,userId]);
+
+  const getConfigurationData = async () => {
+    if(userId) {
+
+      const getResponse = await fetch(
+        `${API_URL}/v1/config?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+        }
+      );
+      if (getResponse.ok) {
+        const data = await getResponse.json();
+        console.log(data);
+  
+        // const eyewear = data.eyeWearConfig.map(element => ({
+        //   [element.Parameters]: element.CurrentValue
+        // }))
+        const eyewear = data.eyeWearConfig.reduce((acc, element) => {
+          acc[element.Parameters] = element.CurrentValue;
+          return acc;
+        }, {});
+        setEyeWearConfig(eyewear);
+        // setAxisConfig(data.axisConfig);
+        console.log("datadata data", data);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
+  // const getAlgoData = async () => {
+  //   const response = await fetch(`${API_URL}/v1/algoData`, {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //       Authorization: JSON.parse(localStorage.getItem("token")),
+  //     },
+  //   });
+  //   const data = await response.json();
+  //   // console.log('data',data);
+  //   if (data && data.algoData && data.algoData.length > 0) {
+  //     SetWC(data.algoData[0].WC);
+  //     SetWS(data.algoData[0].WS);
+  //     SetWA(data.algoData[0].WA);
+  //     SetWB(data.algoData[0].WB);
+  //     SetWMR(data.algoData[0].WMR);
+  //     SetWML(data.algoData[0].WML);
+  //   }
+  // };
 
   const handleBoxValue = (e) => {
     const selectedBoxName = e.target.value;
@@ -255,206 +341,222 @@ const Analysis = () => {
   //   };
 
   const getLensdata = async (matched) => {
-    const queryParams = new URLSearchParams().toString();
-    const getResponse = await fetch(
-      `http://localhost:8080/api/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
+    if(userId) {
+      const queryParams = new URLSearchParams().toString();
+      const getResponse = await fetch(
+        `${API_URL}/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+        }
+      );
+      if (getResponse.ok) {
+        const data = await getResponse.json();
+        setCollectionLensListing(data.Lenses_Data);
+        //   handleLensAlgorithm(data.Lenses_Data);
+      } else {
+        console.log("Get Failed");
       }
-    );
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      setCollectionLensListing(data.Lenses_Data);
-      //   handleLensAlgorithm(data.Lenses_Data);
-    } else {
-      console.log("Get Failed");
+
     }
   };
 
   const handleLensAlgorithm = async (e, lensData = CollectionLensListing) => {
     console.log("lensData", lensData);
+    console.log("currentPatientId", currentPatientId);
+    console.log("eyewearConfig", eyewearConfig);
+
+    if (!currentPatientId) return;
     let analysedData = [];
 
     let patient = collectionPaientListing.find(
       (x) => x.PatientId === currentPatientId
     );
-    //configration
-    const RSphMult = 0.4;
-    const LSphMult = 0.4;
-    const RCylMult = 0.4;
-    const LCylMult = 0.4;
-    const RAxisMult = 0.95;
-    const LAxisMult = 0.95;
-    const RAddMult = 0.4;
-    const LAddMult = 0.4;
-    const RSphEqMult = 0.4;
-    const LSphEqMult = 0.4;
 
-    const parseToFloat = (value) => {
-      const floatValue = parseFloat(value);
-      return isNaN(floatValue) ? value : floatValue;
-    };
-
-    //patient input values for example
-    const RSphPat = parseToFloat(patient.RSphere);
-    const LSphPat = parseToFloat(patient.LCylinder);
-    const RCylPat = parseToFloat(patient.RCylinder);
-    const LCylPat = parseToFloat(patient.LCylinder);
-    const RAxisPat = parseToFloat(patient.RAxis);
-    const LAxisPat = parseToFloat(patient.LAxis);
-    const RAddPat = parseToFloat(patient.RAdd);
-    const LAddPat = parseToFloat(patient.LAdd);
-
-    for (let lens of lensData) {
-      console.log("lens", lens);
-
-      // Yellow part
-      let RSphEqPat = RSphPat + RCylPat / 2;
-      let LSphEqPat = LSphPat + LCylPat / 2;
-
-      //green part
-      let {
-        RSphere: RSphE,
-        RCylinder: LSphE,
-        RCylinder: RCylE,
-        LCylinder: LCylE,
-        RAxis: RAxisE,
-        LAxis: LAxisE,
-        RAdd: RAddE,
-        LAdd: LAddE,
-      } = lens;
-
-      // Modify the original object with parsed values
-      RSphE = parseToFloat(RSphE);
-      LSphE = parseToFloat(LSphE);
-      RCylE = parseToFloat(RCylE);
-      LCylE = parseToFloat(LCylE);
-      RAxisE = parseToFloat(RAxisE);
-      LAxisE = parseToFloat(LAxisE);
-      RAddE = parseToFloat(RAddE);
-      LAddE = parseToFloat(LAddE);
-
-      let RSphEqE = RSphE + RCylE / 2;
-      let LSphEqE = LSphE + LCylE / 2;
-
-      let RSphDif = Math.abs(RSphEqPat - RSphEqE);
-      let LSphDif = Math.abs(LSphEqPat - LSphEqE);
-
-      let RSphDifR = Math.abs((RSphDif - RSphPat) / RSphPat);
-      let LSphDifR = Math.abs((LSphDif - LSphPat) / LSphPat);
-
-      let RSphFactor = RSphDif * RSphMult;
-      let LSphFactor = LSphDif * LSphMult;
-
-      //purple color
-      let RCylDif = Math.abs(RCylE - RCylPat);
-      let LCylDif = Math.abs(LCylE - LCylPat);
-
-      let RCylDifR = Math.abs((RCylDif - RCylPat) / RCylPat);
-      let LCylDifR = Math.abs((LCylDif - LCylPat) / LCylPat);
-
-      let RCylFactor = RCylDif * RCylMult;
-      let LCylFactor = LCylDif * LCylMult;
-
-      //pink color
-      let RAxisMinDif = axisMin(RCylPat);
-      let LAxisMinDif = axisMin(LCylPat);
-
-      let RAxisMaxDif = axisMax(RCylPat);
-      let LAxisMaxDif = axisMax(LCylPat);
-
-      let RAxisDif = Math.abs(RAxisE - RAxisPat);
-      let LAxisDif = Math.abs(LAxisE - LAxisPat);
-
-      let RAxisRatio =
-        ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
-      let LAxisRatio =
-        ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
-
-      let RAxisFactor;
-      let LAxisFactor;
-
-      if (RAxisDif < RAxisMinDif) {
-        RAxisFactor = 0;
-      } else if (RAxisMinDif < RAxisDif && RAxisDif < RAxisMaxDif) {
-        RAxisFactor = RAxisRatio * RAxisMult;
-      } else if (RAxisDif > RAxisMaxDif) {
-        RAxisFactor = RAxisMaxDif;
-      }
-
-      if (LAxisDif < LAxisMinDif) {
-        LAxisFactor = 0;
-      } else if (LAxisMinDif < LAxisDif && LAxisDif < LAxisMaxDif) {
-        LAxisFactor = LAxisRatio * LAxisMult;
-      } else if (LAxisDif > LAxisMaxDif) {
-        LAxisFactor = LAxisMaxDif;
-      }
-
-      // yellow highlighter
-      let RAddDif = Math.abs(RAddE - LAddPat);
-      let LAddDif = Math.abs(LAddE - LAddPat);
-
-      let RAddDifR = Math.abs((RAddDif - RAddPat) / RAddPat);
-      let LAddDifR = Math.abs((LAddDif - LAddPat) / LAddPat);
-
-      let RAddFactor = RAddDif * RAddMult;
-      let LAddFactor = LAddDif * LAddMult; //RAddDif & LAddDif missing
-
-      //purple color
-      let RSphEqDif = Math.abs(RSphEqE - RSphEqPat);
-      let LSphEqDif = Math.abs(LSphEqE - LSphEqPat);
-
-      let RSphEqDifR = Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat);
-      let LSphEqDifR = Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat);
-
-      let RSphEqFactor = RSphEqDif * RSphEqMult;
-      let LSphEqFactor = LSphEqDif * LSphEqMult;
-
-      //Main percentage calculation
-
-      let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RCylFactor;
-      let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LCylFactor;
-
-      let MatchPercentageS = (
-        (RMatchPercentageS + LMatchPercentageS) /
-        2
-      ).toFixed(2);
-
-      let RMatchPercentageB =
-        100 - RSphFactor - RCylFactor - RCylFactor - RAddFactor;
-      let LMatchPercentageB =
-        100 - LSphFactor - LCylFactor - LCylFactor - LAddFactor;
-
-      let MatchPercentageB = (
-        (RMatchPercentageB + LMatchPercentageB) /
-        2
-      ).toFixed(2);
-
-      const lensData = {
-        ...lens,
-        MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
-        MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
+    if(patient && lensData && lensData.length > 0 && eyewearConfig) {
+      const parseToFloat = (value) => {
+        const floatValue = parseFloat(value);
+        return isNaN(floatValue) ? value : floatValue;
       };
-
-      analysedData = [...analysedData, lensData];
+  
+      //configration
+      const RSphMult = parseToFloat(eyewearConfig.RSphMult);
+      const LSphMult = parseToFloat(eyewearConfig.LSphMult);
+      const RCylMult = parseToFloat(eyewearConfig.RCylMult);
+      const LCylMult = parseToFloat(eyewearConfig.LCylMult);
+      const RAxisMult = parseToFloat(eyewearConfig.RAxisMult);
+      const LAxisMult = parseToFloat(eyewearConfig.LAxisMult);
+      const RAddMult = parseToFloat(eyewearConfig.RAddMult);
+      const LAddMult = parseToFloat(eyewearConfig.LAddMult);
+      const RSphEqMult = parseToFloat(eyewearConfig.RSphEqMult);
+      const LSphEqMult = parseToFloat(eyewearConfig.LSphEqMult);
+  
+      //patient input values for example
+      const RSphPat = parseToFloat(patient.RSphere);
+      const LSphPat = parseToFloat(patient.LCylinder);
+      const RCylPat = parseToFloat(patient.RCylinder);
+      const LCylPat = parseToFloat(patient.LCylinder);
+      const RAxisPat = parseToFloat(patient.RAxis);
+      const LAxisPat = parseToFloat(patient.LAxis);
+      const RAddPat = parseToFloat(patient.RAdd);
+      const LAddPat = parseToFloat(patient.LAdd);
+  
+      for (let lens of lensData) {
+  
+        // Yellow part
+        let RSphEqPat = RSphPat + RCylPat / 2;
+        let LSphEqPat = LSphPat + LCylPat / 2;
+  
+        //green part
+        let {
+          RSphere: RSphE,
+          RCylinder: LSphE,
+          RCylinder: RCylE,
+          LCylinder: LCylE,
+          RAxis: RAxisE,
+          LAxis: LAxisE,
+          RAdd: RAddE,
+          LAdd: LAddE,
+        } = lens;
+  
+        // Modify the original object with parsed values
+        RSphE = parseToFloat(RSphE);
+        LSphE = parseToFloat(LSphE);
+        RCylE = parseToFloat(RCylE);
+        LCylE = parseToFloat(LCylE);
+        RAxisE = parseToFloat(RAxisE);
+        LAxisE = parseToFloat(LAxisE);
+        RAddE = parseToFloat(RAddE);
+        LAddE = parseToFloat(LAddE);
+  
+        let RSphEqE = RSphE + RCylE / 2;
+        let LSphEqE = LSphE + LCylE / 2;
+  
+        let RSphDif = Math.abs(RSphEqPat - RSphEqE);
+        let LSphDif = Math.abs(LSphEqPat - LSphEqE);
+  
+        let RSphDifR = Math.abs((RSphDif - RSphPat) / RSphPat);
+        let LSphDifR = Math.abs((LSphDif - LSphPat) / LSphPat);
+  
+        let RSphFactor = RSphDif * RSphMult;
+        let LSphFactor = LSphDif * LSphMult;
+  
+        //purple color
+        let RCylDif = Math.abs(RCylE - RCylPat);
+        let LCylDif = Math.abs(LCylE - LCylPat);
+  
+        let RCylDifR = Math.abs((RCylDif - RCylPat) / RCylPat);
+        let LCylDifR = Math.abs((LCylDif - LCylPat) / LCylPat);
+  
+        let RCylFactor = RCylDif * RCylMult;
+        let LCylFactor = LCylDif * LCylMult;
+  
+        //pink color
+        let RAxisMinDif = axisMin(RCylPat);
+        let LAxisMinDif = axisMin(LCylPat);
+  
+        let RAxisMaxDif = axisMax(RCylPat);
+        let LAxisMaxDif = axisMax(LCylPat);
+  
+        let RAxisDif = Math.abs(RAxisE - RAxisPat);
+        let LAxisDif = Math.abs(LAxisE - LAxisPat);
+  
+        let RAxisRatio =
+          ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
+        let LAxisRatio =
+          ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
+  
+        let RAxisFactor;
+        let LAxisFactor;
+  
+        if (RAxisDif < RAxisMinDif) {
+          RAxisFactor = 0;
+        } else if (RAxisMinDif < RAxisDif && RAxisDif < RAxisMaxDif) {
+          RAxisFactor = RAxisRatio * RAxisMult;
+        } else if (RAxisDif > RAxisMaxDif) {
+          RAxisFactor = RAxisMaxDif;
+        }
+  
+        if (LAxisDif < LAxisMinDif) {
+          LAxisFactor = 0;
+        } else if (LAxisMinDif < LAxisDif && LAxisDif < LAxisMaxDif) {
+          LAxisFactor = LAxisRatio * LAxisMult;
+        } else if (LAxisDif > LAxisMaxDif) {
+          LAxisFactor = LAxisMaxDif;
+        }
+  
+        // yellow highlighter
+        let RAddDif = Math.abs(RAddE - LAddPat);
+        let LAddDif = Math.abs(LAddE - LAddPat);
+  
+        let RAddDifR = Math.abs((RAddDif - RAddPat) / RAddPat);
+        let LAddDifR = Math.abs((LAddDif - LAddPat) / LAddPat);
+  
+        let RAddFactor = RAddDif * RAddMult;
+        let LAddFactor = LAddDif * LAddMult; //RAddDif & LAddDif missing
+  
+        //purple color
+        let RSphEqDif = Math.abs(RSphEqE - RSphEqPat);
+        let LSphEqDif = Math.abs(LSphEqE - LSphEqPat);
+  
+        let RSphEqDifR = Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat);
+        let LSphEqDifR = Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat);
+  
+        let RSphEqFactor = RSphEqDif * RSphEqMult;
+        let LSphEqFactor = LSphEqDif * LSphEqMult;
+  
+        //Main percentage calculation
+  
+        let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RCylFactor;
+        let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LCylFactor;
+  
+        let MatchPercentageS = (
+          (RMatchPercentageS + LMatchPercentageS) /
+          2
+        ).toFixed(2);
+  
+        let RMatchPercentageB =
+          100 - RSphFactor - RCylFactor - RCylFactor - RAddFactor;
+        let LMatchPercentageB =
+          100 - LSphFactor - LCylFactor - LCylFactor - LAddFactor;
+  
+        let MatchPercentageB = (
+          (RMatchPercentageB + LMatchPercentageB) /
+          2
+        ).toFixed(2);
+        const lensData = {
+          ...lens,
+          MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
+          MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
+        };
+  
+        analysedData = [...analysedData, lensData];
+      }
+  
+      const newLensList = analysedData.filter(
+        (x) => !x.Patient_id || x.Patient_id == currentPatientId
+      );
+  
+      newLensList.sort(
+        (a, b) =>
+          b.MatchPercentageB - a.MatchPercentageB &&
+          b.MatchPercentageS - a.MatchPercentageS
+      );
+      const newPatient = {
+        ...collectionPaientListing[0],
+        MatchPercentageB: 100,
+        MatchPercentageS: 100
+      }
+      const newArray = [newPatient, ...newLensList];
+      SetLenseListing(newArray);
     }
 
-    const newLensList = analysedData.filter(
-      (x) => !x.Patient_id || x.Patient_id == currentPatientId
-    );
+    
 
-    newLensList.sort(
-      (a, b) =>
-        b.MatchPercentageB - a.MatchPercentageB &&
-        b.MatchPercentageS - a.MatchPercentageS
-    );
 
-    const newArray = [collectionPaientListing[0], ...newLensList];
-    SetLenseListing(newArray);
   };
 
   const axisMax = (CylPat) => {
@@ -518,45 +620,50 @@ const Analysis = () => {
   };
 
   const getpatientData = async () => {
-    const getResponse = await fetch(
-      `http://localhost:8080/api/v1/patient?userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
-      }
-    );
-    if (getResponse.ok) {
-      const data = await getResponse.json();
+    if(userId) {
 
-      if (id) {
-        SetSelectedPatientId(
-          data.Patient_Data.find((x) => x.PatientId === id).id
-        );
+      const getResponse = await fetch(
+        `${API_URL}/v1/patient?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+        }
+      );
+      if (getResponse.ok) {
+        const data = await getResponse.json();
+  
+        if (id) {
+          SetSelectedPatientId(
+            data.Patient_Data.find((x) => x.PatientId === id).id
+          );
+        }
+        setCollectionPaitedntListing(data.Patient_Data);
+      } else {
+        console.log("Get Failed");
       }
-      setCollectionPaitedntListing(data.Patient_Data);
-    } else {
-      console.log("Get Failed");
     }
   };
   const getdata = async () => {
-    const getResponse = await fetch(
-      `http://localhost:8080/api/v1/box?userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
+    if(userId) {
+      const getResponse = await fetch(
+        `${API_URL}/v1/box?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+        }
+      );
+      if (getResponse.ok) {
+        const data = await getResponse.json();
+        setCollectionListing(data.Boxes_Data);
+      } else {
+        console.log("Get Failed");
       }
-    );
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      setCollectionListing(data.Boxes_Data);
-    } else {
-      console.log("Get Failed");
     }
   };
 
@@ -599,7 +706,7 @@ const Analysis = () => {
     setCurrentPatientId(e.target.value);
     //SetSelectedPatientId(e.target.value)
     const response = await fetch(
-      `http://localhost:8080/api/v1/filterpatientById?id=${e.target.value}`,
+      `${API_URL}/v1/filterpatientById?id=${e.target.value}`,
       {
         method: "GET",
         headers: {
@@ -674,7 +781,7 @@ const Analysis = () => {
   // 		setActivePatientName(e.target.value);
   // 	}
   // 	if (e.target.value != '') {
-  // 		const getResponse = await fetch(`http://localhost:8080/api/v1/patientByName?name=${e.target.value}&userId=${userId}`, {
+  // 		const getResponse = await fetch(`${API_URL}/v1/patientByName?name=${e.target.value}&userId=${userId}`, {
   // 			method: "GET",
   // 			headers: {
   // 				"Content-Type": "application/json",
@@ -698,7 +805,7 @@ const Analysis = () => {
   // 		setFilterPatientName(patientName)
 
   // 		// bind all modal form using patientId
-  // 		const response = await fetch(`http://localhost:8080/api/v1/patientById?id=${patientId}`, {
+  // 		const response = await fetch(`${API_URL}/v1/patientById?id=${patientId}`, {
   // 			method: 'GET',
   // 			headers: {
   // 				'Content-Type': 'application/json',
@@ -734,7 +841,7 @@ const Analysis = () => {
         patient_id: selectedPatientId,
         lens_id: activeLensId,
       };
-      const response = await fetch(`http://localhost:8080/api/v1/block`, {
+      const response = await fetch(`${API_URL}/v1/block`, {
         method: "PUT",
         body: JSON.stringify(info),
         headers: {
@@ -781,7 +888,7 @@ const Analysis = () => {
   };
 
   const updateLens = async (info) => {
-    const response = await fetch(`http://localhost:8080/api/v1/lens`, {
+    const response = await fetch(`${API_URL}/v1/lens`, {
       method: "PUT",
       body: JSON.stringify(info),
       headers: {
@@ -796,9 +903,9 @@ const Analysis = () => {
     }
   };
 
-  useEffect(() => {
-    // handleFilter();
-  }, [CollectionLensListing]);
+  // useEffect(() => {
+  //   // handleFilter();
+  // }, [CollectionLensListing]);
 
 
   const handleStatusChange = async (e, selectedRow) => {
@@ -806,7 +913,7 @@ const Analysis = () => {
     selectedRow.Lens_Status = selectedStatus;
     selectedRow.Patient_id = currentPatientId;
 
-    const response = await fetch(`http://localhost:8080/api/v1/lens`, {
+    const response = await fetch(`${API_URL}/v1/lens`, {
       method: "PUT",
       body: JSON.stringify(selectedRow),
       headers: {
@@ -823,9 +930,11 @@ const Analysis = () => {
       console.log("Lens not Blocked");
     }
   };
+
+  console.log('lenseListing', lenseListing)
   return (
     <>
-      <div className="col p-5" style={{ marginRight: 34 }}>
+      <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className="user_style">
           <div className="user_name">
             <h2>Filter</h2>
@@ -976,7 +1085,7 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? "66" : x.MatchPercentageB}
+                              {id === 0 ? "100" : x.MatchPercentageB}
                             </td>
                             <td
                               className={
@@ -985,7 +1094,7 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? "80" : x.MatchPercentageS}
+                              {id === 0 ? "100" : x.MatchPercentageS}
                             </td>
 
                             <td

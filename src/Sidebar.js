@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Img0 from "./images/hopefulWaysLogo.JPG";
 import Img1 from "./images/user.png";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import { API_URL } from "./helper/common";
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Sidebar = () => {
     setFirstName(JSON.parse(localStorage.getItem("firstName")));
   }, []);
   const handleSignOut = async () => {
-    const response = await fetch("http://localhost:8080/api/v1/signOut", {
+    const response = await fetch(`${API_URL}/v1/signOut`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -213,6 +214,30 @@ const Sidebar = () => {
                             <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
                           </svg>
                           Setting
+                        </Link>
+                      </li>
+                    )}
+                    {role == 1 && (
+                      <li
+                        className={
+                          location.pathname == "/users"
+                            ? "px-3 nav-item active"
+                            : "px-3 nav-item"
+                        }
+                      >
+                        <Link to="/users">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                            class="bi bi-eye-fill"
+                            viewBox="0 0 16 16"
+                          >
+                            <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z" />
+                            <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+                          </svg>
+                          Users
                         </Link>
                       </li>
                     )}

@@ -9,9 +9,10 @@ import Boxvalue from './Boxvalue'
 import Sidebar from './Sidebar'
 import Analysis from './Analysis'
 import SettingCollection from './Settings'
+import Users from './Users'
 
 const Layout = () => {
-
+    const role = JSON.parse(localStorage.getItem("role"));
     const location = useLocation()
     
     return (
@@ -31,6 +32,7 @@ const Layout = () => {
                         <Route path='/boxvalue' element={<Boxvalue />} />
 						<Route path='/search/:id?' element={<Analysis />} />
 						<Route path='/setting' element={<SettingCollection />} />
+                        {(role && role === "1") && (<Route path='/users' element={<Users />} />)}
                     </Routes>
                 </div>
             </div>

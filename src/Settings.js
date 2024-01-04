@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import ReactTable from "./ReactTable";
 import ReactSettingTable from "./ReactSettingTable";
+import { useNavigate } from 'react-router';
+
+import { API_URL } from "./helper/common";
 
 const SettingCollection = () => {
+  const navigate = useNavigate();
   const childRef = useRef();
   const [settingListing, setSettingListing] = useState([]);
   const [eyewearConfig, setEyeWearConfig] = useState([]);
@@ -111,7 +115,12 @@ const SettingCollection = () => {
 
   useEffect(() => {
     const userId = JSON.parse(localStorage.getItem("userId"));
-    setUserId(userId);
+    if (userId) {
+      setUserId(userId);
+    }
+    else{
+        navigate('/')
+    }
     const role = JSON.parse(localStorage.getItem("role"));
     setRole(role);
   }, []);
@@ -125,7 +134,7 @@ const SettingCollection = () => {
 
   const getdata = async () => {
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/config?userId=${userId}`,
+      `${API_URL}/v1/config?userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -149,10 +158,10 @@ const SettingCollection = () => {
   const submitEdits = async (e, coll) => {
     const data = coll
     .filter((row) => row && row.Id !== undefined && row.NewValue !== undefined)
-    .map((row) => ({ Id: row.Id, NewValue: row.NewValue }));
+    .map((row) => ({ Id: row.Id, CurrentValue: row.NewValue }));
     if (data.length) {
       const response = await fetch(
-        `http://localhost:8080/api/v1/update-eyewear-config`,
+        `${API_URL}/v1/update-eyewear-config`,
         {
           method: "PUT",
           body: JSON.stringify(data),
@@ -178,11 +187,11 @@ const SettingCollection = () => {
     e.preventDefault();
     const data = coll
     .filter((row) => row && row.Id !== undefined && row.NewAxisMin !== undefined && row.NewAxisMax !== undefined)
-    .map((row) => ({ Id: row.Id, NewAxisMin: row.NewAxisMin, NewAxisMax: row.NewAxisMax }));
+    .map((row) => ({ Id: row.Id, CurrentAxisMin: row.NewAxisMin, CurrentAxisMax: row.NewAxisMax }));
   
     if (data.length) {
       const response = await fetch(
-        `http://localhost:8080/api/v1/update-axis-config`,
+        `${API_URL}/v1/update-axis-config`,
         {
           method: "PUT",
           body: JSON.stringify(data),
@@ -204,7 +213,7 @@ const SettingCollection = () => {
   };
 
   return (
-    <div className="col p-5" style={{ marginRight: 34 }}>
+    <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
       <div className="user_style">
         <div className="user_name">
           <h2>Configration</h2>

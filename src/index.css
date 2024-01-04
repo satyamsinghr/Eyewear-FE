@@ -401,7 +401,7 @@ button.btn.btn-primary.bg-danger:hover {
 .user_style {
   width: auto;
   margin-left: 34px;
-  margin-top: 20px;
+  margin-top: 70px;
 }
 
 .table_card tbody tr td,
@@ -550,6 +550,14 @@ table.patitnet_table tr td,
   border: 1px solid #e2e2e2 !important;
 }
 
+.active_table td:last-child, .active_table th:last-child
+{
+  text-align: center;
+}
+.table_save {
+  min-width: 114px;
+}
+
 
 .analysis_table table.table tr th:nth-child(3),
 .analysis_table table.table tr td:nth-child(3),
@@ -559,14 +567,14 @@ table.patitnet_table tr td,
 .analysis_table table.table tr td:nth-child(11),
 .analysis_table table.table thead tr:first-child th:nth-child(1),
 .analysis_table table.table thead tr:first-child th:nth-child(2),
-table.patitnet_table tr th:nth-child(1),
-table.patitnet_table tr td:nth-child(1),
-table.patitnet_table tr th:nth-child(5),
-table.patitnet_table tr td:nth-child(5),
-table.patitnet_table tr th:nth-child(9),
-table.patitnet_table tr td:nth-child(9),
-table.patitnet_table tr th:nth-child(12),
-table.patitnet_table tr td:nth-child(12) {
+table.patitnet_table tr th:nth-child(3),
+table.patitnet_table tr td:nth-child(3),
+table.patitnet_table tr th:nth-child(7),
+table.patitnet_table tr td:nth-child(7),
+table.patitnet_table tr th:nth-child(11),
+table.patitnet_table tr td:nth-child(11),
+table.patitnet_table tr th:nth-child(14),
+table.patitnet_table tr td:nth-child(14) {
   border-right-color: #000 !important;
 }
 
@@ -582,4 +590,122 @@ table.patitnet_table tr td .btn.btn-primary {
   color: #5282eb !important;
   background: #f4f4f4;
   font-weight: 600;
+}
+
+/* table.collection_table tr td div {
+  text-wrap: wrap;
+  max-width: 340px;
+  word-break: break-all;
+} */
+
+.table_card.patitnet_table tr td:nth-child(7) input, .table_card.patitnet_table tr td:nth-child(11) input {
+  min-width: 110px;
+}
+
+.user_table table tr td:not(:last-child) {
+  width: auto;
+  max-width: 10%;
+  text-wrap: wrap !important;
+  word-break: break-all;
+}
+
+@media (max-width:1540px) 
+{
+  ul.menu_list li {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+ul.menu_list li a {
+  font-size: 14px;
+}
+}
+@media (max-width:1340px) 
+{
+  ul.menu_list li {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+}
+ul.menu_list li a {
+  font-size: 12px;
+}
+ul.menu_list li a svg {
+  width: 13px;
+  height: 13px;
+}
+.header_user_detail li img {
+  width: 15px;
+  height: 15px;
+}
+.header_user_detail li span.user_icon {
+  width: 30px;
+  height: 30px;
+}
+.btn.btn-primary {
+  font-size: 13px;
+  height: 44px;
+}
+
+.table_card table thead tr th,
+.table_card table thead tr td {
+  font-size: 12px;
+}
+}
+
+@media (max-width:1200px) and (min-width:1040px) 
+{
+  ul.menu_list li a {
+    font-size: 9px;
+    gap: 5px;
+}
+ul.menu_list li {
+  padding-top: 5px !important;
+  padding-bottom: 5px !important;
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+}
+}
+
+@media (max-width:960px) 
+{
+.col {
+    margin: 0 15px 0 0 !important;
+}
+.user_style {
+  width: auto;
+  margin-left: 15px;
+  margin-top: 20px;
+}
+header.top_header {
+  background: #F8F9FA;
+  padding: 10px 15px;
+}
+.header_user_detail {
+  justify-content: start !important;
+  border-top: 1px solid #cdcdcd;
+  padding-top: 10px !important;
+  margin-top: 10px !important;
+}
+.menu_list {
+  margin-top: 20px !important;
+}
+}
+@media (max-width:1280px) 
+{
+  .table_card {
+    overflow: auto !important;
+}
+}
+@media (max-width:767px) 
+{
+  
+.row.search_input {
+  margin-right: 0;
+}
+header.top_header .row {
+  margin-left: -26px;
+}
 }

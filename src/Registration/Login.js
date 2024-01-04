@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import './signup.css'
 
+import { API_URL } from '../helper/common';
 
 const Login = () => {
     const [data, setData] = useState({ email: '', password: '' })
@@ -43,7 +44,7 @@ const Login = () => {
         e.preventDefault();
         const { email, password } = data;
         if (!validateForm()) {
-            const response = await fetch('http://localhost:8080/api/v1/signIn', {
+            const response = await fetch(`${API_URL}/v1/signIn`, {
                 method: 'POST',
                 headers: {
                     "Content-Type": "application/json"
@@ -69,6 +70,15 @@ const Login = () => {
         }
 
     }
+
+    useEffect(() => {
+        const userId = JSON.parse(localStorage.getItem("userId"));
+        if (userId) {
+          navigate('/collection')
+        }
+        
+       
+      }, []);
 
     return (
         <>
@@ -107,15 +117,15 @@ const Login = () => {
                                                 </div>
                                             </div>
                                             <div className="mt-3 text-end">
-                                                <a href="#" className="font- text-basecolor-900 font-medium text-base">Forgot
-                                                    Password ?</a>
+                                                {/* <a href="#" className="font- text-basecolor-900 font-medium text-base">Forgot
+                                                    Password ?</a> */}
                                             </div>
                                             <div className="mt-4 pt-2">
                                                 <button className="btn btn-primary w-100">
                                                     Login
                                                 </button>
                                             </div>
-                                            <div className="my-4 py-2 text-center">
+                                            {/* <div className="my-4 py-2 text-center">
                                                 <h5 className="m-0">Or continue with
                                                 </h5>
                                             </div>
@@ -139,14 +149,14 @@ const Login = () => {
 
                                                     <span className="ms-2 d-inline-block">Continue with Google</span>
                                                 </button>
-                                            </div>
+                                            </div> */}
                                         </form>
-                                        <div className="mt-4 pt-3">
+                                        {/* <div className="mt-4 pt-3">
                                             <p className="register_now">Don’t have an
                                                 account ?
                                                 <Link to="/signUp">Register</Link>
                                             </p>
-                                        </div>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>

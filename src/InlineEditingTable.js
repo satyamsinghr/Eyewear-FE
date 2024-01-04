@@ -5,7 +5,7 @@ import { useTable, useRowSelect, useSortBy } from 'react-table';
 
 const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref) => {
     console.log('table data', data);
-    const columnName = ['PatientId', 'RSphere', 'RCylinder', 'RAxis', 'RAdd', 'LSphere', 'LCylinder', 'LAxis', 'LAdd', 'Lens_Status'];
+    const columnName = ['PatientId', 'PercentageS', 'PercentageB','RSphere', 'RCylinder', 'RAxis', 'RAdd', 'LSphere', 'LCylinder', 'LAxis', 'LAdd', 'Lens_Status'];
 
     const [newRowData, setNewRowData] = useState(() => {
         const initialRow = {};
@@ -152,7 +152,6 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref
     //     );
     //   };
     console.log('rows', rows)
-
     return (
         <table {...getTableProps()} style={{ width: '100%' }} className='patitnet_table'>
             <thead>
@@ -173,23 +172,26 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref
 
             {parseInt(role) !== 1  && ( 
                 <tr>
-                    {columnName.map((column, columnIndex) => (
-                        // Check if the current column is not the action column
-                        // columnIndex !== columnName.length - 1 && (
-                        <td key={column}>
-                            {/* Render input field for the new row */}
-                            <input
-                                type="text"
-                                value={newRowData[column]}
-                                onChange={(e) => setNewRow(column, e.target.value)}
-                            />
-                        </td>
-                        // )
-                    ))}
+                    {columnName.map((column, columnIndex) =>
+                        (
+                            // Check if the current column is not the action column
+                            // columnIndex !== columnName.length - 1 && (
+                            <td key={column}>
+                                {/* Render input field for the new row */}
+                                <input
+                                    type="text"
+                                    value={newRowData[column]}
+                                    onChange={(e) => setNewRow(column, e.target.value)}
+                                    disabled = {(column == "PercentageS" || column == "PercentageB") ? true : false}
+                                />
+                            </td>
+                            // )
+                        )
+                     )}
                     <td></td>
                     <td></td>
                     <td>
-                        <button className="btn btn-primary me-3 w-100" onClick={(e) => handleSubmit(e, newRowData)}>Save</button>
+                        <button className="btn btn-primary me-3 w-100" onClick={(e) => handleSubmit(e, newRowData)}>Save & Serach</button>
                     </td>
                 </tr>
                  )}

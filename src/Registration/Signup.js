@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import './signup.css'
 import Img1 from '../images/hopefulWaysLogo.JPG'
-
+import { API_URL } from '../helper/common';
 
 const Signup = () => {
     const [formData, setFormData] = useState({ email: '', firstName: '', lastName: '', password: '' })
@@ -50,7 +50,7 @@ const Signup = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if(!validateForm()) {
-            const res = await fetch("http://localhost:8080/api/v1/signUp", {
+            const res = await fetch(`${API_URL}/v1/signUp`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

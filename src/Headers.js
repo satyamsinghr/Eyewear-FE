@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { API_URL } from './helper/common';
 const Headers = () => {
 
     const navigate = useNavigate();
 
     const handleSignOut = async () => {
 
-        const response = await fetch('http://localhost:8080/api/v1/signOut', {
+        const response = await fetch(`${API_URL}/v1/signOut`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

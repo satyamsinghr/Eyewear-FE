@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from 'react'
 import InlineEditingTable from './InlineEditingTable';
 import { useNavigate } from 'react-router';
 import moment from 'moment';
+
+import { API_URL } from "./helper/common";
+
 const patientInfo = {
   id: '',
   PatientId: '',
@@ -46,11 +49,16 @@ const Patient = () => {
           accessor: 'PatientId',
           className: 'px-3 py-3',
         },
-        // {
-        //   Header: '%',
-        //   accessor: 'Percentage',
-        //   className: 'px-3 py-3',
-        // },
+        {
+          Header: '%S',
+          accessor: 'PercentageS',
+          className: 'px-3 py-3',
+        },
+        {
+          Header: '%Bi',
+          accessor: 'PercentageB',
+          className: 'px-3 py-3',
+        },
       ],
     },
     {
@@ -318,7 +326,7 @@ const Patient = () => {
 
       console.log('data>>>>>>>', data);
 
-      const res = await fetch(`http://localhost:8080/api/v1/patient?userId=${userId}`, {
+      const res = await fetch(`${API_URL}/v1/patient?userId=${userId}`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
@@ -330,6 +338,7 @@ const Patient = () => {
         const values = await res.json();
         getdata();
         childRef.current.resetNewRowData();
+        navigate(`/search/${PatientId}`)
       }
       else {
         console.log('Post Failed')
@@ -362,7 +371,7 @@ const Patient = () => {
   }
 
   const getdata = async () => {
-    const getResponse = await fetch(`http://localhost:8080/api/v1/patient?userId=${userId}`, {
+    const getResponse = await fetch(`${API_URL}/v1/patient?userId=${userId}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -390,7 +399,7 @@ const Patient = () => {
     const data = {
       id: id
     };
-    const response = await fetch(`http://localhost:8080/api/v1/patient`, {
+    const response = await fetch(`${API_URL}/v1/patient`, {
       method: 'DELETE',
       body: JSON.stringify(data),
       headers: {
@@ -462,7 +471,7 @@ const Patient = () => {
     }
 
     if (!validateForm(patient)) {
-      const response = await fetch(`http://localhost:8080/api/v1/patient?id=${id}`, {
+      const response = await fetch(`${API_URL}/v1/patient?id=${id}`, {
         method: 'PUT',
         body: JSON.stringify(data),
         headers: {
@@ -534,7 +543,7 @@ const Patient = () => {
   return (
 
     <>
-      <div className="col p-5" style={{ marginRight: 34 }}>
+      <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className='user_style'>
           <div className="user_name">
             <h2>Patients</h2>
@@ -543,7 +552,7 @@ const Patient = () => {
         
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded overflow-hidden">
+              <div className="table_card rounded patitnet_table overflow-hidden">
                 
 
                 <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} />

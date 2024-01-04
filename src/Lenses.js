@@ -5,6 +5,8 @@ import { useNavigate } from "react-router";
 import moment from "moment";
 import ReactTable from "./ReactTable";
 
+import { API_URL } from "./helper/common";
+
 const Lenses = () => {
   const [formData, setFormData] = useState({
     id: "",
@@ -292,7 +294,7 @@ const Lenses = () => {
     }
     if (e.target.value != "") {
       const getResponse = await fetch(
-        `http://localhost:8080/api/v1/patientByName?name=${e.target.value}&userId=${userId}`,
+        `${API_URL}/v1/patientByName?name=${e.target.value}&userId=${userId}`,
         {
           method: "GET",
           headers: {
@@ -341,7 +343,7 @@ const Lenses = () => {
 
       // bind all modal form using patientId
       const response = await fetch(
-        `http://localhost:8080/api/v1/patientById?id=${patientId}`,
+        `${API_URL}/v1/patientById?id=${patientId}`,
         {
           method: "GET",
           headers: {
@@ -377,7 +379,7 @@ const Lenses = () => {
         patient_id: activePatientId,
         lens_id: activeLensId,
       };
-      const response = await fetch(`http://localhost:8080/api/v1/block`, {
+      const response = await fetch(`${API_URL}/v1/block`, {
         method: "PUT",
         body: JSON.stringify(info),
         headers: {
@@ -435,7 +437,7 @@ const Lenses = () => {
 
   const getBoxes = async () => {
     const response = await fetch(
-      `http://localhost:8080/api/v1/box?userId=${userId}`,
+      `${API_URL}/v1/box?userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -509,7 +511,7 @@ const Lenses = () => {
       };
 
       const res = await fetch(
-        `http://localhost:8080/api/v1/lens?userId=${userId}`,
+        `${API_URL}/v1/lens?userId=${userId}`,
         {
           method: "POST",
           body: JSON.stringify(data),
@@ -556,7 +558,7 @@ const Lenses = () => {
   const getdata = async (matched) => {
     const queryParams = new URLSearchParams(boxModel).toString();
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
+      `${API_URL}/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -578,7 +580,7 @@ const Lenses = () => {
     const data = {
       Lens_id: id,
     };
-    const response = await fetch(`http://localhost:8080/api/v1/lens/`, {
+    const response = await fetch(`${API_URL}/v1/lens/`, {
       method: "DELETE",
       body: JSON.stringify(data),
       headers: {
@@ -695,7 +697,7 @@ const Lenses = () => {
   };
 
   const updateLens = async (info) => {
-    const response = await fetch(`http://localhost:8080/api/v1/lens`, {
+    const response = await fetch(`${API_URL}/v1/lens`, {
       method: "PUT",
       body: JSON.stringify(info),
       headers: {
@@ -735,7 +737,7 @@ const Lenses = () => {
       console.log(formData.get("csv"));
       try {
         const response = await fetch(
-          `http://localhost:8080/api/v1/lensCsv?userId=${userId}`,
+          `${API_URL}/v1/lensCsv?userId=${userId}`,
           {
             method: "POST",
             body: formData,
@@ -806,7 +808,7 @@ const Lenses = () => {
     setCurrentLensId(e.target.value);
     const queryParams = new URLSearchParams(boxModel).toString();
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/lens?${queryParams}&userId=${userId}&lensId=${e.target.value}`,
+      `${API_URL}/v1/lens?${queryParams}&userId=${userId}&lensId=${e.target.value}`,
       {
         method: "GET",
         headers: {
@@ -863,7 +865,7 @@ const Lenses = () => {
 
   return (
     <>
-      <div class="col p-5" style={{ marginRight: 34 }}>
+      <div class="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div class="user_style">
           <div className="user_name">
             <h2>Lenses</h2>

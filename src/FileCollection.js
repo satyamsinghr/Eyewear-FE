@@ -3,6 +3,7 @@ import ReactTable from "./ReactTable";
 import { useNavigate } from "react-router";
 import moment from "moment";
 
+import { API_URL } from "./helper/common";
 const collectionValues = {
   id: "",
   Coll_id: "",
@@ -117,7 +118,7 @@ const FileCollection = () => {
         Coll_desc: Coll_desc,
       };
       const res = await fetch(
-        `http://localhost:8080/api/v1/collection?userId=${userId}`,
+        `${API_URL}/v1/collection?userId=${userId}`,
         {
           method: "POST",
           headers: {
@@ -147,7 +148,7 @@ const FileCollection = () => {
   const handleFilterChange = async (e) => {
     setCurrentCollectionId(e.target.value);
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/collection?userId=${userId}&colId=${e.target.value}`,
+      `${API_URL}/v1/collection?userId=${userId}&colId=${e.target.value}`,
       {
         method: "GET",
         headers: {
@@ -176,7 +177,7 @@ const FileCollection = () => {
 
   const getdata = async () => {
     const getResponse = await fetch(
-      `http://localhost:8080/api/v1/collection?userId=${userId}`,
+      `${API_URL}/v1/collection?userId=${userId}`,
       {
         method: "GET",
         headers: {
@@ -217,7 +218,7 @@ const FileCollection = () => {
     const data = {
       Coll_id: id,
     };
-    const response = await fetch(`http://localhost:8080/api/v1/collection`, {
+    const response = await fetch(`${API_URL}/v1/collection`, {
       method: "DELETE",
       body: JSON.stringify(data),
       headers: {
@@ -257,7 +258,7 @@ const FileCollection = () => {
     // e.preventDefault();
     if (!validateForm(coll)) {
       const response = await fetch(
-        `http://localhost:8080/api/v1/collection?id=${id}`,
+        `${API_URL}/v1/collection?id=${id}`,
         {
           method: "PUT",
           body: JSON.stringify(collection),
@@ -285,7 +286,6 @@ const FileCollection = () => {
   };
 
   const ActionCell = ({ row, submitEdits, handleDelete }) => (
-    <td>
       <div>
         <button
           className="btn btn-primary me-3"
@@ -323,12 +323,11 @@ const FileCollection = () => {
                 <strong>Analyse</strong>
                 </button> */}
       </div>
-    </td>
   );
 
   return (
     <>
-      <div className="col p-5" style={{ marginRight: 34 }}>
+      <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className="user_style">
           <div className="user_name">
             <h2>Filter</h2>

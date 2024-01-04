@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react'
-import InlineEditingTable from './InlineEditingTable';
-import { useNavigate } from 'react-router';
-import ReactTable from './ReactTable';
-import moment from 'moment';
+import React, { useState, useEffect, useRef } from "react";
+import InlineEditingTable from "./InlineEditingTable";
+import { useNavigate } from "react-router";
+import ReactTable from "./ReactTable";
+import moment from "moment";
 
+import { API_URL } from "./helper/common";
 const Boxvalue = () => {
   const [inputValue, setInputValue] = useState({
     id: "",
@@ -22,32 +23,32 @@ const Boxvalue = () => {
   const [selectedBoxId, SetSelectedBoxId] = useState("");
   const [todoEditing, setTodoEditing] = useState(false);
   const [userId, setUserId] = useState("");
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState("");
   const childRef = useRef();
   const columns = [
     {
-      Header: 'Id',
-      accessor: 'Box_id',
-      className: 'px-3 py-3',
+      Header: "Id",
+      accessor: "Box_id",
+      className: "px-3 py-3",
     },
     {
-      Header: 'Collection Type',
-      accessor: 'Col_type',
-      className: 'px-3 py-3',
+      Header: "Collection Type",
+      accessor: "Col_type",
+      className: "px-3 py-3",
     },
     {
-      Header: 'Box Name',
-      accessor: 'Box_Name',
-      className: 'px-3 py-3',
+      Header: "Box Name",
+      accessor: "Box_Name",
+      className: "px-3 py-3",
     },
     {
-      Header: 'Box Date',
-      accessor: 'Box_date',
-      className: 'px-3 py-3',
+      Header: "Box Date",
+      accessor: "Box_date",
+      className: "px-3 py-3",
     },
     {
-      Header: 'Action',
-      accessor: 'action',
+      Header: "Action",
+      accessor: "action",
       Cell: ({ row }) => (
         <ActionCell
           row={row}
@@ -55,7 +56,7 @@ const Boxvalue = () => {
           handleDelete={handleDelete} // Pass your handleDelete function here
         />
       ),
-      className: 'px-3 py-3',
+      className: "px-3 py-3",
     },
   ];
 
@@ -63,13 +64,11 @@ const Boxvalue = () => {
     const userId = JSON.parse(localStorage.getItem("userId"));
     if (userId) {
       setUserId(userId);
+    } else {
+      navigate("/");
     }
-    else{
-        navigate('/')
-    }
-    const role = JSON.parse(localStorage.getItem('role'));
+    const role = JSON.parse(localStorage.getItem("role"));
     setRole(role);
-
   }, []);
 
   useEffect(() => {
@@ -78,7 +77,6 @@ const Boxvalue = () => {
       getCollections();
     }
   }, [userId]);
-
 
   const handleChange = (e) => {
     const name = e.target.name;
@@ -114,30 +112,32 @@ const Boxvalue = () => {
     e.preventDefault();
     const { Box_Name, Box_date, Col_type, Box_id } = inputValue;
     if (!validateForm(inputValue)) {
-      const collectionName = collection.find(x => x.id == Col_type);
+      const collectionName = collection.find((x) => x.id == Col_type);
       const data = {
         Box_id: Box_id,
         Col_type: collectionName.Coll_name,
         Box_date: Box_date,
         Box_Name: Box_Name,
-        Coll_id: Col_type
-      }
+        Coll_id: Col_type,
+      };
 
-      const res = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          'Authorization': JSON.parse(localStorage.getItem('token'))
-        },
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(
+        `${API_URL}/v1/box?userId=${userId}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+          body: JSON.stringify(data),
+        }
+      );
       if (res.ok) {
         const values = await res.json();
         getdata();
         childRef.current.resetNewRowData();
-      }
-      else {
-        console.log('Post Failed')
+      } else {
+        console.log("Post Failed");
       }
 
       setInputValue({
@@ -145,32 +145,34 @@ const Boxvalue = () => {
         Box_date: "",
         Col_type: "",
         Coll_id: "",
-        Box_Name: ""
-      })
+        Box_Name: "",
+      });
     }
   };
 
   const getCollections = async () => {
-    const collection = await fetch(`http://localhost:8080/api/v1/collection?userId=${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': JSON.parse(localStorage.getItem('token'))
+    const collection = await fetch(
+      `${API_URL}/v1/collection?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
       }
-
-    });
+    );
     if (collection.ok) {
       const data = await collection.json();
       setCollection(data.Collection_Data);
     } else {
-      console.log('Get Failed');
+      console.log("Get Failed");
     }
-  }
+  };
 
   const handleFiltedId = (selectedBoxRow) => {
-    const data = filteredBox.find(x => x.id == selectedBoxRow.id)
-    setCurrentBoxId(data.Box_id)
-    SetSelectedBoxId(selectedBoxRow.id)
+    const data = filteredBox.find((x) => x.id == selectedBoxRow.id);
+    setCurrentBoxId(data.Box_id);
+    SetSelectedBoxId(selectedBoxRow.id);
     setFilteredBox([]);
 
     const newData = {
@@ -178,84 +180,84 @@ const Boxvalue = () => {
       Box_id: data.Box_id,
       Box_Name: data.Box_Name,
       Col_type: data.Col_type,
-      Box_date: data.Box_date ? data.Box_date.split('T')[0] : '',
-    }
+      Box_date: data.Box_date ? data.Box_date.split("T")[0] : "",
+    };
     setBoxListing((state) => [newData]);
-  }
+  };
 
   const handleFilterChange = async (e) => {
-    setCurrentBoxId(e.target.value)
-    const getResponse = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}&boxId=${e.target.value}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': JSON.parse(localStorage.getItem('token'))
+    setCurrentBoxId(e.target.value);
+    const getResponse = await fetch(
+      `${API_URL}/v1/box?userId=${userId}&boxId=${e.target.value}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
       }
-
-    });
+    );
     if (getResponse.ok) {
       const data = await getResponse.json();
-      const boxData = data.Boxes_Data.map(x => ({
+      const boxData = data.Boxes_Data.map((x) => ({
         ...x,
-        Box_date: moment(x.Box_date).format('YYYY-MM-DD')
-      }))
-      if (e.target.value === '') {
+        Box_date: moment(x.Box_date).format("YYYY-MM-DD"),
+      }));
+      if (e.target.value === "") {
         setFilteredBox([]);
-        setCurrentBoxId('')
-      }
-      else{
-        setFilteredBox(boxData)
+        setCurrentBoxId("");
+      } else {
+        setFilteredBox(boxData);
       }
       setBoxListing(boxData);
     } else {
-      console.log('Get Failed');
+      console.log("Get Failed");
     }
-  }
+  };
 
   const getdata = async () => {
-    const getResponse = await fetch(`http://localhost:8080/api/v1/box?userId=${userId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        'Authorization': JSON.parse(localStorage.getItem('token'))
+    const getResponse = await fetch(
+      `${API_URL}/v1/box?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
       }
-
-    });
+    );
     if (getResponse.ok) {
       const data = await getResponse.json();
-      const boxData = data.Boxes_Data.map(x => ({
+      const boxData = data.Boxes_Data.map((x) => ({
         ...x,
-        Box_date: moment(x.Box_date).format('YYYY-MM-DD')
-      }))
+        Box_date: moment(x.Box_date).format("YYYY-MM-DD"),
+      }));
       setBoxListing(boxData);
     } else {
-      console.log('Get Failed');
+      console.log("Get Failed");
     }
-
-  }
+  };
 
   const handleDelete = async (id) => {
     const data = {
-      Box_id: id
+      Box_id: id,
     };
-    const response = await fetch(`http://localhost:8080/api/v1/box`, {
-      method: 'DELETE',
+    const response = await fetch(`${API_URL}/v1/box`, {
+      method: "DELETE",
       body: JSON.stringify(data),
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': JSON.parse(localStorage.getItem('token'))
-      }
-
+        "Content-Type": "application/json",
+        Authorization: JSON.parse(localStorage.getItem("token")),
+      },
     });
 
     if (response.ok) {
-      console.log('Deletion successful');
+      console.log("Deletion successful");
       getdata();
     } else {
-      console.log('Deletion failed');
+      console.log("Deletion failed");
     }
-  }
-
+  };
 
   function update(x) {
     setTodoEditing(true);
@@ -264,7 +266,7 @@ const Boxvalue = () => {
       Box_id: x.Box_id,
       Box_Name: x.Box_Name,
       Col_type: x.Coll_id,
-      Box_date: x.Box_date ? x.Box_date.split('T')[0] : '',
+      Box_date: x.Box_date ? x.Box_date.split("T")[0] : "",
     });
   }
 
@@ -277,64 +279,81 @@ const Boxvalue = () => {
         Col_type: Col_type,
         Box_date: Box_date,
         Box_Name: Box_Name,
-        Box_id: Box_id
-      }
+        Box_id: Box_id,
+      };
 
-      const response = await fetch(`http://localhost:8080/api/v1/box/`, {
-        method: 'PUT',
+      const response = await fetch(`${API_URL}/v1/box/`, {
+        method: "PUT",
         body: JSON.stringify(data),
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': JSON.parse(localStorage.getItem('token'))
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
         },
       });
 
       if (response.ok) {
-        console.log('Edit successful');
+        console.log("Edit successful");
         getdata();
       } else {
-        console.log('Edit failed');
+        console.log("Edit failed");
       }
       setInputValue({
-        id: '',
+        id: "",
         Box_id: "",
         Box_date: "",
         Col_type: "",
         Coll_id: "",
-        Box_Name: ""
-      })
+        Box_Name: "",
+      });
       setTodoEditing(false);
     }
-  }
+  };
 
   const ActionCell = ({ row, submitEdits, handleDelete }) => (
-    <td>
-      <div>
-        <button className="btn btn-primary me-3" onClick={() => submitEdits(row.original)}>
-          {/* <strong>Edit</strong> */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-                        <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-                    </svg>
-        </button>
-        <button className="btn btn-primary bg-danger" onClick={() => handleDelete(row.original.id)}>
-          {/* <strong>Delete</strong> */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
-  <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
-  <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
-</svg>
-        </button>
-        {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
+    <div>
+      <button
+        className="btn btn-primary me-3"
+        onClick={() => submitEdits(row.original)}
+      >
+        {/* <strong>Edit</strong> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="25"
+          height="25"
+          fill="currentColor"
+          class="bi bi-check"
+          viewBox="0 0 16 16"
+        >
+          <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
+        </svg>
+      </button>
+      <button
+        className="btn btn-primary bg-danger"
+        onClick={() => handleDelete(row.original.id)}
+      >
+        {/* <strong>Delete</strong> */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="25"
+          height="25"
+          fill="currentColor"
+          class="bi bi-trash"
+          viewBox="0 0 16 16"
+        >
+          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+        </svg>
+      </button>
+      {/* <button className="btn btn-primary bg-primary" style={{marginLeft:"10px"}} onClick={() => navigate(`/analysis/${row.original.PatientId}`)}>
           <strong>Analyse</strong>
         </button> */}
-      </div>
-    </td>
+    </div>
   );
-
 
   return (
     <>
-      <div className="col p-5" style={{ marginRight: 34 }}>
-        <div className='user_style'>
+      <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
+        <div className="user_style">
           <div className="user_name">
             <h2>Box Value</h2>
             <hr className="mt-4" />
@@ -352,22 +371,27 @@ const Boxvalue = () => {
                   className="form-control"
                   id="floatingInput"
                   placeholder="Box Id"
-                  name='boxId'
+                  name="boxId"
                   value={currentBoxId}
-                  onChange={(e) => { handleFilterChange(e) }}
+                  onChange={(e) => {
+                    handleFilterChange(e);
+                  }}
                 />
                 <label htmlFor="selectBoxDate">Box Id</label>
                 <span className="text-danger">{validation.selectedBoxId}</span>
-                <div className='filter_sugestions'>
-                  {
-                    filteredBox && filteredBox.map(x => {
+                <div className="filter_sugestions">
+                  {filteredBox &&
+                    filteredBox.map((x) => {
                       return (
-                        <span className='d-block' onClick={() => handleFiltedId(x)}>{x.Box_id}</span>
+                        <span
+                          className="d-block"
+                          onClick={() => handleFiltedId(x)}
+                        >
+                          {x.Box_id}
+                        </span>
                       );
-                    })
-                  }
+                    })}
                 </div>
-
               </div>
             </div>
           </div>
@@ -413,17 +437,17 @@ const Boxvalue = () => {
                   columns={columns}
                   data={boxListing}
                   selectOptions={collection}
-                  handleSubmit={handleSubmit} 
-                  role={role}/>
+                  handleSubmit={handleSubmit}
+                  role={role}
+                />
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>
             </div>
           </div>
         </div>
       </div>
-
     </>
-  )
-}
+  );
+};
 
-export default Boxvalue
+export default Boxvalue;
