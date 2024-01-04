@@ -163,6 +163,10 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref
                                 <span>
                                     {column.isSorted ? (column.isSortedDesc ? ' 🔽' : ' 🔼') : ''}
                                 </span>
+                                {/* <button className="btn btn-primary ">123</button> */}
+                                {column.Header === '.' && (
+                              <button className="btn btn-primary" onClick={(e) => handleSubmit(e, newRowData)}>Save & Serach</button>
+          )}
                             </th>
                         ))}
                     </tr>
@@ -190,17 +194,16 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref
                      )}
                     <td></td>
                     <td></td>
-                    <td>
+                    {/* <td>
                         <button className="btn btn-primary me-3 w-100" onClick={(e) => handleSubmit(e, newRowData)}>Save & Serach</button>
-                    </td>
+                    </td> */}
                 </tr>
                  )}
-                {rows.map((row) => {
+                {/* {rows.map((row) => {
                     prepareRow(row);
                     return (
                         <tr {...row.getRowProps()}>
                             {row.cells.map((cell) => (
-                                // Conditionally render cells based on column id
                                 cell.column.id !== 'action' ? (
                                     <CellRenderer
                                         cell={cell}
@@ -210,14 +213,14 @@ const InlineEditingTable = forwardRef(({ columns, data, handleSubmit,role }, ref
                                     />
                                 ) : (
                                     <td {...cell.getCellProps()}>
-                                        {cell.column.render('Cell', { row })} {/* Pass the row to the render function */}
+                                        {cell.column.render('Cell', { row })} 
                                     </td>
                                 )
                             ))}
                         </tr>
 
                     );
-                })}
+                })} */}
             </tbody>
         </table>
     );

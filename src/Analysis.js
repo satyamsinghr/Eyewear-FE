@@ -527,10 +527,29 @@ const Analysis = () => {
           (RMatchPercentageB + LMatchPercentageB) /
           2
         ).toFixed(2);
+
+
+
+        let RCylEqDif = Math.abs(RSphEqE - RSphEqPat);
+        let LRCylEqDif = Math.abs(LSphEqE - LSphEqPat);
+
+        let RCylEqFactor =  RCylEqDif * RSphEqMult;
+        let LCylEqFactor = LRCylEqDif * LSphEqMult;
+
+        let RMatchPercentageEqS = 100 - RSphEqFactor - RCylEqFactor - RAxisFactor;
+        let LMatchPercentageEqS = 100 - LSphEqFactor - LCylEqFactor - LAxisFactor;
+
+       let  MatchPercentageEqS = (RMatchPercentageEqS + LMatchPercentageEqS) / 2;
+        // let LMatchPercentageEqS = 100 - LSphEqFactor - RCylEqFactor - RAxisEqFactor
+
+
+
+        
         const lensData = {
           ...lens,
           MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
           MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
+          MatchPercentageEqS: parseFloat(MatchPercentageEqS), // Convert back to numeric value
         };
   
         analysedData = [...analysedData, lensData];
@@ -548,7 +567,8 @@ const Analysis = () => {
       const newPatient = {
         ...collectionPaientListing[0],
         MatchPercentageB: 100,
-        MatchPercentageS: 100
+        MatchPercentageS: 100,
+        MatchPercentageEqS:100,
       }
       const newArray = [newPatient, ...newLensList];
       SetLenseListing(newArray);
@@ -1003,7 +1023,7 @@ const Analysis = () => {
                 <table className="table">
                   <thead className="rounded">
                     <tr>
-                      <th colSpan={3} className="text-center">
+                      <th colSpan={4} className="text-center">
                         EyeWare
                       </th>
                       <th colSpan={4} className="text-center">
@@ -1023,6 +1043,9 @@ const Analysis = () => {
                       </th>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         %Bi
+                      </th>
+                      <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
+                        EqS
                       </th>
 
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -1095,6 +1118,15 @@ const Analysis = () => {
                               }
                             >
                               {id === 0 ? "100" : x.MatchPercentageS}
+                            </td>
+                            <td
+                              className={
+                                id === 0
+                                  ? "data_highlighted py-3 px-3 "
+                                  : "data py-3 px-3 "
+                              }
+                            >
+                              {id === 0 ? "100" : x.MatchPercentageEqS}
                             </td>
 
                             <td

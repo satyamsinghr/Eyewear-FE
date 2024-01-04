@@ -90,7 +90,6 @@ const Users = () => {
   }, [userId]);
 
   const handleDelete = async (id) => {
-    debugger;
     const data = {
       id: id,
     };
@@ -177,7 +176,6 @@ const Users = () => {
     );
     if (getResponse.ok) {
       const data = await getResponse.json();
-
       setUsers(data.Users);
     } else {
       console.log("Get Failed");
@@ -185,7 +183,6 @@ const Users = () => {
   };
 
   const handleSubmit = async (e, collection) => {
-    debugger;
     e.preventDefault();
     const { firstName, lastName, email, password } = collection;
     if (!validateForm(collection)) {

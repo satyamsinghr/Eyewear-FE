@@ -559,14 +559,15 @@ table.patitnet_table tr td,
 }
 
 
-.analysis_table table.table tr th:nth-child(3),
-.analysis_table table.table tr td:nth-child(3),
-.analysis_table table.table tr th:nth-child(7),
-.analysis_table table.table tr td:nth-child(7),
-.analysis_table table.table tr th:nth-child(11),
-.analysis_table table.table tr td:nth-child(11),
+.analysis_table table.table tr:not(:first-child) th:nth-child(4),
+.analysis_table table.table tr td:nth-child(4),
+.analysis_table table.table tr th:nth-child(8),
+.analysis_table table.table tr td:nth-child(8),
+.analysis_table table.table tr th:nth-child(12),
+.analysis_table table.table tr td:nth-child(12),
 .analysis_table table.table thead tr:first-child th:nth-child(1),
 .analysis_table table.table thead tr:first-child th:nth-child(2),
+.analysis_table table.table thead tr:first-child th:nth-child(3),
 table.patitnet_table tr th:nth-child(3),
 table.patitnet_table tr td:nth-child(3),
 table.patitnet_table tr th:nth-child(7),
@@ -598,10 +599,14 @@ table.patitnet_table tr td .btn.btn-primary {
   word-break: break-all;
 } */
 
-.table_card.patitnet_table tr td:nth-child(7) input, .table_card.patitnet_table tr td:nth-child(11) input {
+/* .table_card.patitnet_table tr td:nth-child(7) input, .table_card.patitnet_table tr td:nth-child(11) input {
   min-width: 110px;
+} */
+.patitnet_table tr td, .patitnet_table tr th {
+  width: 10%;
+  min-width: 110px;
+  max-width: 110px;
 }
-
 .user_table table tr td:not(:last-child) {
   width: auto;
   max-width: 10%;
