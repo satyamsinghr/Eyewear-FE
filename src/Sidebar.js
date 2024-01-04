@@ -80,14 +80,13 @@ const Sidebar = () => {
                         Collection
                       </Link>
                     </li>
-                    <li
+                    {/* <li
                       className={
                         location.pathname == "/boxvalue"
                           ? "px-3 nav-item active"
                           : "px-3 nav-item"
                       }
                     >
-                      {/* <li className="px-3 mt-2" onClick={() => {setActive('box')}}> */}
                       <Link to="/boxvalue">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -104,7 +103,7 @@ const Sidebar = () => {
                         </svg>
                         Box Values
                       </Link>
-                    </li>
+                    </li> */}
                     <li
                       className={
                         location.pathname == "/lenses"

@@ -625,7 +625,7 @@ table.patitnet_table tr td .btn.btn-primary {
 .search_table
 {
   overflow-x: auto;
-  height: 50vh;
+  height: 65vh;
 }
 .search_table thead tr,
 .search_table tbody tr:nth-child(1),
@@ -645,7 +645,7 @@ table.patitnet_table tr td .btn.btn-primary {
   top: 44.89px;
 }
 .search_table tbody tr:nth-child(1) {
-  top: 105.78px;
+  top: 107.78px;
   background-color: #fff;
 }
 .search_table tbody tr:nth-child(2) {
@@ -654,6 +654,11 @@ table.patitnet_table tr td .btn.btn-primary {
 .search_table.filter_table tbody tr:nth-child(2) {
   position: relative;
   top: 0;
+}
+.lenses_table_scroll {
+  height: 65vh;
+  padding-top: 0;
+  margin-top: 30px;
 }
 @media (max-width:1600px) {
   ul.menu_list li {

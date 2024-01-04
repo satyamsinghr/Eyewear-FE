@@ -108,11 +108,11 @@ const Lenses = () => {
       accessor: "RSphere",
       className: "px-3 py-3",
     },
-    {
-      Header: "Box Name",
-      accessor: "Box_Names",
-      className: "px-3 py-3",
-    },
+    // {
+    //   Header: "Box Name",
+    //   accessor: "Box_Names",
+    //   className: "px-3 py-3",
+    // },
     {
       Header: "LBIF",
       accessor: "LLBIF",
@@ -486,7 +486,7 @@ const Lenses = () => {
       LRBIF,
     } = formData;
     if (!validateForm(formData)) {
-      const box = boxes.find((x) => x.id == Box_Names);
+      // const box = boxes.find((x) => x.id == Box_Names);
       const data = {
         lensId: lensId,
         Lens_Status: Lens_Status,
@@ -506,8 +506,8 @@ const Lenses = () => {
         Patient_id: Patient_id,
         LLBIF: LLBIF,
         LRBIF: LRBIF,
-        Box_id: Box_Names,
-        Box_Name: box ? box.Box_Name : "",
+        // Box_id: Box_Names,
+        // Box_Name: box ? box.Box_Name : "",
       };
 
       const res = await fetch(
@@ -913,7 +913,7 @@ const Lenses = () => {
 
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded lenses_table overflow-hidden">
+              <div className="table_card rounded lenses_table overflow-auto lenses_table_scroll">
                 <ReactTable
                   ref={childRef}
                   columns={columns}

@@ -511,15 +511,14 @@ const Analysis = () => {
         ).toFixed(2);
 
         let RMatchPercentageB =
-          100 - RSphFactor - RCylFactor - RAxisFactor  - RAddFactor;
+          100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
         let LMatchPercentageB =
-          100 - LSphFactor - LCylFactor - LAxisFactor  - LAddFactor;
+          100 - LSphFactor - LCylFactor - LAxisFactor - LAddFactor;
 
         let MatchPercentageB = (
           (RMatchPercentageB + LMatchPercentageB) /
           2
         ).toFixed(2);
-
 
         //newly added
 
@@ -530,7 +529,7 @@ const Analysis = () => {
         let LAxisEqE = LSphE + LCylE / 2;
 
         let RAxisEqDif = Math.abs(RAxisEqE - RAxisEqPat);
-        let LAxisEqDif =  Math.abs(LAxisEqE - LAxisEqPat);
+        let LAxisEqDif = Math.abs(LAxisEqE - LAxisEqPat);
 
         let RAxisEqFactor = RAxisEqDif * RSphEqMult;
         let LAxisEqFactor = LAxisEqDif * LSphEqMult;
@@ -560,7 +559,7 @@ const Analysis = () => {
       }
 
       const newLensList = analysedData.filter(
-        (x) => !x.Patient_id || x.Patient_id == currentPatientId
+        (x) => !x.Patient_id || x.Patient_id == patientId
       );
 
       newLensList.sort(
@@ -1030,7 +1029,11 @@ const Analysis = () => {
 
           <div className="row mt-4">
             <div className="col-12">
-            <div className={`table_card search_table${id ? ' filter_table' : ''} analysis_table rounded pt-0`}>
+              <div
+                className={`table_card search_table${
+                  id ? " filter_table" : ""
+                } analysis_table rounded pt-0`}
+              >
                 <table className="table">
                   <thead className="rounded">
                     <tr>
@@ -1177,7 +1180,9 @@ const Analysis = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? "100" : x.MatchPercentageEqS.toFixed(2)}
+                              {id === 0
+                                ? "100"
+                                : x.MatchPercentageEqS.toFixed(2)}
                             </td>
 
                             <td

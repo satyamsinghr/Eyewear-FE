@@ -559,7 +559,7 @@ const DispenseComponent = () => {
       }
 
       const newLensList = analysedData.filter(
-        (x) => !x.Patient_id || x.Patient_id == currentPatientId
+        (x) => !x.Patient_id || x.Patient_id == patientId
       );
 
       newLensList.sort(
