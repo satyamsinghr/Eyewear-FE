@@ -17,6 +17,7 @@ const ReactTable = forwardRef(
       setCollectionListing,
       role,
       tableType,
+      submitEdits,
     },
     ref
   ) => {
@@ -119,9 +120,8 @@ const ReactTable = forwardRef(
           ...row.original,
           [columnId]: value,
         };
-
         updatedData[rowIndex] = updatedRow;
-        setCollectionListing(updatedData);
+        submitEdits(updatedRow);
       };
 
       const renderSelect = (columnId, options) => {
@@ -161,7 +161,7 @@ const ReactTable = forwardRef(
       };
 
       return (
-        <td  {...cell.getCellProps()}>
+        <td {...cell.getCellProps()}>
           {cell.column.id !== "action" && (
             <>
               {cell.column.id === "Box_Names" &&
@@ -174,26 +174,23 @@ const ReactTable = forwardRef(
                 cell.column.id !== "Lens_Status" &&
                 cell.column.id !== "Box_Names" &&
                 renderEditableCell(cell.column.id)}
-              {(
-                
-                cell.column.id === "id" ||
-                cell.column.id === "email") && (
+              {(cell.column.id === "id" || cell.column.id === "email") && (
                 <div dangerouslySetInnerHTML={{ __html: cell.value }} />
               )}
 
-              {(
-                 cell.column.id === "password" &&
+              {cell.column.id === "password" && (
                 <input
-                type="text"
-                placeholder="Change Password"
-                onChange={(e) => {
-                  const updatedData = [...data];
-                  const rowIndex = row.index;
-                  updatedData[rowIndex][cell.column.id] = e.target.value;
-                }
-                  // setPassword(cell.column.id, e.target.value)
-                }
-              />
+                  type="text"
+                  placeholder="Change Password"
+                  onChange={
+                    (e) => {
+                      const updatedData = [...data];
+                      const rowIndex = row.index;
+                      updatedData[rowIndex][cell.column.id] = e.target.value;
+                    }
+                    // setPassword(cell.column.id, e.target.value)
+                  }
+                />
               )}
             </>
           )}
