@@ -369,7 +369,7 @@ const FileCollection = () => {
           </div>
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded overflow-hidden">
+              <div className="table_card rounded pt-0 mt-4 setting_table overflow-auto">
                 {/* <table className="table w-full m-0">
                                 <thead className="rounded">
                                     <tr>

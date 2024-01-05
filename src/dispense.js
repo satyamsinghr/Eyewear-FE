@@ -967,7 +967,7 @@ const DispenseComponent = () => {
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className="user_style">
           <div className="user_name">
-            <h2>Filter</h2>
+            <h2>Lenses</h2>
             <hr className="mt-4" />
           </div>
           {/* <div className="row search_input">
@@ -1096,36 +1096,8 @@ const DispenseComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {id ? // Render when param is present
-                    null : (
-                      <tr>
-                        <td>
-                          <input
-                            type="text"
-                            onChange={(e) => {
-                              handleInputChange(e);
-                            }}
-                          />
-                        </td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                      </tr>
-                    )}
-                    {lenseListing &&
-                      lenseListing.length > 0 &&
+                  {lenseListing &&
+                      lenseListing.length > 0 ?
                       lenseListing.map((x, id) => {
                         return (
                           //
@@ -1137,7 +1109,14 @@ const DispenseComponent = () => {
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? x.PatientId : x.lensId}
+                              {id === 0 ? <input
+                            type="text"
+                            value={x.PatientId}
+                            onChange={(e) => {
+                              handleInputChange(e);
+                            }}
+                          />  : x.lensId}
+
                             </td>
                             <td
                               className={
@@ -1318,7 +1297,31 @@ const DispenseComponent = () => {
                             </td>
                           </tr>
                         );
-                      })}
+                      }): <tr>
+                      <td>
+                        <input
+                          type="text"
+                          onChange={(e) => {
+                            handleInputChange(e);
+                          }}
+                        />
+                      </td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>}
                   </tbody>
                 </table>
               </div>

@@ -221,7 +221,7 @@ const SettingCollection = () => {
         </div>
         <div className="row mt-4">
           <div className="col-12">
-            <div className="table_card setting_table rounded">
+            <div className="table_card setting_table rounded pt-0 mt-4 setting_table">
             <button className="btn btn-primary float-end mb-3 " type="button" onClick={(e) => submitEdits(e, editedeyewearConfig)} >Save All</button>
               <ReactSettingTable
                 tableType={"eyewearConfig"}
@@ -236,7 +236,7 @@ const SettingCollection = () => {
         </div>
         <div className="row mt-4">
           <div className="col-12">
-            <div className="table_card setting_table rounded">
+            <div className="table_card setting_table rounded pt-0 mt-4">
             <button className="btn btn-primary float-end mb-3" type="button" onClick={(e) => submitAxisConfigEdits(e, editedaxisConfig)} >Save All</button>
               <ReactSettingTable
                 tableType={"axisConfig"}

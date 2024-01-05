@@ -967,7 +967,7 @@ const Analysis = () => {
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className="user_style">
           <div className="user_name">
-            <h2>Filter</h2>
+            <h2>Lenses</h2>
             <hr className="mt-4" />
           </div>
           {/* <div className="row search_input">
@@ -1029,10 +1029,8 @@ const Analysis = () => {
 
           <div className="row mt-4">
             <div className="col-12">
-              <div
-                className={`table_card search_table${
-                  id ? " filter_table" : ""
-                } analysis_table rounded pt-0`}
+            <div
+                className="table_card search_table analysis_table rounded pt-0"
               >
                 <table className="table">
                   <thead className="rounded">
@@ -1100,94 +1098,80 @@ const Analysis = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {id ?  null : (
-                      <tr >
-                      <td>
-                      <input
-                      type="text"
-                       onChange={(e) => {
-                       handleInputChange(e);
-                     }}
-                        />
-                          </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                            <td> 
-                              </td>
-                       </tr>
-                    )}
-                    {lenseListing &&
-                      lenseListing.length > 0 &&
-                      lenseListing.map((x, id) => {
+                  {lenseListing &&
+                      lenseListing.length > 0 ?
+                      lenseListing.map((x, index) => {
                         return (
-                          //
-                          <tr key={x.id} className="data">
+                          <tr key={x.index} className="data">
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? x.PatientId : x.lensId}
+                              {/* { id ? 
+                              {index === 0 ? <input
+                               type="text"
+                               value={x.PatientId}
+                               onChange={(e) => {
+                               handleInputChange(e);
+                              }}
+                             /> : x.lensId}
+                                 :
+                             {index === 0 ? x.patientId
+                             : x.lensId}} */}
+
+                              {
+                                id ? (
+                                  index === 0 ? x.PatientId : x.lensId
+
+                                ) : (
+                                  index === 0 ? (
+                                    <input
+                                      type="text"
+                                      value={x.PatientId}
+                                      onChange={(e) => handleInputChange(e)}
+                                    />
+                                  ) : (
+                                    x.lensId
+                                  )
+                                )
+                              }
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? "100" : x.MatchPercentageB}
+                              {index === 0 ? "100" : x.MatchPercentageB}
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? "100" : x.MatchPercentageS}
+                              {index === 0 ? "100" : x.MatchPercentageS}
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0
+                              {index === 0
                                 ? "100"
                                 : x.MatchPercentageEqS.toFixed(2)}
                             </td>
 
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1196,7 +1180,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1205,7 +1189,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1214,7 +1198,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1224,7 +1208,7 @@ const Analysis = () => {
 
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1233,7 +1217,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1242,7 +1226,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1251,7 +1235,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1261,12 +1245,12 @@ const Analysis = () => {
 
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
                             >
-                              {id === 0 ? (
+                              {index === 0 ? (
                                 "patient"
                               ) : (
                                 //	dispensed, Missing, Trashed
@@ -1316,7 +1300,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1325,7 +1309,7 @@ const Analysis = () => {
                             </td>
                             <td
                               className={
-                                id === 0
+                                index === 0
                                   ? "data_highlighted py-3 px-3 "
                                   : "data py-3 px-3 "
                               }
@@ -1334,7 +1318,46 @@ const Analysis = () => {
                             </td>
                           </tr>
                         );
-                      })}
+                      }) : 
+                      <tr>
+                        <td>
+                          <input
+                            type="text"
+                            onChange={(e) => {
+                              handleInputChange(e);
+                            }}
+                          />
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                        <td>
+                        </td>
+                      </tr>
+                    }
                   </tbody>
                 </table>
               </div>

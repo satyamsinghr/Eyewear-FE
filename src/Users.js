@@ -261,7 +261,7 @@ const Users = () => {
         <div className="user_style">
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded overflow-hidden user_table">
+            <div className="table_card rounded setting_table overflow-hidden user_table pt-0 mt-4">
                 <ReactTable
                   tableType={"users"}
                   ref={childRef}
