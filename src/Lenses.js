@@ -4,13 +4,14 @@ import InlineEditingTable from "./InlineEditingTable";
 import { useNavigate } from "react-router";
 import moment from "moment";
 import ReactTable from "./ReactTable";
-
+import { toast } from 'react-toastify';
 import { API_URL } from "./helper/common";
 
 const Lenses = () => {
   const [formData, setFormData] = useState({
     id: "",
     lensId: "",
+    Collection_id: "",
     Box_id: "",
     Box_Name: "",
     Lens_Status: "",
@@ -28,8 +29,8 @@ const Lenses = () => {
     Is_Blocked: false,
     Is_Booked: false,
     Patient_id: "",
-    LLBIF: "",
-    LRBIF: "",
+    // LLBIF: "",
+    // LRBIF: "",
   });
   // const [pidvalid, setPidvalid] = useState({});
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ const Lenses = () => {
   const [filteredLens, setFilteredLens] = useState([]);
   const [currentLensId, setCurrentLensId] = useState("");
   const [collectionListing, setCollectionListing] = useState([]);
+  const [collectionById, setCollectionById] = useState([]);
+  const [collection, setCollection] = useState([]);
   const [selectedLensId, SetSelectedLensId] = useState("");
   const [todoEditing, setTodoEditing] = useState(false);
   const [patientData, setPatientData] = useState([]);
@@ -53,49 +56,19 @@ const Lenses = () => {
       accessor: "Lens_Status",
       className: "px-3 py-3",
     },
+    // {
+    //   Header: "Collection Id",
+    //   accessor: "Collection_id",
+    //   className: "px-3 py-3",
+    // },
     {
       Header: "Lens Gender",
       accessor: "Lens_Gender",
       className: "px-3 py-3",
     },
     {
-      Header: "Lens Type",
-      accessor: "Lens_Type",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "LAdd",
-      accessor: "LAdd",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "LAxis",
-      accessor: "LAxis",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "LCylinder",
-      accessor: "LCylinder",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "LSphere",
-      accessor: "LSphere",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "Lens_DTS",
-      accessor: "Lens_DTS",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "RAdd",
-      accessor: "RAdd",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "RAxis",
-      accessor: "RAxis",
+      Header: "RSphere",
+      accessor: "RSphere",
       className: "px-3 py-3",
     },
     {
@@ -104,8 +77,44 @@ const Lenses = () => {
       className: "px-3 py-3",
     },
     {
-      Header: "RSphere",
-      accessor: "RSphere",
+      Header: "RAxis",
+      accessor: "RAxis",
+      className: "px-3 py-3",
+    },
+    {
+      Header: "RAdd",
+      accessor: "RAdd",
+      className: "px-3 py-3",
+    },
+ 
+    {
+      Header: "LSphere",
+      accessor: "LSphere",
+      className: "px-3 py-3",
+    },
+    {
+      Header: "LCylinder",
+      accessor: "LCylinder",
+      className: "px-3 py-3",
+    },
+    {
+      Header: "LAxis",
+      accessor: "LAxis",
+      className: "px-3 py-3",
+    },
+    {
+      Header: "LAdd",
+      accessor: "LAdd",
+      className: "px-3 py-3",
+    },
+   {
+      Header: "Lens Type",
+      accessor: "Lens_Type",
+      className: "px-3 py-3",
+    },
+    {
+      Header: "Lens_DTS",
+      accessor: "Lens_DTS",
       className: "px-3 py-3",
     },
     // {
@@ -113,16 +122,16 @@ const Lenses = () => {
     //   accessor: "Box_Names",
     //   className: "px-3 py-3",
     // },
-    {
-      Header: "LBIF",
-      accessor: "LLBIF",
-      className: "px-3 py-3",
-    },
-    {
-      Header: "LRBIF",
-      accessor: "LRBIF",
-      className: "px-3 py-3",
-    },
+    // {
+    //   Header: "LBIF",
+    //   accessor: "LLBIF",
+    //   className: "px-3 py-3",
+    // },
+    // {
+    //   Header: "LRBIF",
+    //   accessor: "LRBIF",
+    //   className: "px-3 py-3",
+    // },
     {
       Header: "Action",
       accessor: "action",
@@ -177,31 +186,184 @@ const Lenses = () => {
   const [csvFile, setCsvFile] = useState(null);
   const [csvName, setCsvName] = useState("");
   const [role, setRole] = useState("");
+  const [collId, setCollId] = useState([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState('');
+
   useEffect(() => {
+    const role = JSON.parse(localStorage.getItem("role"));
+    const collId = JSON.parse(localStorage.getItem("collId"));
+    const selectedColID = localStorage.getItem('selectedLensCollectionId');
+    setSelectedCollectionId(selectedColID);
     const userId = JSON.parse(localStorage.getItem("userId"));
+    setRole(role);
     if (userId) {
       setUserId(userId);
     }
-    else{
-        navigate('/')
+    else {
+      navigate('/')
     }
-    const role = JSON.parse(localStorage.getItem("role"));
-    setRole(role);
+   
+    setCollId(collId)
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      getdata();
-      getBoxes();
-    }
-  }, [userId]);
+  // useEffect(() => {
+  //   if (userId) {
+  //     if (role == 1) getdata();
+  //     if (role !== 1) {
+  //       getColldata();
+  //       getlensByCollId();
+  //     }
 
+  //   }
+  // }, [userId]);
+  useEffect(() => {
+    if (!userId) return;
+    if (role == 1) {
+      // getdata();
+      getAllCollection();
+    } else {
+      getlensByCollId();
+    }
+    
+    getColldata();
+  }, [userId, role]);
+
+  const getAllCollection = async () => {
+
+    const getResponse = await fetch(
+      `${API_URL}/v1/collection?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      setCollectionById(collectionData);
+      // handleSelectChange("", collectionData[0]?.id)
+      //  handleSelectChange("", selectedCollectionId)
+      let selectedCollId;
+      selectedCollId = selectedCollectionId || collectionData[0].id;
+      handleSelectChange("", selectedCollId)
+    } else {
+      console.log("Get Failed");
+    }
+  }
   const changeHandle = (e) => {
     setBoxModel({ ...boxModel, [e.target.name]: e.target.value });
   };
 
+  const getColldata = async () => {
+    const getResponse = await fetch(
+      `${API_URL}/v1/collection?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      setCollection(collectionData);
+    } else {
+      console.log("Get Failed");
+    }
+  };
+  const handleSelectChange = async (e, id) => {
+    if (e?.target?.value) {
+      var id = e.target.value;
+    }
+    localStorage.setItem('selectedLensCollectionId', id);
+    setSelectedCollectionId(id);
+    setCurrentLensId("");
+    setFilteredLens([]);
+    const getResponse = await fetch(
+      // `${API_URL}/v1/lensesByCollectionId?collectionId=${e.target.value}`,
+      `${API_URL}/v1/lensesByCollectionId?collectionId=${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.lensesData.map((x) => ({
+        ...x
+      }));
+      setCollectionListing(collectionData);
+    } else {
+      console.log("Get Failed");
+    }
+
+  };
+  const getlensByCollId = async () => {
+    const getResponse = await fetch(
+      `${API_URL}/v1/getCollectionsByIds`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+        body: JSON.stringify({ collectionIds: collId }),
+      }
+    );
+
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      setCollectionById(collectionData);
+      // handleSelectChange("", collectionData[0]?.id)
+      let selectedCollId;
+      selectedCollId = selectedCollectionId || collectionData[0].id;
+      handleSelectChange("", selectedCollId)
+    } else {
+      console.log("Post Failed");
+    }
+  }
+
+  const getdata = async (matched) => {
+    const queryParams = new URLSearchParams(boxModel).toString();
+    const getResponse = await fetch(
+      `${API_URL}/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      setCollectionListing(data.Lenses_Data);
+    } else {
+      console.log("Get Failed");
+    }
+  };
+
   const validateForm = (formData = formData) => {
     const {
+      lensId,
       Lens_Status,
       Lens_Gender,
       Lens_Type,
@@ -216,69 +378,62 @@ const Lenses = () => {
       Lens_DTS,
       Patient_id,
       Box_id,
-      LLBIF,
-      LRBIF,
+      // LLBIF,
+      // LRBIF,
     } = formData;
     let error = {};
     let isError = false;
-    if (!Lens_Status) {
+
+    if (!lensId) {
+      toast.error('Please fill valid input ');
+      error.lensId = "Required !";
+      isError = true;
+    }
+    else if (!Lens_Status) {
+      toast.error('Please fill valid input ');
       error.Lens_Status = "Required !";
       isError = true;
     }
-    if (!Lens_Gender) {
+    else if (!Lens_Gender) {
+      toast.error('Please fill valid input ');
       error.Lens_Gender = "Required !";
       isError = true;
     }
-    // if (!Lens_Type) {
-    //   error.Lens_Type = "Required !";
-    //   isError = true;
-    // }
-    if (!RSphere) {
+    // else if (!RAdd) {
+    else if (!RSphere && !LSphere) {
+      toast.error('Please fill Sphere');
       error.RSphere = "Required !";
       isError = true;
     }
-    if (!RCylinder) {
-      error.RCylinder = "Required !";
-      isError = true;
-    }
-    if (!RAxis) {
-      error.RAxis = "Required !";
-      isError = true;
-    }
-    if (!RAdd) {
-      error.RAdd = "Required !";
-      isError = true;
-    }
-    if (!LSphere) {
-      error.LSphere = "Required !";
-      isError = true;
-    }
-    if (!LCylinder) {
-      error.LCylinder = "Required !";
-      isError = true;
-    }
-    if (!LAxis) {
-      error.LAxis = "Required !";
-      isError = true;
-    }
-    if (!LAdd) {
-      error.LAdd = "Required !";
-      isError = true;
-    }
-    if (!LLBIF) {
-      error.LLBIF = "Required !";
-      isError = true;
-    }
-    if (!LRBIF) {
-      error.LRBIF = "Required !";
-      isError = true;
-    }
-    // if (!Lens_DTS) {
-    //   error.Lens_DTS = "Required !";
+    // else if (/[A-Za-z]/.test(RSphere) || /[A-Za-z]/.test(LSphere)) {
+    //   toast.error('Sphere should not contain alphabets');
+    //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
     // }
-    // if (!Box_id) {
-    //   error.Box_id = "Required !";
+    
+    // else if (/[A-Za-z]/.test(RCylinder) || /[A-Za-z]/.test(LCylinder)) {
+    //   toast.error('Cylinder should not contain alphabets');
+    //   error.RSphere = "Should not contain alphabets!";
+    //   isError = true;
+    // }
+    else if (!RAxis && !LAxis) {
+      toast.error('Please fill Axis');
+      error.RSphere = "Required !";
+      isError = true;
+    }
+    // else if (/[A-Za-z]/.test(RAxis) || /[A-Za-z]/.test(LAxis)) {
+    //   toast.error('Axis should not contain alphabets');
+    //   error.RSphere = "Should not contain alphabets!";
+    //   isError = true;
+    // }
+    else if (!LAdd && !RAdd) {
+      toast.error('Please fill Add');
+      error.RSphere = "Required !";
+      isError = true;
+    }
+    // else if (/[A-Za-z]/.test(LAdd) || /[A-Za-z]/.test(RAdd)) {
+    //   toast.error('Add should not contain alphabets');
+    //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
     // }
     setValidation(error);
@@ -305,7 +460,6 @@ const Lenses = () => {
       );
       if (getResponse.ok) {
         const data = await getResponse.json();
-        console.log(data.Patient_Data);
         setPatientData(data.Patient_Data);
       } else {
         console.log("Get Failed");
@@ -482,9 +636,11 @@ const Lenses = () => {
       Is_Booked,
       Box_id,
       Box_Names,
-      LLBIF,
-      LRBIF,
+      Collection_id,
+      // LLBIF,
+      // LRBIF,
     } = formData;
+
     if (!validateForm(formData)) {
       // const box = boxes.find((x) => x.id == Box_Names);
       const data = {
@@ -492,20 +648,23 @@ const Lenses = () => {
         Lens_Status: Lens_Status,
         Lens_Gender: Lens_Gender,
         Lens_Type: Lens_Type,
-        RCylinder: RCylinder,
-        RAxis: RAxis,
-        RAdd: RAdd,
-        RSphere: RSphere,
-        LSphere: LSphere,
-        LCylinder: LCylinder,
-        LAxis: LAxis,
-        LAdd: LAdd,
+        RCylinder: RCylinder || "0",
+        RAxis: RAxis || "0",
+        RAdd: RAdd || "0",
+        RSphere: RSphere || "0",
+        LSphere: LSphere || "0",
+        LCylinder: LCylinder || "0",
+        LAxis: LAxis || "0",
+        LAdd: LAdd || "0",
         Lens_DTS: Lens_DTS,
         Is_Blocked: Is_Blocked,
         Is_Booked: Is_Booked,
         Patient_id: Patient_id,
-        LLBIF: LLBIF,
-        LRBIF: LRBIF,
+        isReading: Lens_Status === "reading" ? true : false,
+        // CollectionId: Collection_id || selectedCollectionId
+        CollectionId: selectedCollectionId
+        // LLBIF: LLBIF,
+        // LRBIF: LRBIF,
         // Box_id: Box_Names,
         // Box_Name: box ? box.Box_Name : "",
       };
@@ -523,56 +682,38 @@ const Lenses = () => {
       );
       if (res.ok) {
         const values = await res.json();
-        console.log("sadasd", values);
-        getdata();
+        // getdata();
+        getAllCollection();
         childRef.current.resetNewRowData();
+        setFormData({
+          Patient_id: "",
+          Lens_Status: "",
+          Lens_Gender: "",
+          Lens_Type: "",
+          RCylinder: "",
+          RSphere: "",
+          RAxis: "",
+          RAdd: "",
+          LSphere: "",
+          LCylinder: "",
+          LAxis: "",
+          LAdd: "",
+          Lens_DTS: "",
+          Is_Blocked: false,
+          Is_Booked: false,
+          Box_id: "",
+          Box_Name: "",
+          Collection_id: "",
+          // LLBIF: "",
+          // LRBIF: "",
+        });
       } else {
         console.log("Post Failed");
+        toast.error('Lens with the provided lensId already exists');
       }
 
-      setFormData({
-        Patient_id: "",
-        Lens_Status: "",
-        Lens_Gender: "",
-        Lens_Type: "",
-        RCylinder: "",
-        RSphere: "",
-        RAxis: "",
-        RAdd: "",
-        LSphere: "",
-        LCylinder: "",
-        LAxis: "",
-        LAdd: "",
-        Lens_DTS: "",
-        Is_Blocked: false,
-        Is_Booked: false,
-        Box_id: "",
-        Box_Name: "",
-        LLBIF: "",
-        LRBIF: "",
-      });
+
       // }
-    }
-  };
-
-  const getdata = async (matched) => {
-    const queryParams = new URLSearchParams(boxModel).toString();
-    const getResponse = await fetch(
-      `${API_URL}/v1/lens?${queryParams}&match=${matched}&userId=${userId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
-      }
-    );
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      console.log("data.Lenses_Data", data.Lenses_Data);
-      setCollectionListing(data.Lenses_Data);
-    } else {
-      console.log("Get Failed");
     }
   };
 
@@ -591,7 +732,8 @@ const Lenses = () => {
 
     if (response.ok) {
       console.log("Deletion successful");
-      getdata(false);
+      // getdata(false);
+      getAllCollection();
     } else {
       console.log("Deletion failed");
     }
@@ -618,19 +760,23 @@ const Lenses = () => {
       Is_Booked: x.Is_Booked,
       Box_id: x.Box_id,
       Box_Name: x.Box_Name,
-      LLBIF: x.LLBIF,
-      LRBIF: x.LRBIF,
+      CollectionId: x?.Collection_id,
+      // LLBIF: x.LLBIF,
+      // LRBIF: x.LRBIF,
     });
   }
 
   const submitEdits = async (formData) => {
     // e.preventDefault();
     if (!validateForm(formData)) {
-      const box = boxes.find((x) => x.id == formData.Box_id);
+      // const box = boxes.find((x) => x.id == formData.Box_id);
+      const box = collectionListing.find((x) => x.id == formData.id);
       let data = {
         ...formData,
         Box_Name: box.Box_Name,
+        isReading: box.Lens_Status === "reading" ? true : false,
       };
+
       await updateLens(data);
       setFormData({
         Patient_id: "",
@@ -650,8 +796,9 @@ const Lenses = () => {
         Is_Booked: false,
         Box_id: "",
         Box_Name: "",
-        LLBIF: "",
-        LRBIF: "",
+        Collection_id: "",
+        // LLBIF: "",
+        // LRBIF: "",
       });
       setTodoEditing(false);
     }
@@ -707,7 +854,8 @@ const Lenses = () => {
     });
     if (response.ok) {
       console.log("Lens Blocked Successfully");
-      getdata(false);
+      // getdata(false);
+      getAllCollection();
     } else {
       console.log("Lens not Blocked");
     }
@@ -729,12 +877,9 @@ const Lenses = () => {
   };
 
   const submitCsv = async () => {
-    console.log(csvFile);
     if (csvFile) {
       const formData = new FormData();
       formData.append("csv", csvFile);
-
-      console.log(formData.get("csv"));
       try {
         const response = await fetch(
           `${API_URL}/v1/lensCsv?userId=${userId}`,
@@ -765,7 +910,7 @@ const Lenses = () => {
           onClick={() => submitEdits(row.original)}
         >
           {/* //<strong>Edit</strong> */}
-          <svg
+          {/* <svg
             xmlns="http://www.w3.org/2000/svg"
             width="25"
             height="25"
@@ -774,7 +919,8 @@ const Lenses = () => {
             viewBox="0 0 16 16"
           >
             <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
-          </svg>
+          </svg> */}
+          Edit
         </button>
         <button
           className="btn btn-primary bg-danger"
@@ -804,32 +950,61 @@ const Lenses = () => {
     </td>
   );
 
+
   const handleFilterChange = async (e) => {
     setCurrentLensId(e.target.value);
     const queryParams = new URLSearchParams(boxModel).toString();
-    const getResponse = await fetch(
-      `${API_URL}/v1/lens?${queryParams}&userId=${userId}&lensId=${e.target.value}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
-      }
-    );
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      console.log("data.Lenses_Data", data.Lenses_Data);
-      if (e.target.value === "") {
-        setFilteredLens([]);
-        setCurrentLensId("");
+    // if (role == 1) {
+    //   const getResponse = await fetch(
+    //     `${API_URL}/v1/lens?${queryParams}&userId=${userId}&lensId=${e.target.value}`,
+    //     {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: JSON.parse(localStorage.getItem("token")),
+    //       },
+    //     }
+    //   );
+    //   if (getResponse.ok) {
+    //     const data = await getResponse.json();
+    //     if (e.target.value === "") {
+    //       setFilteredLens([]);
+    //       setCurrentLensId("");
+    //     } else {
+    //       setFilteredLens(data.Lenses_Data);
+    //     }
+
+    //     setCollectionListing(data.Lenses_Data);
+    //   } else {
+    //     console.log("Get Failed");
+    //   }
+    // } else {
+      const getResponse = await fetch(
+        `${API_URL}/v1/getLensById?lensId=${e.target.value}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+          // body: JSON.stringify({ collectionIds: collId }),
+          body: JSON.stringify({ collectionIds: selectedCollectionId }),
+        }
+      );
+      if (getResponse.ok) {
+        const data = await getResponse.json();
+        if (e.target.value === "") {
+          setFilteredLens([]);
+          setCurrentLensId("");
+        } else {
+          setFilteredLens(data.Lenses_Data);
+        }
+        setCollectionListing(data.Lenses_Data);
       } else {
-        setFilteredLens(data.Lenses_Data);
+        console.log("Get Failed");
       }
-      setCollectionListing(data.Lenses_Data);
-    } else {
-      console.log("Get Failed");
-    }
+    // }
+
   };
 
   const handleFiltedId = (selectedLensRow) => {
@@ -837,6 +1012,7 @@ const Lenses = () => {
     setCurrentLensId(data.lensId);
     SetSelectedLensId(selectedLensRow.lensId);
     setFilteredLens([]);
+    
 
     const newData = {
       lensId: data.lensId,
@@ -857,23 +1033,19 @@ const Lenses = () => {
       Is_Booked: data.Is_Booked,
       Box_id: data.Box_id,
       Box_Name: data.Box_Name,
-      LLBIF: data.LLBIF,
-      LRBIF: data.LRBIF,
+      // LLBIF: data.LLBIF,
+      // LRBIF: data.LRBIF,
     };
     setCollectionListing((state) => [newData]);
   };
 
   return (
     <>
-      <div class="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
-        <div class="user_style">
-          <div className="user_name">
-            <h2>Lenses</h2>
-            <hr className="mt-4" />
-          </div>
-          <div className="row search_input">
-            <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-              <div className="form-floating mb-3">
+       <div class="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
+        <div class="user_style lenses_page">
+          <div className="row search_input g-3">
+            <div className="col-lg-6 col-md-6 col-sm-12 col-12 mt-lg-0">
+              <div className="form-floating">
                 <input
                   type="text"
                   className="form-control"
@@ -887,7 +1059,8 @@ const Lenses = () => {
                 />
                 <label htmlFor="selectBoxDate">Lens Id</label>
                 <span className="text-danger">{validation.selectedLensId}</span>
-                <div className="filter_sugestions">
+                {/* <div className="filter_sugestions"> */}
+                <div className={filteredLens.length > 0 ? "filter_suggestions" : ""}>
                   {filteredLens &&
                     filteredLens.map((x) => {
                       return (
@@ -902,18 +1075,60 @@ const Lenses = () => {
                 </div>
               </div>
             </div>
-            <div className="col-lg-2 col-md-3 col-sm-12 co-12 mt-lg-0 mt-md-0 mt-3">
+
+            {/* <div className="col-lg-2 col-md-3 col-sm-12 co-12 mt-lg-0 mt-md-0 mt-3">
               <div className="left-button">
-                <Button onClick={openModal} className="model">
+                <Button  className="model">
                   Filter
                 </Button>
+              </div>
+            </div> */}
+            <div className="col-lg-6 col-md-6 col-sm-12 col-12  mt-lg-0" >
+
+              <div className="form-floating">
+                <select
+                  id="collectionSelect"
+                  className="form-control form-select"
+                  value={selectedCollectionId}
+                  onChange={(e) => handleSelectChange(e, "")}
+                >
+                  <option value="">Select a Collection</option>
+                  {collectionById.map((collection) => (
+                    <option key={collection.id} value={collection.id}>
+                      {collection.Coll_name}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor="collectionSelect">Select Collection:</label>
               </div>
             </div>
           </div>
 
-          <div className="row mt-4">
+
+          {/* <div className="formControl select" style={{ textAlign: 'center', marginTop: '-55px'}}>
+          {role != 1 && (
+            <div>
+              <label htmlFor="collectionSelect">Select Collection:</label>
+              <select
+                id="collectionSelect"
+                value={selectedCollectionId}
+                onChange={(e) => handleSelectChange(e, '')}
+              >
+                <option value="">Select a Collection</option>
+                {collectionById.map((collection) => (
+                  <option key={collection.id} value={collection.id}>
+                    {collection.Coll_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          </div> */}
+
+
+          <div className="row mt-0">
             <div className="col-12">
-              <div className="table_card rounded lenses_table overflow-auto lenses_table_scroll">
+              <div className="table_card rounded lenses_table overflow-auto mt-3 lenses_table_scroll">
                 <ReactTable
                   ref={childRef}
                   columns={columns}
@@ -923,6 +1138,7 @@ const Lenses = () => {
                   setCollectionListing={setCollectionListing}
                   role={role}
                   submitEdits={submitEdits}
+                  collectionListing={collection}
                 />
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>

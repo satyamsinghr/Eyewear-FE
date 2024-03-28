@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
 import moment from "moment";
@@ -7,7 +7,10 @@ import { API_URL } from "./helper/common";
 const DispenseComponent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+  const patientInputRef = useRef();
   const [collectionListing, setCollectionListing] = useState([]);
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const [itemsPerPage, setItemsPerPage] = useState(5);
   const [BoxValue, setBoxValue] = useState("");
   const [userId, setUserId] = useState("");
   const [collectionPaientListing, setCollectionPaitedntListing] = useState([]);
@@ -16,6 +19,7 @@ const DispenseComponent = () => {
   const [filteredLens, setFilteredLens] = useState([]);
   const [selectedPatientId, SetSelectedPatientId] = useState("");
   const [currentPatientId, setCurrentPatientId] = useState("");
+  const [PatientId, setPatientId] = useState("");
   const [validation, setValidation] = useState({});
   const [WC, SetWC] = useState();
   const [WS, SetWS] = useState();
@@ -32,6 +36,10 @@ const DispenseComponent = () => {
   const [activePatientName, setActivePatientName] = useState("");
   const [filterPatientName, setFilterPatientName] = useState("");
   const [patientData, setPatientData] = useState([]);
+  const [role, setRole] = useState("");
+  const [collId, setCollId] = useState([]);
+  const [selectedCollectionId, setSelectedCollectionId] = useState('');
+  const [collName, setCollName] = useState('');
   const [eyewearConfig, setEyeWearConfig] = useState({
     RSphMult: "",
     LSphMult: "",
@@ -44,6 +52,11 @@ const DispenseComponent = () => {
     RSphEqMult: "",
     LSphEqMult: "",
   });
+
+  useEffect(() => {
+    // Focus the input element when the component mounts
+    patientInputRef.current.focus();
+  }, [lenseListing]);
 
   const [pointer, setPointer] = useState(0);
 
@@ -90,6 +103,13 @@ const DispenseComponent = () => {
   };
 
   useEffect(() => {
+    const role = JSON.parse(localStorage.getItem("role"));
+    const collId = JSON.parse(localStorage.getItem("collId"));
+    setRole(role);
+    setCollId(collId);
+    const lensCollectionId = localStorage.getItem("selectedLensCollectionId");
+    setSelectedCollectionId(lensCollectionId);
+  getCollectionData();
     if (pointer < 5) {
       loadData();
       setPointer(pointer + 1);
@@ -121,6 +141,31 @@ const DispenseComponent = () => {
 
   // }, [id,currentPatientId, CollectionLensListing,userId]);
 
+  const getCollectionData = async () => {
+    const getResponse = await fetch(
+      `${API_URL}/v1/collection?userId=${userId}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      const collName= collectionData.filter((x) =>x.id ==selectedCollectionId );
+      // setCollName(collName[0]?.Coll_name)
+      setCollName(collName[0]?.Coll_name || 'Eyewear');
+      setCollectionListing(collectionData);
+    } else {
+      console.log("Get Failed");
+    }
+  };
   const getConfigurationData = async () => {
     if (userId) {
       const getResponse = await fetch(`${API_URL}/v1/config?userId=${userId}`, {
@@ -132,8 +177,6 @@ const DispenseComponent = () => {
       });
       if (getResponse.ok) {
         const data = await getResponse.json();
-        console.log(data);
-
         // const eyewear = data.eyeWearConfig.map(element => ({
         //   [element.Parameters]: element.CurrentValue
         // }))
@@ -143,7 +186,6 @@ const DispenseComponent = () => {
         }, {});
         setEyeWearConfig(eyewear);
         // setAxisConfig(data.axisConfig);
-        console.log("datadata data", data);
       } else {
         console.log("Get Failed");
       }
@@ -176,6 +218,11 @@ const DispenseComponent = () => {
   // const handlePatientName = (e) => {
   // 	SetSelectedPatientId(e.target.value);
   // }
+
+  // const handlePageSizeChange = (e) => {
+  //   setCurrentPage(1); // Reset to the first page when changing page size
+  //   setItemsPerPage(parseInt(e.target.value, 10));
+  // };
 
   const getAMDValue = (CYL) => {
     let value = parseFloat(CYL);
@@ -356,21 +403,34 @@ const DispenseComponent = () => {
   };
 
   const handleLensAlgorithm = async (
-    lensData = CollectionLensListing,
-    patientId = currentPatientId
+    lensData1 = CollectionLensListing,
+    patientId = currentPatientId,
+    filteredLens
   ) => {
-    console.log("lensData", lensData);
-    console.log("currentPatientId", patientId);
-    console.log("eyewearConfig", eyewearConfig);
-
     if (!patientId) return;
     let analysedData = [];
-
+    lensData1 = lensData1.filter(
+      (x) => x.Lens_Status === "selected" || x.Lens_Status === "dispensed"
+    );
+    // if (filteredLens && filteredLens.length > 0) {
+    //   filteredLens = filteredLens.filter(
+    //     (x) => x.Lens_Status === "selected" || x.Lens_Status === "dispensed"
+    //   );
+    //   // lensData1 = [...lensData1];
+    //   lensData1 = [...filteredLens, ...lensData1];
+    // }
     let patient = collectionPaientListing.find(
       (x) => x.PatientId === patientId
     );
-
-    if (patient && lensData && lensData.length > 0 && eyewearConfig) {
+    var lensData = [];
+    if (patient && lensData1 && lensData1.length > 0 && eyewearConfig) {
+      if (role == 1) {
+        lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
+    } else if (collId.includes(patient.CollectionId)) {
+        lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
+    }else{
+      return false
+    }
       const parseToFloat = (value) => {
         const floatValue = parseFloat(value);
         return isNaN(floatValue) ? value : floatValue;
@@ -415,34 +475,34 @@ const DispenseComponent = () => {
           LAdd: LAddE,
         } = lens;
 
-        // Modify the original object with parsed values
-        RSphE = parseToFloat(RSphE);
-        LSphE = parseToFloat(LSphE);
-        RCylE = parseToFloat(RCylE);
-        LCylE = parseToFloat(LCylE);
-        RAxisE = parseToFloat(RAxisE);
-        LAxisE = parseToFloat(LAxisE);
-        RAddE = parseToFloat(RAddE);
-        LAddE = parseToFloat(LAddE);
+         // Modify the original object with parsed values
+         RSphE = !isNaN(parseToFloat(RSphE)) ? parseToFloat(RSphE) : 0;
+         LSphE = !isNaN(parseToFloat(LSphE)) ? parseToFloat(LSphE) : 0;
+         RCylE = !isNaN(parseToFloat(RCylE)) ? parseToFloat(RCylE) : 0;
+         LCylE = !isNaN(parseToFloat(LCylE)) ? parseToFloat(LCylE) : 0;
+         RAxisE = !isNaN(parseToFloat(RAxisE)) ? parseToFloat(RAxisE) : 0;
+         LAxisE = !isNaN(parseToFloat(LAxisE)) ? parseToFloat(LAxisE) : 0;
+         RAddE = !isNaN(parseToFloat(RAddE)) ? parseToFloat(RAddE) : 0;
+         LAddE = !isNaN(parseToFloat(LAddE)) ? parseToFloat(LAddE) : 0;
 
         let RSphEqE = RSphE + RCylE / 2;
         let LSphEqE = LSphE + LCylE / 2;
 
-        let RSphDif = Math.abs(RSphEqPat - RSphEqE);
-        let LSphDif = Math.abs(LSphEqPat - LSphEqE);
+        let RSphDif = !isNaN(Math.abs(RSphEqPat - RSphEqE)) ? Math.abs(RSphEqPat - RSphEqE) : 0;
+        let LSphDif = !isNaN(Math.abs(LSphEqPat - LSphEqE)) ? Math.abs(LSphEqPat - LSphEqE) : 0;
 
-        let RSphDifR = Math.abs((RSphDif - RSphPat) / RSphPat);
-        let LSphDifR = Math.abs((LSphDif - LSphPat) / LSphPat);
+        let RSphDifR = !isNaN(Math.abs((RSphDif - RSphPat) / RSphPat)) ? Math.abs((RSphDif - RSphPat) / RSphPat) : 0;
+        let LSphDifR = !isNaN(Math.abs((LSphDif - LSphPat) / LSphPat)) ? Math.abs((LSphDif - LSphPat) / LSphPat) : 0;
 
         let RSphFactor = RSphDif * RSphMult;
         let LSphFactor = LSphDif * LSphMult;
 
         //purple color
-        let RCylDif = Math.abs(RCylE - RCylPat);
+        let RCylDif = !isNaN(Math.abs(RCylE - RCylPat)) ? Math.abs(RCylE - RCylPat) : 0;
         let LCylDif = Math.abs(LCylE - LCylPat);
 
-        let RCylDifR = Math.abs((RCylDif - RCylPat) / RCylPat);
-        let LCylDifR = Math.abs((LCylDif - LCylPat) / LCylPat);
+        let RCylDifR = !isNaN(Math.abs((RCylDif - RCylPat) / RCylPat)) ? Math.abs((RCylDif - RCylPat) / RCylPat) : 0;
+        let LCylDifR = !isNaN(Math.abs((LCylDif - LCylPat) / LCylPat)) ? Math.abs((LCylDif - LCylPat) / LCylPat) : 0;
 
         let RCylFactor = RCylDif * RCylMult;
         let LCylFactor = LCylDif * LCylMult;
@@ -454,14 +514,19 @@ const DispenseComponent = () => {
         let RAxisMaxDif = axisMax(RCylPat);
         let LAxisMaxDif = axisMax(LCylPat);
 
-        let RAxisDif = Math.abs(RAxisE - RAxisPat);
-        let LAxisDif = Math.abs(LAxisE - LAxisPat);
+        let RAxisDif = !isNaN(Math.abs(RAxisE - RAxisPat)) ? Math.abs(RAxisE - RAxisPat) : 0;
+        let LAxisDif = !isNaN(Math.abs(LAxisE - LAxisPat)) ? Math.abs(LAxisE - LAxisPat) : 0;
 
         let RAxisRatio =
           ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
         let LAxisRatio =
           ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
-
+          if (isNaN(RAxisRatio) || !isFinite(RAxisRatio)) {
+            RAxisRatio = 0;
+          }
+          if (isNaN(LAxisRatio) || !isFinite(LAxisRatio)) {
+            LAxisRatio = 0;
+          }
         let RAxisFactor;
         let LAxisFactor;
 
@@ -482,25 +547,31 @@ const DispenseComponent = () => {
         }
 
         // yellow highlighter
-        let RAddDif = Math.abs(RAddE - LAddPat);
-        let LAddDif = Math.abs(LAddE - LAddPat);
+        let RAddDif = !isNaN(Math.abs(RAddE - LAddPat)) ? Math.abs(RAddE - LAddPat) : 0;
+        let LAddDif = !isNaN(Math.abs(LAddE - LAddPat)) ? Math.abs(LAddE - LAddPat) : 0;
 
-        let RAddDifR = Math.abs((RAddDif - RAddPat) / RAddPat);
-        let LAddDifR = Math.abs((LAddDif - LAddPat) / LAddPat);
+        let RAddDifR = !isNaN(Math.abs((RAddDif - RAddPat) / RAddPat)) ? Math.abs((RAddDif - RAddPat) / RAddPat) : 0;
+        let LAddDifR = !isNaN(Math.abs((LAddDif - LAddPat) / LAddPat)) ? Math.abs((LAddDif - LAddPat) / LAddPat) : 0;
 
         let RAddFactor = RAddDif * RAddMult;
         let LAddFactor = LAddDif * LAddMult; //RAddDif & LAddDif missing
 
         //purple color
-        let RSphEqDif = Math.abs(RSphEqE - RSphEqPat);
-        let LSphEqDif = Math.abs(LSphEqE - LSphEqPat);
+        let RSphEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
+        let LSphEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
 
-        let RSphEqDifR = Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat);
-        let LSphEqDifR = Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat);
+        let RSphEqDifR = !isNaN(Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat)) ? Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat) : 0;
+        let LSphEqDifR = !isNaN(Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat)) ? Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat) : 0;
 
         let RSphEqFactor = RSphEqDif * RSphEqMult;
         let LSphEqFactor = LSphEqDif * LSphEqMult;
 
+        if (LAxisFactor == undefined) {
+          LAxisFactor = 0
+        }
+        if (RAxisFactor == undefined) {
+          RAxisFactor = 0
+        }
         //Main percentage calculation
         let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RAxisFactor;
         let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LAxisFactor;
@@ -528,14 +599,14 @@ const DispenseComponent = () => {
         let RAxisEqE = RSphE + RCylE / 2;
         let LAxisEqE = LSphE + LCylE / 2;
 
-        let RAxisEqDif = Math.abs(RAxisEqE - RAxisEqPat);
-        let LAxisEqDif = Math.abs(LAxisEqE - LAxisEqPat);
+        let RAxisEqDif = !isNaN(Math.abs(RAxisEqE - RAxisEqPat)) ? Math.abs(RAxisEqE - RAxisEqPat) : 0;
+        let LAxisEqDif = !isNaN(Math.abs(LAxisEqE - LAxisEqPat)) ? Math.abs(LAxisEqE - LAxisEqPat) : 0;
 
         let RAxisEqFactor = RAxisEqDif * RSphEqMult;
         let LAxisEqFactor = LAxisEqDif * LSphEqMult;
 
-        let RCylEqDif = Math.abs(RSphEqE - RSphEqPat);
-        let LCylEqDif = Math.abs(LSphEqE - LSphEqPat);
+        let RCylEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
+        let LCylEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
 
         let RCylEqFactor = RCylEqDif * RSphEqMult;
         let LCylEqFactor = LCylEqDif * LSphEqMult;
@@ -546,18 +617,17 @@ const DispenseComponent = () => {
           100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
 
         let MatchPercentageEqS =
-          (RMatchPercentageEqS + LMatchPercentageEqS) / 2;
+          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);
 
         const lensData = {
           ...lens,
-          MatchPercentageS: parseFloat(MatchPercentageS), // Convert back to numeric value
-          MatchPercentageB: parseFloat(MatchPercentageB), // Convert back to numeric value
-          MatchPercentageEqS: parseFloat(MatchPercentageEqS), // Convert back to numeric value
+          MatchPercentageS: !isNaN(MatchPercentageS) ? parseFloat(MatchPercentageS) : 0,
+          MatchPercentageB: !isNaN(MatchPercentageB) ? parseFloat(MatchPercentageB) : 0,
+          MatchPercentageEqS: !isNaN(MatchPercentageEqS) ? parseFloat(MatchPercentageEqS) : 0,
         };
 
         analysedData = [...analysedData, lensData];
       }
-
       const newLensList = analysedData.filter(
         (x) => !x.Patient_id || x.Patient_id == patientId
       );
@@ -576,14 +646,11 @@ const DispenseComponent = () => {
         MatchPercentageS: 100,
         MatchPercentageEqS: 100,
       };
-      // const newArray = [newPatient, ...newLensList];
-      // SetLenseListing(newArray);
       const newArray = [newPatient];
       const newLensListData = [...newLensList];
-      const selectedLenseStatus = newLensListData.filter(
-        (x) => x.Lens_Status === "selected"
-      );
-      const mergedArray = [...newArray, ...selectedLenseStatus];
+      const readingLenses = newLensListData
+    .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
+      const mergedArray = [...newArray, ...readingLenses];
       SetLenseListing(mergedArray);
     }
   };
@@ -744,23 +811,49 @@ const DispenseComponent = () => {
     if (response.ok) {
       const data = await response.json();
       // setFilteredLens(data.Patient_Data);
-      SetLenseListing(data.Patient_Data);
-      handleLensAlgorithm(
-        CollectionLensListing,
-        data.Patient_Data[0]?.PatientId ? data.Patient_Data[0]?.PatientId : ""
+      const allLens = data.Patient_Data
+      // SetLenseListing((prevList) => [allLens]);
+      // SetLenseListing(data.Patient_Data);
+      // handleLensAlgorithm(
+      //   CollectionLensListing,
+      //   data.Patient_Data[0]?.PatientId ? data.Patient_Data[0]?.PatientId : ""
+      // );
+
+      const res = await fetch(
+        `${API_URL}/v1/selectedReaderFilter?patientId=${e.target.value}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: JSON.parse(localStorage.getItem("token")),
+          },
+        }
       );
+      if (res.ok) {
+        const data2 = await res.json();
+        const filteredLens = data2.readers;
+        SetLenseListing(filteredLens);
+        handleLensAlgorithm(
+          CollectionLensListing,
+          data.Patient_Data[0]?.PatientId ? data.Patient_Data[0]?.PatientId : "",
+          filteredLens
+        );
+
+      } else {
+        console.log("Get Failed");
+      }
     } else {
       console.log("Get Failed");
     }
   };
 
-  const handleFiltedId = (selectedPatientRow) => {
-    setCurrentPatientId(
-      filteredLens.find((x) => x.id == selectedPatientRow.id).PatientId
-    );
-    SetSelectedPatientId(selectedPatientRow.id);
-    setFilteredLens([]);
-  };
+  // const handleFiltedId = (selectedPatientRow) => {
+  //   setCurrentPatientId(
+  //     filteredLens.find((x) => x.id == selectedPatientRow.id).PatientId
+  //   );
+  //   SetSelectedPatientId(selectedPatientRow.id);
+  //   setFilteredLens([]);
+  // };
 
   const dispenseLens = async (e, id) => {
     e.preventDefault();
@@ -798,72 +891,6 @@ const DispenseComponent = () => {
     setShowBlockedLensModel(false);
   };
 
-  // const openBlockLensModal = (lensId) => {
-  // 	setShowBlockLensModal(true)
-  // 	SetActiveLensId(lensId)
-  // }
-
-  // const changeBlockLensHandle = async (e) => {
-  // 	//setActivePatientId(e.target.value);
-  // 	if (e.target.name == 'filterPatient') {
-  // 		setFilterPatientName(e.target.value);
-  // 	}
-  // 	else {
-  // 		setActivePatientName(e.target.value);
-  // 	}
-  // 	if (e.target.value != '') {
-  // 		const getResponse = await fetch(`${API_URL}/v1/patientByName?name=${e.target.value}&userId=${userId}`, {
-  // 			method: "GET",
-  // 			headers: {
-  // 				"Content-Type": "application/json",
-  // 				'Authorization': JSON.parse(localStorage.getItem('token'))
-  // 			}
-  // 		});
-  // 		if (getResponse.ok) {
-  // 			const data = await getResponse.json();
-  // 			console.log(data.Patient_Data);
-  // 			setPatientData(data.Patient_Data);
-  // 		} else {
-  // 			console.log('Get Failed');
-  // 		}
-
-  // 	}
-
-  // }
-
-  // const selectPatient = async (patientId, patientName, filtering) => {
-  // 	if (filtering != '') {
-  // 		setFilterPatientName(patientName)
-
-  // 		// bind all modal form using patientId
-  // 		const response = await fetch(`${API_URL}/v1/patientById?id=${patientId}`, {
-  // 			method: 'GET',
-  // 			headers: {
-  // 				'Content-Type': 'application/json',
-  // 				'Authorization': JSON.parse(localStorage.getItem('token'))
-  // 			},
-  // 		});
-  // 		if (response.ok) {
-  // 			const data = await response.json();
-  // 			// setNewBoxModel({
-  // 			//   ...data.Patient_Data,
-  // 			//   Patient_id: data.Patient_Data.id
-  // 			// })
-  // 			// setBoxModel({
-  // 			//   ...data.Patient_Data,
-  // 			//   Patient_id: data.Patient_Data.id
-  // 			// });
-  // 		} else {
-  // 			console.log('Lens not Blocked');
-  // 		}
-
-  // 	}
-  // 	else {
-  // 		setActivePatientName(patientName);
-  // 	}
-  // 	setActivePatientId(patientId);
-  // 	setPatientData([]);
-  // }
 
   const submitBlockLensModal = async (e, activeLensId) => {
     e.preventDefault();
@@ -940,87 +967,51 @@ const DispenseComponent = () => {
 
   const handleStatusChange = async (e, selectedRow) => {
     const selectedStatus = e.target.value;
-    selectedRow.Lens_Status = selectedStatus;
-    selectedRow.Patient_id = currentPatientId;
-
-    const response = await fetch(`${API_URL}/v1/lens`, {
-      method: "PUT",
-      body: JSON.stringify(selectedRow),
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: JSON.parse(localStorage.getItem("token")),
-      },
-    });
-    if (response.ok) {
-      console.log("Lens Blocked Successfully");
-      //   getdata(false);
-      //handleFilter();
-      await getLensdata();
-    } else {
-      console.log("Lens not Blocked");
+    if (selectedStatus != "readingAvailable" && selectedStatus != "readingSelected") {
+      selectedRow.Lens_Status = selectedStatus;
+      selectedRow.Patient_id = currentPatientId;
+      const response = await fetch(`${API_URL}/v1/lens`, {
+        method: "PUT",
+        body: JSON.stringify(selectedRow),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      });
+      if (response.ok) {
+        console.log("Lens Blocked Successfully");
+        handleLensAlgorithm();
+      } else {
+        console.log("Lens not Blocked");
+      }
+    }
+    else {
+      // currentPatientId
+      const data = {
+        patientId: currentPatientId,
+        lensId: selectedRow.lensId,
+      };
+      const res = await fetch(`${API_URL}/v1/deleteSelectedReader`, {
+        method: "DELETE",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+      });
+      if (res.ok) {
+        console.log("Deletion successful");
+        // getdata();
+      } else {
+        console.log("Deletion failed");
+      }
     }
   };
 
-  console.log("lenseListing", lenseListing);
   return (
     <>
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div className="user_style">
-          <div className="user_name">
-            <h2>Lenses</h2>
-            <hr className="mt-4" />
-          </div>
-          {/* <div className="row search_input">
-            <div className="col-lg-4 col-md-6 col-sm-12 col-12">
-              <div className="form-floating mb-0">
-                <input
-                  type="text"
-                  className="form-control"
-                  id="floatingInput"
-                  placeholder="Patient Id"
-                  name="patientId"
-                  value={currentPatientId}
-                  onChange={(e) => {
-                    handleInputChange(e);
-                  }}
-                />
-                <label htmlFor="selectBoxDate">Patient Id</label>
-                <span className="text-danger">
-                  {validation.selectedPatientId}
-                </span>
-                <div className="filter_sugestions">
-                  {filteredLens &&
-                    filteredLens.map((x) => {
-                      return (
-                        <>
-                          <span
-                            className="d-block"
-                            onClick={() => handleFiltedId(x)}
-                          >
-                            {x.PatientId}
-                          </span>
-                        </>
-                      );
-                    })}
-                </div>
-              </div>
-            </div>
-            <div className="col-lg-2 col-md-4 col-sm-12 col-12 mt-lg-0 mt-md-0 mt-4">
-              <button
-                type="button"
-                className="btn btn-primary w-100"
-                onClick={(e) => {
-                  handleLensAlgorithm(e);
-                }}
-              >
-                <span>Filter</span>
-              </button>
-              <button className="btn btn-primary w-100" onClick={handleFilter}>
-                <span>Filter</span>
-              </button>
-            </div>
-          </div> */}
-
           <div className="row search_input">
             <div className="col-lg-2">
               <div className="form-floating mb-3"></div>
@@ -1034,7 +1025,8 @@ const DispenseComponent = () => {
                   <thead className="rounded">
                     <tr>
                       <th colSpan={4} className="text-center">
-                        EyeWare
+                        {/* EyeWare */}
+                        {collName}
                       </th>
                       <th colSpan={4} className="text-center">
                         Right Lens
@@ -1055,7 +1047,7 @@ const DispenseComponent = () => {
                         %Bi
                       </th>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
-                        EqS
+                        %EqS
                       </th>
 
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -1096,234 +1088,282 @@ const DispenseComponent = () => {
                     </tr>
                   </thead>
                   <tbody>
-                  {lenseListing &&
+                 
+                    {lenseListing &&
                       lenseListing.length > 0 ?
                       lenseListing.map((x, id) => {
                         return (
-                          //
                           <tr key={x.id} className="data">
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {id === 0 ? <input
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {id === 0 ?
+                              <input
+                                type="text"
+                                ref={patientInputRef}
+                                value={currentPatientId}
+                                onChange={(e) => {
+                                  handleInputChange(e);
+                                }}
+                              /> : x.lensId}
+
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {/* {id === 0 ? "100" : x.MatchPercentageB} */}
+                            {id === 0 ? "100" : x.MatchPercentageS}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {id === 0 ? "100" : x.MatchPercentageB}
+                            {/* {id === 0 ? "100" : "ss"} */}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {id === 0
+                              ? "100"
+                              : x.MatchPercentageEqS}
+                          </td>
+
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.RSphere}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.RCylinder}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.RAxis}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.RAdd}
+                          </td>
+
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.LSphere}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.LCylinder}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.LAxis}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {x.LAdd}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {id === 0 ? (
+                              "patient"
+                            ) : (
+                              <select
+                                onChange={(e) => handleStatusChange(e, x)}
+                              >
+                                <option value="">Select Status</option>
+                                {(x.Lens_Status === "selected" || x.Lens_Status === "dispensed") && (
+                                  <>
+                                    <option
+                                      value="available"
+                                      selected={x.Lens_Status === "available"}
+                                    >
+                                      Available
+                                    </option>
+                                    <option
+                                      value="selected"
+                                      selected={x.Lens_Status === "selected"}
+                                    >
+                                      Selected
+                                    </option>
+                                    <option
+                                      value="dispensed"
+                                      selected={x.Lens_Status === "dispensed"}
+                                    >
+                                      Dispensed
+                                    </option>
+                                    {/* <option
+                                  value="reading"
+                                  selected={x.Lens_Status === "reading"}
+                                >
+                                  Reading
+                                </option> */}
+                                    <option
+                                      value="missing"
+                                      selected={x.Lens_Status === "missing"}
+                                    >
+                                      Missing
+                                    </option>
+                                    <option
+                                      value="trashed"
+                                      selected={x.Lens_Status === "trashed"}
+                                    >
+                                      Trashed
+                                    </option>
+                                  </>
+                                )}
+                                {x.Lens_Status === "reading" && (
+                                  <>
+                                    <option
+                                      value="readingAvailable"
+                                      selected={x.Lens_Status === "selected" || x.Lens_Status === "reading"}
+                                    >
+                                      Reading Available
+                                    </option>
+                                    <option
+                                      value="readingSelected"
+                                    >
+                                      Reading Selected
+                                    </option>
+                                  </>
+                                )}
+
+                              </select>
+                            )}
+                          </td>
+
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {moment(x.createdAt).format("YYYY-MM-DD")}
+                          </td>
+                          <td
+                            className={
+                              id === 0
+                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                            }
+                          >
+                            {moment(x.createdAt).format("hh:mm:ss")}
+                          </td>
+                        </tr>
+                        );
+                      }) : <tr>
+                        <td>
+                          <input
                             type="text"
-                            value={x.PatientId}
+                            value={currentPatientId}
+                            ref={patientInputRef}
                             onChange={(e) => {
                               handleInputChange(e);
                             }}
-                          />  : x.lensId}
-
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {id === 0 ? "100" : x.MatchPercentageB}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {id === 0 ? "100" : x.MatchPercentageS}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {id === 0
-                                ? "100"
-                                : x.MatchPercentageEqS.toFixed(2)}
-                            </td>
-
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.RSphere}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.RCylinder}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.RAxis}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.RAdd}
-                            </td>
-
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.LSphere}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.LCylinder}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.LAxis}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {x.LAdd}
-                            </td>
-
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {id === 0 ? (
-                                "patient"
-                              ) : (
-                                //	dispensed, Missing, Trashed
-                                // <select>
-                                //   <option value="selected">Selected</option>
-                                //   <option value="available">Available</option>
-                                //   <option value="dispensed">Dispensed</option>
-                                //   <option value="missing">Missing</option>
-                                //   <option value="trashed">Trashed</option>
-                                // </select>
-                                <select
-                                  onChange={(e) => handleStatusChange(e, x)}
-                                >
-                                  <option value="">Select Status</option>
-                                  <option
-                                    value="selected"
-                                    selected={x.Lens_Status === "selected"}
-                                  >
-                                    Selected
-                                  </option>
-                                  <option
-                                    value="available"
-                                    selected={x.Lens_Status === "available"}
-                                  >
-                                    Available
-                                  </option>
-                                  <option
-                                    value="dispensed"
-                                    selected={x.Lens_Status === "dispensed"}
-                                  >
-                                    Dispensed
-                                  </option>
-                                  <option
-                                    value="missing"
-                                    selected={x.Lens_Status === "missing"}
-                                  >
-                                    Missing
-                                  </option>
-                                  <option
-                                    value="trashed"
-                                    selected={x.Lens_Status === "trashed"}
-                                  >
-                                    Trashed
-                                  </option>
-                                </select>
-                              )}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {moment(x.createdAt).format("YYYY-MM-DD")}
-                            </td>
-                            <td
-                              className={
-                                id === 0
-                                  ? "data_highlighted py-3 px-3 "
-                                  : "data py-3 px-3 "
-                              }
-                            >
-                              {moment(x.createdAt).format("hh:mm:ss")}
-                            </td>
-                          </tr>
-                        );
-                      }): <tr>
-                      <td>
-                        <input
-                          type="text"
-                          onChange={(e) => {
-                            handleInputChange(e);
-                          }}
-                        />
-                      </td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>}
+                          />
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        {/* <td></td> */}
+                      </tr>
+                    }
                   </tbody>
                 </table>
+                {/* <div className="d-flex table_pagination mt-3 align-items-center justify-content-end gap-3">
+                <ul className="pagination">
+                  {pageNumbers.map((number) => (
+                    <li key={number} className={`page-item ${currentPage === number && "active"}`}>
+                      <button onClick={() => setCurrentPage(number)} className="page-link">
+                        {number}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+                {currentItems.length > 0 && (
+                  <div>
+                    <label className="d-inline-block me-2" htmlFor="pageSize">Page Size:</label>
+                    <select id="pageSize" onChange={handlePageSizeChange} value={itemsPerPage}>
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="25">25</option>
+                      <option value="50">50</option>
+                      <option value="100">100</option>
+                    </select>
+                  </div>
+                )}
+                </div> */}
               </div>
             </div>
           </div>

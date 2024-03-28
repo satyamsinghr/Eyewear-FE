@@ -16,6 +16,8 @@ const Headers = () => {
         if (response.ok) {
             console.log('Signout successful');
             localStorage.clear();
+            localStorage.removeItem("selectedLensCollectionId");
+            localStorage.removeItem("collId");
         } else {
             console.log('Signout failed');
         }

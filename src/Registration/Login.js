@@ -53,16 +53,22 @@ const Login = () => {
             });
 
             if (response.ok) {
-                const { token, firstName, userId,role } = await response.json();
+                const { token, firstName, userId,role ,collIds} = await response.json();
 
                 localStorage.setItem('token', JSON.stringify(token));
                 localStorage.setItem('firstName', JSON.stringify(firstName));
                 localStorage.setItem('userId', JSON.stringify(userId));
                 localStorage.setItem('role', JSON.stringify(role));
+                localStorage.setItem('collId', JSON.stringify(collIds));
 
 
                 alert('Login successful');
-                navigate('/collection')
+                if(role == 1){
+                    navigate('/collection')
+                }else{
+                    navigate('/lenses')
+                }
+          
             } else {
                 setLoginError("Invalid Credentials")
                 alert('Please enter valid Credentials');

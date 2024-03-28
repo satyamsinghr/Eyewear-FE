@@ -4,16 +4,16 @@ import React, {
   useState,
   forwardRef,
   useImperativeHandle,
+  useRef
 } from "react";
 import { useTable, useRowSelect, useSortBy } from "react-table";
-
 const InlineEditingTable = forwardRef(
-  ({ columns, data, handleSubmit, role }, ref) => {
-    console.log("table data", data);
+  ({ columns, data, handleSubmit, role, API_URL,selectedCollectionId,userId ,roleData}, ref) => {
+
     const columnName = [
       "PatientId",
-      "PercentageS",
-      "PercentageB",
+      // "PercentageS",
+      // "PercentageB",
       "RSphere",
       "RCylinder",
       "RAxis",
@@ -24,7 +24,8 @@ const InlineEditingTable = forwardRef(
       "LAdd",
       "Lens_Status",
     ];
-
+    const patientInputRef = useRef();
+    const [patientData, setPatientData] = useState([]);
     const [newRowData, setNewRowData] = useState(() => {
       const initialRow = {};
       columnName.forEach(async (column) => {
@@ -59,7 +60,7 @@ const InlineEditingTable = forwardRef(
         { length: 6 },
         () =>
           alphanumericChars[
-            Math.floor(Math.random() * alphanumericChars.length)
+          Math.floor(Math.random() * alphanumericChars.length)
           ]
       ).join("");
       // do {
@@ -103,6 +104,72 @@ const InlineEditingTable = forwardRef(
       //     }
       // });
       setNewRowData(initialRow);
+    };
+
+    const handlePatientIdChange = async (e, column) => {
+      if (column === "PatientId") {
+        const value = e.target.value;
+        if (value !== "") {
+          try {
+            const getResponse = await fetch(
+              `${API_URL}/v1/filterpatientById?id=${value}`,
+              {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: JSON.parse(localStorage.getItem("token")),
+                },
+              }
+            );
+            if (getResponse.ok) {
+              const data = await getResponse.json();
+              if (data.Patient_Data && data.Patient_Data.length > 0) {
+                const patientData = data.Patient_Data[0];
+                if(roleData == 1){
+                  if(data.Patient_Data[0].CollectionId==selectedCollectionId){
+                    setPatientData(patientData);
+                    setNewRowData({ ...patientData });
+                  }else{
+                    setNewRow(column, patientData[column]);
+                  }
+                }else{
+                  if(data.Patient_Data[0].CollectionId==selectedCollectionId && data.Patient_Data[0].UserId == userId ){
+                    setPatientData(patientData);
+                    setNewRowData({ ...patientData });
+                  }else{
+                  setNewRow(column, patientData[column]);
+                  }
+                }
+               
+              }
+               else {
+                // setNewRowData({ ...newRowData, "PatientId": value });
+                const initialRow = {};
+                columnName.forEach((column) => {
+                  if (column === "PatientId") {
+                    initialRow[column] = value;
+                  } else if (column === "Lens_Status") {
+                    initialRow[column] = "Patient";
+                  } else {
+                    initialRow[column] = "";
+                  }
+                });
+                setNewRowData(initialRow);
+              }
+            } 
+            else {
+              console.log("Get Failed");
+            }
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        } else {
+          // setNewRow(column, e.target.value);
+          resetNewRowData();
+        }
+      } else {
+        setNewRow(column, e.target.value);
+      }
     };
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -167,7 +234,22 @@ const InlineEditingTable = forwardRef(
     //       </div>
     //     );
     //   };
-    console.log("rows", rows);
+  //   useEffect(() => {
+  //   // Focus the input element when the component mounts
+  //   setTimeout(()=>{
+  //     patientInputRef.current.focus();
+
+  //   },3000)
+  // }, []);
+  useEffect(() => {
+    const autoFocusInput = document.getElementById("pa0");
+  
+    if (autoFocusInput) {
+      setTimeout(() => {
+        autoFocusInput.focus();
+      }, 2000);
+    }
+  }, []);
     return (
       <table
         {...getTableProps()}
@@ -184,7 +266,7 @@ const InlineEditingTable = forwardRef(
                       className="btn btn-primary"
                       onClick={(e) => handleSubmit(e, newRowData)}
                     >
-                      Save & Serach
+                      Save & Search
                     </button>
                   ) : (
                     <>
@@ -207,19 +289,23 @@ const InlineEditingTable = forwardRef(
           {parseInt(role) !== 1 && (
             <tr>
               {columnName.map((column, columnIndex) => (
-                // Check if the current column is not the action column
-                // columnIndex !== columnName.length - 1 && (
                 <td key={column}>
-                  {/* Render input field for the new row */}
                   <input
                     type="text"
+                    id={"pa"+columnIndex}
+                    // ref={patientInputRef}
                     value={newRowData[column]}
-                    onChange={(e) => setNewRow(column, e.target.value)}
+                    onChange={(e) => {
+                      handlePatientIdChange(e, column);
+
+                    }}
                     disabled={
-                      column == "PercentageS" || column == "PercentageB"
+                      column == "Lens_Status" || column == "Lens_Status"
                         ? true
                         : false
                     }
+                    style={{ width: column === "PatientId" ? "calc(1ch * 15)" : "100%" }}
+                    // autofocus={columnIndex == 0 ? true : false}
                   />
                 </td>
                 // )

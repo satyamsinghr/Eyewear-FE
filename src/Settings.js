@@ -133,7 +133,7 @@ const SettingCollection = () => {
   }, [userId]);
 
   const getdata = async () => {
-    const getResponse = await fetch(
+        const getResponse = await fetch(
       `${API_URL}/v1/config?userId=${userId}`,
       {
         method: "GET",
@@ -145,20 +145,37 @@ const SettingCollection = () => {
     );
     if (getResponse.ok) {
       const data = await getResponse.json();
-      console.log(data);
       setConfigData(data);
       setEyeWearConfig(data.eyeWearConfig);
-      setAxisConfig(data.axisConfig);
-      console.log("datadata data", data);
+      const sortedAxisConfig = data.axisConfig.sort((a, b) => {
+        const cylMaxA = parseFloat(a.CylMax);
+        const cylMaxB = parseFloat(b.CylMax);
+        return cylMaxA - cylMaxB;
+    });
+      setAxisConfig(sortedAxisConfig);
     } else {
       console.log("Get Failed");
     }
+  };
+  // const fixDecimalValue = (value) => {
+  //   if (value.startsWith('.')) {
+  //     return `0${value}`;
+  //   }
+  //   return value;
+  // };
+  const fixDecimalValue = (value) => {
+    if (value.startsWith('-.')) {
+      return `-0.${value.substring(2)}`;
+    } else if (value.startsWith('.')) {
+      return `0${value}`;
+    }
+    return value;
   };
 
   const submitEdits = async (e, coll) => {
     const data = coll
     .filter((row) => row && row.Id !== undefined && row.NewValue !== undefined)
-    .map((row) => ({ Id: row.Id, CurrentValue: row.NewValue }));
+    .map((row) => ({ Id: row.Id, CurrentValue: fixDecimalValue(row.NewValue) }));
     if (data.length) {
       const response = await fetch(
         `${API_URL}/v1/update-eyewear-config`,
@@ -184,10 +201,10 @@ const SettingCollection = () => {
   };
 
   const submitAxisConfigEdits = async (e,coll) => {
-    e.preventDefault();
+        e.preventDefault();
     const data = coll
     .filter((row) => row && row.Id !== undefined && row.NewAxisMin !== undefined && row.NewAxisMax !== undefined)
-    .map((row) => ({ Id: row.Id, CurrentAxisMin: row.NewAxisMin, CurrentAxisMax: row.NewAxisMax }));
+    .map((row) => ({ Id: row.Id, CurrentAxisMin: row.NewAxisMin !== "" ? row.NewAxisMin : row.CurrentAxisMin, CurrentAxisMax: row.NewAxisMax !== "" ? row.NewAxisMax : row.CurrentAxisMax }));
   
     if (data.length) {
       const response = await fetch(

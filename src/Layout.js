@@ -11,7 +11,8 @@ import Analysis from './Analysis'
 import SettingCollection from './Settings'
 import Dispense from './dispense'
 import Users from './Users'
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Layout = () => {
     const role = JSON.parse(localStorage.getItem("role"));
     const location = useLocation()
@@ -23,7 +24,7 @@ const Layout = () => {
                     {
                        ( location.pathname !== '/signUp' && location.pathname !== '/' ) && <Sidebar />
                     }
-                    
+                        <ToastContainer />
                     <Routes>
                         <Route path='/signUp' element={<Signup />} />
                         <Route path='/' element={<Login />} />

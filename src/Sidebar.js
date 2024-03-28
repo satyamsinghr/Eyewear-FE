@@ -27,10 +27,28 @@ const Sidebar = () => {
       localStorage.removeItem("userId");
       localStorage.removeItem("firstName");
       localStorage.removeItem("token");
+      localStorage.removeItem("selectedLensCollectionId");
+      localStorage.removeItem("collId");
     } else {
       console.log("Signout failed");
     }
   };
+  // const handleClearDB = async () => {
+  //   const response = await fetch(`${API_URL}/v1/cleardb`, {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       // Authorization: localStorage.getItem('token'), // Add the authorization token if needed
+  //     },
+  //   });
+
+  //   if (response.ok) {
+  //     window.location.reload();
+  //     console.log('Database cleared successfully');
+  //   } else {
+  //     console.log('Failed to clear the database');
+  //   }
+  // };
 
   return (
     <>
@@ -58,6 +76,7 @@ const Sidebar = () => {
                   id="navbarSupportedContent"
                 >
                   <ul className="menu_list navbar-nav m-auto mb-0 gap-3">
+                  {role == 1 && (
                     <li
                       className={
                         location.pathname == "/collection"
@@ -80,6 +99,7 @@ const Sidebar = () => {
                         Collection
                       </Link>
                     </li>
+                  )}
                     {/* <li
                       className={
                         location.pathname == "/boxvalue"
@@ -191,9 +211,6 @@ const Sidebar = () => {
                       </Link>
                     </li>
 
-
-
-                    {role == 1 && (
                       <li
                         className={
                           location.pathname == "/dispense"
@@ -216,7 +233,7 @@ const Sidebar = () => {
                           Dispense
                         </Link>
                       </li>
-                    )}
+                
 
                     {role == 1 && (
                       <li
@@ -274,6 +291,16 @@ const Sidebar = () => {
                   </ul>
 
                   <ul className="header_user_detail d-flex align-items-center justify-content-end">
+                  {/* {role == 1 && (
+                  <li>
+                      <button
+                        className="btn btn-primary"
+                        onClick={handleClearDB} 
+                      >
+                        Clear Db
+                      </button>
+                    </li>
+                        )} */}
                     <li>
                       <span className="user_icon">
                         <img src={Img1} width="50px" alt="" />
