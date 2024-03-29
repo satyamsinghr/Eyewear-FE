@@ -383,7 +383,6 @@ const Lenses = () => {
     } = formData;
     let error = {};
     let isError = false;
-
     if (!lensId) {
       toast.error('Please fill valid input ');
       error.lensId = "Required !";
@@ -420,24 +419,30 @@ const Lenses = () => {
     //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
     // }
+    if ((RSphere !== null && /[A-Za-z]/.test(RSphere)) || (LSphere !== null && /[A-Za-z]/.test(LSphere))) {
+      toast.error('Sphere should not contain alphabets');
+      error.RSphere = "Should not contain alphabets!";
+      isError = true;
+    }
+  
     
-    // else if (/[A-Za-z]/.test(RCylinder) || /[A-Za-z]/.test(LCylinder)) {
-    //   toast.error('Cylinder should not contain alphabets');
-    //   error.RSphere = "Should not contain alphabets!";
-    //   isError = true;
-    // }
+    else if ((RCylinder !== null &&/[A-Za-z]/.test(RCylinder)) || (LCylinder !== null &&/[A-Za-z]/.test(LCylinder))) {
+      toast.error('Cylinder should not contain alphabets');
+      error.RSphere = "Should not contain alphabets!";
+      isError = true;
+    }
    
-    // else if (/[A-Za-z]/.test(RAxis) || /[A-Za-z]/.test(LAxis)) {
-    //   toast.error('Axis should not contain alphabets');
-    //   error.RSphere = "Should not contain alphabets!";
-    //   isError = true;
-    // }
+    else if ((RAxis !== null && /[A-Za-z]/.test(RAxis)) || (LAxis !== null && /[A-Za-z]/.test(LAxis))) {
+      toast.error('Axis should not contain alphabets');
+      error.RSphere = "Should not contain alphabets!";
+      isError = true;
+    }
    
-    // else if (/[A-Za-z]/.test(LAdd) || /[A-Za-z]/.test(RAdd)) {
-    //   toast.error('Add should not contain alphabets');
-    //   error.RSphere = "Should not contain alphabets!";
-    //   isError = true;
-    // }
+    else if ((LAdd !== null &&/[A-Za-z]/.test(LAdd)) ||(RAdd !== null && /[A-Za-z]/.test(RAdd))) {
+      toast.error('Add should not contain alphabets');
+      error.RSphere = "Should not contain alphabets!";
+      isError = true;
+    }
     setValidation(error);
     return isError;
   };
