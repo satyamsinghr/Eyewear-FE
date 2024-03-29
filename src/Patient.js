@@ -145,18 +145,14 @@ const Patient = () => {
     setRole(role);
     if (userId) {
       setUserId(userId);
+      getdata(userId);
+      getCollectionData(userId,lensCollectionId);
     }
     else {
       navigate('/')
     }
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      getdata();
-      getCollectionData();
-    }
-  }, [userId]);
 
   const changeHandle = (e) => {
     setPatient({ ...patient, [e.target.name]: e.target.value })
@@ -319,8 +315,8 @@ const Patient = () => {
 
 
 
-  const getdata = async () => {
-    const getResponse = await fetch(`${API_URL}/v1/patient?userId=${userId}`, {
+  const getdata = async (userIds) => {
+    const getResponse = await fetch(`${API_URL}/v1/patient?userId=${userIds}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -341,9 +337,9 @@ const Patient = () => {
     }
   }
 
-  const getCollectionData = async () => {
+  const getCollectionData = async (userIds,lensCollectionId) => {
     const getResponse = await fetch(
-      `${API_URL}/v1/collection?userId=${userId}`,
+      `${API_URL}/v1/collection?userId=${userIds}`,
       {
         method: "GET",
         headers: {
@@ -358,9 +354,9 @@ const Patient = () => {
         ...x,
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
-      const collName= collectionData.filter((x) =>x.id ==selectedCollectionId );
+      const collName= collectionData.filter((x) =>x.id ==lensCollectionId );
       // setCollName(collName[0]?.Coll_name)
-      setCollName(collName[0]?.Coll_name || 'Eyewear');
+      setCollName(collName[0]?.Coll_name);
       setCollectionListing(collectionData);
     } else {
       console.log("Get Failed");
@@ -521,8 +517,8 @@ const Patient = () => {
 
     <>
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
-        <div className='user_style'>
-          <div className="row mt-4">
+        <div className='user_style patient_header'>
+          <div className="row mt-0">
             <div className="col-12">
               <div className="table_card rounded patitnet_table overflow-hidden">
                 <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit= 

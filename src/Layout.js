@@ -28,13 +28,14 @@ const Layout = () => {
                     <Routes>
                         <Route path='/signUp' element={<Signup />} />
                         <Route path='/' element={<Login />} />
-                        <Route path='/collection' element={<FileCollection />} />
+                        {/* <Route path='/collection' element={<FileCollection />} /> */}
+                        {(role && role === "1") && <Route path='/collection' element={<FileCollection />} />}
                         <Route path='/patient' element={<Patient />} />
                         <Route path='/lenses' element={<Lenses />} />
-                        <Route path='/boxvalue' element={<Boxvalue />} />
+                        {/* <Route path='/boxvalue' element={<Boxvalue />} /> */}
                         <Route path='/dispense' element={<Dispense />} />
 						<Route path='/search/:id?' element={<Analysis />} />
-						<Route path='/setting' element={<SettingCollection />} />
+                        {(role && role === "1") &&<Route path='/setting' element={<SettingCollection />} /> }
                         {(role && role === "1") && (<Route path='/users' element={<Users />} />)}
                     </Routes>
                 </div>

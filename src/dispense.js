@@ -109,7 +109,7 @@ const DispenseComponent = () => {
     setCollId(collId);
     const lensCollectionId = localStorage.getItem("selectedLensCollectionId");
     setSelectedCollectionId(lensCollectionId);
-  getCollectionData();
+  getCollectionData(lensCollectionId);
     if (pointer < 5) {
       loadData();
       setPointer(pointer + 1);
@@ -141,7 +141,7 @@ const DispenseComponent = () => {
 
   // }, [id,currentPatientId, CollectionLensListing,userId]);
 
-  const getCollectionData = async () => {
+  const getCollectionData = async (lensCollectionId) => {
     const getResponse = await fetch(
       `${API_URL}/v1/collection?userId=${userId}`,
       {
@@ -158,9 +158,9 @@ const DispenseComponent = () => {
         ...x,
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
-      const collName= collectionData.filter((x) =>x.id ==selectedCollectionId );
+      const collName= collectionData.filter((x) =>x.id ==lensCollectionId );
       // setCollName(collName[0]?.Coll_name)
-      setCollName(collName[0]?.Coll_name || 'Eyewear');
+      setCollName(collName[0]?.Coll_name);
       setCollectionListing(collectionData);
     } else {
       console.log("Get Failed");
@@ -1011,7 +1011,7 @@ const DispenseComponent = () => {
   return (
     <>
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
-        <div className="user_style">
+        <div className="user_style patient_header">
           <div className="row search_input">
             <div className="col-lg-2">
               <div className="form-floating mb-3"></div>

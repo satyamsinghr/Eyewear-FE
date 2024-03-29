@@ -247,8 +247,6 @@ const Lenses = () => {
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
       setCollectionById(collectionData);
-      // handleSelectChange("", collectionData[0]?.id)
-      //  handleSelectChange("", selectedCollectionId)
       let selectedCollId;
       selectedCollId = selectedCollectionId || collectionData[0].id;
       handleSelectChange("", selectedCollId)
@@ -256,6 +254,36 @@ const Lenses = () => {
       console.log("Get Failed");
     }
   }
+
+  const getlensByCollId = async () => {
+    const getResponse = await fetch(
+      `${API_URL}/v1/getCollectionsByIds`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+        body: JSON.stringify({ collectionIds: collId }),
+      }
+    );
+
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      setCollectionById(collectionData);
+      // handleSelectChange("", collectionData[0]?.id)
+      let selectedCollId;
+      selectedCollId = selectedCollectionId || collectionData[0].id;
+      handleSelectChange("", selectedCollId)
+    } else {
+      console.log("Post Failed");
+    }
+  }
+  
   const changeHandle = (e) => {
     setBoxModel({ ...boxModel, [e.target.name]: e.target.value });
   };
@@ -312,34 +340,6 @@ const Lenses = () => {
     }
 
   };
-  const getlensByCollId = async () => {
-    const getResponse = await fetch(
-      `${API_URL}/v1/getCollectionsByIds`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
-        body: JSON.stringify({ collectionIds: collId }),
-      }
-    );
-
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      const collectionData = data.Collection_Data.map((x) => ({
-        ...x,
-        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
-      }));
-      setCollectionById(collectionData);
-      // handleSelectChange("", collectionData[0]?.id)
-      let selectedCollId;
-      selectedCollId = selectedCollectionId || collectionData[0].id;
-      handleSelectChange("", selectedCollId)
-    } else {
-      console.log("Post Failed");
-    }
-  }
 
   const getdata = async (matched) => {
     const queryParams = new URLSearchParams(boxModel).toString();
@@ -390,22 +390,32 @@ const Lenses = () => {
       isError = true;
     }
     else if (!Lens_Status) {
-      toast.error('Please fill valid input ');
+      toast.error('Please select Lens_Status ');
       error.Lens_Status = "Required !";
       isError = true;
     }
-    else if (!Lens_Gender) {
-      toast.error('Please fill valid input ');
-      error.Lens_Gender = "Required !";
-      isError = true;
-    }
-    // else if (!RAdd) {
-    else if (!RSphere && !LSphere) {
-      toast.error('Please fill Sphere');
-      error.RSphere = "Required !";
-      isError = true;
-    }
-    // else if (/[A-Za-z]/.test(RSphere) || /[A-Za-z]/.test(LSphere)) {
+    // else if (!Lens_Gender) {
+    //   toast.error('Please fill valid input ');
+    //   error.Lens_Gender = "Required !";
+    //   isError = true;
+    // }
+    // else if (!RSphere && !LSphere) {
+    //   toast.error('Please fill Sphere');
+    //   error.RSphere = "Required !";
+    //   isError = true;
+    // }
+    // else if (!RAxis && !LAxis) {
+    //   toast.error('Please fill Axis');
+    //   error.RSphere = "Required !";
+    //   isError = true;
+    // }
+    // else if (!LAdd && !RAdd) {
+    //   toast.error('Please fill Add');
+    //   error.RSphere = "Required !";
+    //   isError = true;
+    // }
+
+    //  if (/[A-Za-z]/.test(RSphere) || /[A-Za-z]/.test(LSphere)) {
     //   toast.error('Sphere should not contain alphabets');
     //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
@@ -416,21 +426,13 @@ const Lenses = () => {
     //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
     // }
-    else if (!RAxis && !LAxis) {
-      toast.error('Please fill Axis');
-      error.RSphere = "Required !";
-      isError = true;
-    }
+   
     // else if (/[A-Za-z]/.test(RAxis) || /[A-Za-z]/.test(LAxis)) {
     //   toast.error('Axis should not contain alphabets');
     //   error.RSphere = "Should not contain alphabets!";
     //   isError = true;
     // }
-    else if (!LAdd && !RAdd) {
-      toast.error('Please fill Add');
-      error.RSphere = "Required !";
-      isError = true;
-    }
+   
     // else if (/[A-Za-z]/.test(LAdd) || /[A-Za-z]/.test(RAdd)) {
     //   toast.error('Add should not contain alphabets');
     //   error.RSphere = "Should not contain alphabets!";

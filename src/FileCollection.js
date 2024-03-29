@@ -32,7 +32,9 @@ const FileCollection = () => {
   const [collId, setCollId] = useState([]);
   const [csvModel, setCsvModel] = useState(false);
   const [deleteModel, setDeleteModel] = useState(false);
+  const [resetCollectionModel, setResetCollectionModel] = useState(false);
   const [deleteCollectionID, setDeleteCollectionId] = useState("");
+  const [resetCollectionID, setResetCollectionID] = useState("");
   const [csvFile, setCsvFile] = useState(null);
   const [csvName, setCsvName] = useState("");
   const columns = [
@@ -87,13 +89,20 @@ const FileCollection = () => {
   const openDeleteModel = (id) => {
     setDeleteModel(true);
     setDeleteCollectionId(id)
-    // handleDelete();
- 
   };
 
   const closeDeleteModel = () => {
     setDeleteModel(false);
     setDeleteCollectionId('')
+  };
+  const openResetCollectionModel = (id) => {
+    setResetCollectionModel(true);
+    setResetCollectionID(id)
+  };
+
+  const closeResetCollectionModel = () => {
+    setResetCollectionModel(false);
+    setResetCollectionID('')
   };
 
 
@@ -568,24 +577,28 @@ const FileCollection = () => {
 
         <button
           className="btn btn-primary "
-          onClick={() => ResetLensStatus(row.original.id)}
+          // onClick={() => ResetLensStatus(row.original.id)}
+          onClick={() => openResetCollectionModel(row.original.id)}
         >
         ResetLensStatus
         </button>
       </div>
   );
 
-  const ResetLensStatus = async (id) => {
-    // ?id=${matchPatientId[0].id}
-    const response = await fetch(`${API_URL}/v1/cleardb?collId=${id}`, { 
+  const ResetLensStatus = async () => {
+    // const response = await fetch(`${API_URL}/v1/cleardb?collId=${id}`, { 
+    const response = await fetch(`${API_URL}/v1/cleardb?collId=${resetCollectionID}`, { 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Authorization: localStorage.getItem('token'), // Add the authorization token if needed
       },
     });
     if (response.ok) {
-      window.location.reload();
+      toast.success('The Lens has been  reset successfully.');
+      closeResetCollectionModel();
+      getdata();
+
+      // window.location.reload();
       console.log("Database cleared successfully");
     } else {
       console.log("Failed to clear the database");
@@ -716,6 +729,45 @@ const FileCollection = () => {
             onClick={handleDelete}
           >
             Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+
+
+
+
+
+      {/* For Reset Collection  modal */}
+      <Modal show={resetCollectionModel} onHide={closeResetCollectionModel}>
+        <Modal.Header closeButton className=" bg-light">
+          <Modal.Title>
+          <div  style={{display:'flex'}}>
+        
+             <span style={{marginTop:'3px'}}> Reset LensStatus</span>
+            </div>
+         
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="py-4 px-lg-4">
+          <div class="import_file">
+     Are you want to reset the LensStatus?
+          </div>
+        </Modal.Body>
+        <Modal.Footer className=" bg-light">
+          <Button
+            className="btn btn-primary bg-danger"
+            variant="secondary"
+            onClick={closeResetCollectionModel}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="btn btn-primary bg-success"
+            variant="primary"
+            onClick={ResetLensStatus}
+          >
+            Reset
           </Button>
         </Modal.Footer>
       </Modal>

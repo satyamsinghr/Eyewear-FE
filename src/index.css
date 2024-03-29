@@ -914,3 +914,6 @@ table.patitnet_table tr td .btn.btn-primary {
   width: auto;
   max-width: 155px;
 }
+.user_style.patient_header {
+  margin-top: 13px;
+}
