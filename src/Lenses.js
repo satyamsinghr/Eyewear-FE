@@ -1149,7 +1149,7 @@ const Lenses = () => {
 
           <div className="row mt-0">
             <div className="col-12">
-              <div className="table_card rounded lenses_table overflow-auto mt-3 lenses_table_scroll">
+              <div className=" lenses_table overflow-auto mt-3">
                 <ReactTable
                   ref={childRef}
                   columns={columns}

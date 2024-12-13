@@ -660,7 +660,6 @@ const FileCollection = () => {
           </div>
           <div className="row mt-4">
             <div className="col-12">
-              <div className="table_card rounded pt-0 mt-4 setting_table overflow-auto">
                 <ReactTable
                   ref={childRef}
                   columns={columns}
@@ -668,7 +667,7 @@ const FileCollection = () => {
                   handleSubmit={handleSubmit}
                   role={role}
                 />
-              </div>
+              {/* </div> */}
             </div>
           </div>
         </div>

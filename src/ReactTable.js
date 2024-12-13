@@ -77,7 +77,7 @@ const ReactTable = forwardRef(
           data,
           initialState: {
             pageIndex: 0,
-            pageSize: 10,
+            pageSize: 5,
             sortBy: [
               // {
               //   id: "id", // default sorting column
@@ -90,28 +90,6 @@ const ReactTable = forwardRef(
         usePagination,
         useRowSelect,
       );
-
-    // const CellRenderer = ({ cell, row }) => {
-    //     return (
-    //         <td {...cell.getCellProps()}>
-    //             {cell.column.id !== 'action' ? (
-    //                 <div
-    //                     contentEditable
-    //                     suppressContentEditableWarning
-    //                     onBlur={(e) => {
-    //                         const updatedData = [...data];
-    //                         const rowIndex = row.index;
-    //                         const columnId = cell.column.id;
-
-    //                         updatedData[rowIndex][columnId] = e.target.innerHTML;
-    //                         // setData(updatedData);
-    //                     }}
-    //                     dangerouslySetInnerHTML={{ __html: cell.value }}
-    //                 />
-    //             ) : null}
-    //         </td>
-    //     );
-    // };
 
     const statusArray = [
       { name: "selected", value: "selected" },
@@ -296,106 +274,6 @@ const ReactTable = forwardRef(
       );
     };
 
-    // const CellRenderer = ({ cell, row, selectOptions, setNewRow }) => {
-    //   return (
-    //     <td {...cell.getCellProps()}>
-    //       {cell.column.id !== "action" ? (
-    //         // Check if the column accessor is "Box_Name"
-    //         cell.column.id === "Box_Names" ? (
-    //           <select
-    //             className="form-control"
-    //             placeholder="Select a Name"
-    //             onChange={(e) => {
-    //               const updatedData = [...data];
-    //               const rowIndex = row.index;
-    //               const columnId = "Box_id";
-    //               const box = selectOptions.find(
-    //                 (x) => x.id === e.target.value
-    //               );
-    //               updatedData[rowIndex][columnId] = e.target.value;
-    //               updatedData[rowIndex]["Box_Name"] = box.Box_Name;
-    //               setCollectionListing(updatedData);
-
-    //               // Update the state with the modified data
-    //               const updatedRow = {
-    //                 ...row.original,
-    //                 [columnId]: e.target.value,
-    //                 ["Box_Name"]: box.Box_Name,
-    //               };
-    //               // Update the row in the original data array
-    //               updatedData[rowIndex] = updatedRow;
-    //               row.original.Box_id = e.target.value;
-    //             }}
-    //             value={row.original.Box_id || ""}
-    //           >
-    //             <option disabled selected value="">
-    //               Select a Name
-    //             </option>
-    //             {selectOptions.map((val, index) => (
-    //               <option key={index} value={val.id}>
-    //                 {val.Box_Name}
-    //               </option>
-    //             ))}
-    //           </select>
-    //         ) : // Render other columns with contentEditable
-
-    //         cell.column.id === "Lens_Status" ? (
-    //           <select
-    //             className="form-control"
-    //             placeholder="Select a Name"
-    //             onChange={(e) => {
-    //               const updatedData = [...data];
-    //               const rowIndex = row.index;
-    //               const columnId = cell.column.id ;
-
-    //               updatedData[rowIndex][columnId] = e.target.value;
-
-    //               // Update the state with the modified data
-    //               const updatedRow = {
-    //                 ...row.original,
-    //                 [columnId]: e.target.value,
-    //               };
-    //               // Update the row in the original data array
-    //               updatedData[rowIndex] = updatedRow;
-    //               setCollectionListing(updatedData);
-    //             //   row.original.Box_id = e.target.value;
-    //             }}
-    //             value={row.original.Lens_Status || ""}
-    //           >
-    //             <option disabled selected value="">
-    //               Select a Name
-    //             </option>
-    //             {statusArray.map((val, index) => (
-    //               <option key={index} value={val.value}>
-    //                 {val.name}
-    //               </option>
-    //             ))}
-    //           </select>
-    //         ) : (
-    //           cell.column.id !== "password" || cell.column.id !== "id" || cell.column.id !== "email" ?
-    //           (<div
-    //             contentEditable
-    //             suppressContentEditableWarning
-    //             onBlur={(e) => {
-    //               const updatedData = [...data];
-    //               const rowIndex = row.index;
-    //               const columnId = cell.column.id;
-
-    //               updatedData[rowIndex][columnId] = e.target.innerHTML;
-    //               // setData(updatedData);
-    //             }}
-    //             dangerouslySetInnerHTML={{ __html: cell.value }}
-    //           />)
-    //           :
-    //           (
-    //             <div dangerouslySetInnerHTML={{ __html: cell.value }} />
-    //           )
-    //         )
-    //       ) : null}
-    //     </td>
-    //   );
-    // };
-
     const setNewRow = (columnId, value) => {
       setNewRowData((prevRow) => ({ ...prevRow, [columnId]: value }));
     };
@@ -408,7 +286,71 @@ const ReactTable = forwardRef(
     };
 
     return (
-      <div>
+     <>
+        <div className="d-flex table_pagination mt-3 align-items-center justify-content-end gap-3 mb-4">
+          <div className="d-flex align-items-center justify-content-end gap-3">
+            <button className="pagination_button" onClick={() => previousPage()} disabled={!canPreviousPage}>
+              {/* Previous */}
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            <span>
+              Page{' '}
+              <strong>
+                {state.pageIndex + 1} of {pageCount}
+              </strong>
+            </span>
+            <button className="pagination_button" onClick={() => nextPage()} disabled={!canNextPage}>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+          <div className="m-0 d-flex align-items-cneter pe-3">
+            <div className="d-flex align-items-center">
+              <span className="d-inline-block me-2">Page Size :</span>
+              <select
+                value={pageSize}
+                onChange={e => handlePageSizeChange(Number(e.target.value))}
+              >
+                {[5, 10, 25, 50, 100].map(size => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="d-flex align-items-center">
+              <span className="me-2">Go to page:</span>
+              <input
+                type="number"
+                min="1"
+                max={pageCount}
+                value={state.pageIndex + 1}
+                onChange={e => {
+                  const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
+                  if (pageNumber >= 0 && pageNumber < pageCount) {
+                    gotoPage(pageNumber);
+                  }
+                }}
+                style={{ width: '75px' }}
+              />
+            </div>
+          </div>
+        </div>
+                      <div className="table_card rounded pt-0 mt-4 setting_table overflow-auto">
+        
         <table
           {...getTableProps()}
           style={{ width: "100%" }}
@@ -482,131 +424,131 @@ const ReactTable = forwardRef(
                               })}
                             </select>
                           )
-                          //  :
-                          //   column.accessor === "Collection_id" ? (
-                          //     <select
-                          //       className="form-control"
-                          //       id="floatingInput"
-                          //       placeholder="Collid"
-                          //       onChange={(e) => setNewRow(column.accessor, e.target.value)}
-                          //       value={newRowData[column.accessor]}
-                          //       defaultValue=""
-                          //     >
-                          //       <option disabled selected value="">
-                          //         Select Collection
-                          //       </option>
-                          //       {collectionListing.map((val, index) => (
-                          //         <option key={index} value={val.id}>
-                          //           {val.Coll_name}
-                          //         </option>
-                          //       ))}
-                          //     </select>
-                          //   )
-                              :
-                              column.accessor === "Coll_Id" && tableType === "users" ? (
-                                // <Multiselect
-                                //   options={collectionListing.map((val) => ({
-                                //     value: val.id,
-                                //     label: val.Coll_name
-                                //   }))}
-                                //   selectedValues={newRowData[column.accessor]}
-                                //   onSelect={(selectedList, selectedItem) => {
-                                //     setNewRow(column.accessor, selectedList);
-                                //   }}
-                                //   onRemove={(selectedList, removedItem) => {
-                                //     setNewRow(column.accessor, selectedList);
-                                //   }}
-                                //   displayValue="label"
-                                // />
+                            //  :
+                            //   column.accessor === "Collection_id" ? (
+                            //     <select
+                            //       className="form-control"
+                            //       id="floatingInput"
+                            //       placeholder="Collid"
+                            //       onChange={(e) => setNewRow(column.accessor, e.target.value)}
+                            //       value={newRowData[column.accessor]}
+                            //       defaultValue=""
+                            //     >
+                            //       <option disabled selected value="">
+                            //         Select Collection
+                            //       </option>
+                            //       {collectionListing.map((val, index) => (
+                            //         <option key={index} value={val.id}>
+                            //           {val.Coll_name}
+                            //         </option>
+                            //       ))}
+                            //     </select>
+                            //   )
+                            :
+                            column.accessor === "Coll_Id" && tableType === "users" ? (
+                              // <Multiselect
+                              //   options={collectionListing.map((val) => ({
+                              //     value: val.id,
+                              //     label: val.Coll_name
+                              //   }))}
+                              //   selectedValues={newRowData[column.accessor]}
+                              //   onSelect={(selectedList, selectedItem) => {
+                              //     setNewRow(column.accessor, selectedList);
+                              //   }}
+                              //   onRemove={(selectedList, removedItem) => {
+                              //     setNewRow(column.accessor, selectedList);
+                              //   }}
+                              //   displayValue="label"
+                              // />
 
-                                <Multiselect
-                                  options={[
-                                    { value: 'all', label: 'Select All' },  // Option for selecting all
-                                    ...collectionListing.map((val) => ({
+                              <Multiselect
+                                options={[
+                                  { value: 'all', label: 'Select All' },  // Option for selecting all
+                                  ...collectionListing.map((val) => ({
+                                    value: val.id,
+                                    label: val.Coll_name
+                                  }))
+                                ]}
+                                selectedValues={newRowData[column.accessor] || []}
+                                onSelect={(selectedList, selectedItem) => {
+                                  if (selectedItem && selectedItem.value === 'all') {
+                                    // const allValues = collectionListing.map(val => val);
+                                    const allValues = collectionListing.map(val => ({
                                       value: val.id,
                                       label: val.Coll_name
-                                    }))
-                                  ]}
-                                  selectedValues={newRowData[column.accessor] || []}
-                                  onSelect={(selectedList, selectedItem) => {
-                                    if (selectedItem && selectedItem.value === 'all') {
-                                      // const allValues = collectionListing.map(val => val);
-                                      const allValues = collectionListing.map(val => ({
-                                        value: val.id,
-                                        label: val.Coll_name
-                                      }));
-                                      setNewRow(column.accessor, allValues);
-                                    } else {
-                                      const filteredList = selectedList.filter(item => item.value !== 'all');
-                                      setNewRow(column.accessor, filteredList);
-                                    }
-                                  }}
-                                  onRemove={(selectedList, removedItem) => {
-                                    if (removedItem && removedItem.value === 'all') {
-                                      setNewRow(column.accessor, []);
-                                    } else {
-                                      setNewRow(column.accessor, selectedList);
-                                    }
-                                  }}
-                                  displayValue="label"
+                                    }));
+                                    setNewRow(column.accessor, allValues);
+                                  } else {
+                                    const filteredList = selectedList.filter(item => item.value !== 'all');
+                                    setNewRow(column.accessor, filteredList);
+                                  }
+                                }}
+                                onRemove={(selectedList, removedItem) => {
+                                  if (removedItem && removedItem.value === 'all') {
+                                    setNewRow(column.accessor, []);
+                                  } else {
+                                    setNewRow(column.accessor, selectedList);
+                                  }
+                                }}
+                                displayValue="label"
+                              />
+
+                              // <Select
+                              //   options={[
+                              //     { value: 'all', label: 'Select All' },  // Option for selecting all
+                              //     ...collectionListing.map((val) => ({
+                              //       value: val.id,
+                              //       label: val.Coll_name
+                              //     }))
+                              //   ]}
+                              //   isMulti
+                              //   value={newRowData[column.accessor] || []}
+                              //   onChange={(selectedOptions) => {
+                              //     if (selectedOptions.some(option => option.value === 'all')) {
+                              //       const allValues = collectionListing.map(val => val.id);
+                              //       setNewRow(column.accessor, allValues);
+                              //     } else {
+                              //       const filteredOptions = selectedOptions.filter(option => option.value !== 'all');
+                              //       setNewRow(column.accessor, filteredOptions);
+                              //     }
+                              //   }}
+                              // />
+
+                            )
+                              : (
+                                <input
+                                  disabled={
+                                    column.accessor === "id" && tableType === "users"
+                                  }
+                                  type={
+                                    (column.accessor === "Coll_date" || column.accessor === "Box_date")
+                                      ? "date"
+                                      : (column.accessor === "Coll_id" && tableType === "users")
+                                        ? "select"
+                                        : "text"
+                                  }
+
+                                  value={newRowData[column.accessor]}
+                                  onChange={(e) =>
+                                    setNewRow(column.accessor, e.target.value)
+                                  }
                                 />
-
-                                // <Select
-                                //   options={[
-                                //     { value: 'all', label: 'Select All' },  // Option for selecting all
-                                //     ...collectionListing.map((val) => ({
-                                //       value: val.id,
-                                //       label: val.Coll_name
-                                //     }))
-                                //   ]}
-                                //   isMulti
-                                //   value={newRowData[column.accessor] || []}
-                                //   onChange={(selectedOptions) => {
-                                //     if (selectedOptions.some(option => option.value === 'all')) {
-                                //       const allValues = collectionListing.map(val => val.id);
-                                //       setNewRow(column.accessor, allValues);
-                                //     } else {
-                                //       const filteredOptions = selectedOptions.filter(option => option.value !== 'all');
-                                //       setNewRow(column.accessor, filteredOptions);
-                                //     }
-                                //   }}
+                                // <input
+                                //   disabled={
+                                //     column.accessor === "id" && tableType === "users"
+                                //   }
+                                //   type={
+                                //     column.accessor === "Coll_date" ||
+                                //       column.accessor === "Box_date"
+                                //       ? "date"
+                                //       : "text"
+                                //   }
+                                //   value={newRowData[column.accessor]}
+                                //   onChange={(e) =>
+                                //     setNewRow(column.accessor, e.target.value)
+                                //   }
                                 // />
-
                               )
-                                : (
-                                  <input
-                                    disabled={
-                                      column.accessor === "id" && tableType === "users"
-                                    }
-                                    type={
-                                      (column.accessor === "Coll_date" || column.accessor === "Box_date")
-                                        ? "date"
-                                        : (column.accessor === "Coll_id" && tableType === "users")
-                                          ? "select"
-                                          : "text"
-                                    }
-
-                                    value={newRowData[column.accessor]}
-                                    onChange={(e) =>
-                                      setNewRow(column.accessor, e.target.value)
-                                    }
-                                  />
-                                  // <input
-                                  //   disabled={
-                                  //     column.accessor === "id" && tableType === "users"
-                                  //   }
-                                  //   type={
-                                  //     column.accessor === "Coll_date" ||
-                                  //       column.accessor === "Box_date"
-                                  //       ? "date"
-                                  //       : "text"
-                                  //   }
-                                  //   value={newRowData[column.accessor]}
-                                  //   onChange={(e) =>
-                                  //     setNewRow(column.accessor, e.target.value)
-                                  //   }
-                                  // />
-                                )
                         }
                       </td>
                     )
@@ -650,73 +592,9 @@ const ReactTable = forwardRef(
             })}
           </tbody>
         </table>
-        <div className="d-flex table_pagination mt-3 align-items-center justify-content-end gap-3">
-          <div className="d-flex align-items-center justify-content-end gap-3">
-            <button className="pagination_button" onClick={() => previousPage()} disabled={!canPreviousPage}>
-              {/* Previous */}
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
-            <span>
-              Page{' '}
-              <strong>
-                {state.pageIndex + 1} of {pageCount}
-              </strong>
-            </span>
-            <button className="pagination_button" onClick={() => nextPage()} disabled={!canNextPage}>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="m-0 d-flex align-items-cneter pe-3">
 
-            <div className="d-flex align-items-center">
-              <span className="d-inline-block me-2">Page Size :</span>
-              <select
-                value={pageSize}
-                onChange={e => handlePageSizeChange(Number(e.target.value))}
-              >
-                {[5, 10, 25, 50, 100].map(size => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="d-flex align-items-center">
-              <span className="me-2">Go to page:</span>
-              <input
-                type="number"
-                min="1"
-                max={pageCount}
-                value={state.pageIndex + 1}
-                onChange={e => {
-                  const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0;
-                  if (pageNumber >= 0 && pageNumber < pageCount) {
-                    gotoPage(pageNumber);
-                  }
-                }}
-                style={{ width: '75px' }}
-              />
-            </div>
-
-
-          </div>
-        </div>
       </div>
+      </>
     );
   }
 );
