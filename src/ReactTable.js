@@ -26,6 +26,7 @@ const ReactTable = forwardRef(
     },
     ref
   ) => {
+
     const [newRowData, setNewRowData] = useState(() => {
       const initialRow = {};
       columns.forEach(async (column) => {
@@ -60,7 +61,23 @@ const ReactTable = forwardRef(
       });
       setNewRowData(initialRow);
     };
+    // Determine pageSize based on data source
+    const getPageSize = () => {
+      if (tableType === "collection") return 10;
+      if (tableType === "lens") return 25;
+      if (tableType === "users") return 5;
+      return 5; // default
+    };
 
+    const getPageSizeOptions = (pageSize) => {
+      if (pageSize === 5) return [5, 10, 25, 50, 100];
+      if (pageSize === 10) return [10, 25, 50, 100];
+      if (pageSize === 25) return [25, 50, 75, 100];
+      return [5, 10, 25, 50, 100]; // default
+    };
+
+    const initialPageSize = getPageSize();
+    const pageSizeOptions = getPageSizeOptions(initialPageSize);
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow,
       state,
       canPreviousPage,
@@ -77,7 +94,7 @@ const ReactTable = forwardRef(
           data,
           initialState: {
             pageIndex: 0,
-            pageSize: 5,
+            pageSize: initialPageSize,
             sortBy: [
               // {
               //   id: "id", // default sorting column
@@ -286,7 +303,7 @@ const ReactTable = forwardRef(
     };
 
     return (
-     <>
+      <>
         <div className="d-flex table_pagination mt-3 align-items-center justify-content-end gap-3 mb-4">
           <div className="d-flex align-items-center justify-content-end gap-3">
             <button className="pagination_button" onClick={() => previousPage()} disabled={!canPreviousPage}>
@@ -324,7 +341,7 @@ const ReactTable = forwardRef(
                 value={pageSize}
                 onChange={e => handlePageSizeChange(Number(e.target.value))}
               >
-                {[5, 10, 25, 50, 100].map(size => (
+                {pageSizeOptions.map((size) => (
                   <option key={size} value={size}>
                     {size}
                   </option>
@@ -349,61 +366,39 @@ const ReactTable = forwardRef(
             </div>
           </div>
         </div>
-                      <div className="table_card rounded pt-0 mt-4 setting_table overflow-auto">
-        
-        <table
-          {...getTableProps()}
-          style={{ width: "100%" }}
-          className="collection_table active_table"
-        >
-          <thead>
-            {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map((column) => (
-                  <th {...column.getHeaderProps(column.getSortByToggleProps())}>
-                    {column.render("Header")}
-                    <span>
-                      {column.isSorted
-                        ? column.isSortedDesc
-                          ? " 🔽"
-                          : " 🔼"
-                        : ""}
-                    </span>
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {parseInt(role) == 1 && (
-              <tr>
-                {columns.map(
-                  (column, columnIndex) =>
-                    // Check if the current column is not the action column
-                    columnIndex !== columns.length - 1 && (
-                      <td key={column.accessor}>
-                        {column.accessor === "Col_type" ? (
-                          <select
-                            className="form-control"
-                            id="floatingInput"
-                            placeholder="Lens Type"
-                            onChange={(e) =>
-                              setNewRow(column.accessor, e.target.value)
-                            }
-                            value={newRowData[column.accessor]}
-                            defaultValue=""
-                          >
-                            <option disabled selected value="">
-                              Select a Name
-                            </option>
-                            {selectOptions.map((val, index) => {
-                              return (
-                                <option value={val.id}>{val.Coll_name}</option>
-                              );
-                            })}
-                          </select>
-                        ) :
-                          column.accessor === "Lens_Status" ? (
+        <div className="table_card rounded pt-0 mt-4 setting_table overflow-auto">
+          <table
+            {...getTableProps()}
+            style={{ width: "100%" }}
+            className="collection_table active_table"
+          >
+            <thead>
+              {headerGroups.map((headerGroup) => (
+                <tr {...headerGroup.getHeaderGroupProps()}>
+                  {headerGroup.headers.map((column) => (
+                    <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                      {column.render("Header")}
+                      <span>
+                        {column.isSorted
+                          ? column.isSortedDesc
+                            ? " 🔽"
+                            : " 🔼"
+                          : ""}
+                      </span>
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody {...getTableBodyProps()}>
+              {parseInt(role) == 1 && (
+                <tr>
+                  {columns.map(
+                    (column, columnIndex) =>
+                      // Check if the current column is not the action column
+                      columnIndex !== columns.length - 1 && (
+                        <td key={column.accessor}>
+                          {column.accessor === "Col_type" ? (
                             <select
                               className="form-control"
                               id="floatingInput"
@@ -415,185 +410,206 @@ const ReactTable = forwardRef(
                               defaultValue=""
                             >
                               <option disabled selected value="">
-                                Select Lens
+                                Select a Name
                               </option>
-                              {lensStatus.map((val, index) => {
+                              {selectOptions.map((val, index) => {
                                 return (
-                                  <option value={val.name}>{val.name}</option>
+                                  <option value={val.id}>{val.Coll_name}</option>
                                 );
                               })}
                             </select>
-                          )
-                            //  :
-                            //   column.accessor === "Collection_id" ? (
-                            //     <select
-                            //       className="form-control"
-                            //       id="floatingInput"
-                            //       placeholder="Collid"
-                            //       onChange={(e) => setNewRow(column.accessor, e.target.value)}
-                            //       value={newRowData[column.accessor]}
-                            //       defaultValue=""
-                            //     >
-                            //       <option disabled selected value="">
-                            //         Select Collection
-                            //       </option>
-                            //       {collectionListing.map((val, index) => (
-                            //         <option key={index} value={val.id}>
-                            //           {val.Coll_name}
-                            //         </option>
-                            //       ))}
-                            //     </select>
-                            //   )
-                            :
-                            column.accessor === "Coll_Id" && tableType === "users" ? (
-                              // <Multiselect
-                              //   options={collectionListing.map((val) => ({
-                              //     value: val.id,
-                              //     label: val.Coll_name
-                              //   }))}
-                              //   selectedValues={newRowData[column.accessor]}
-                              //   onSelect={(selectedList, selectedItem) => {
-                              //     setNewRow(column.accessor, selectedList);
-                              //   }}
-                              //   onRemove={(selectedList, removedItem) => {
-                              //     setNewRow(column.accessor, selectedList);
-                              //   }}
-                              //   displayValue="label"
-                              // />
+                          ) :
+                            column.accessor === "Lens_Status" ? (
+                              <select
+                                className="form-control"
+                                id="floatingInput"
+                                placeholder="Lens Type"
+                                onChange={(e) =>
+                                  setNewRow(column.accessor, e.target.value)
+                                }
+                                value={newRowData[column.accessor]}
+                                defaultValue=""
+                              >
+                                <option disabled selected value="">
+                                  Select Lens
+                                </option>
+                                {lensStatus.map((val, index) => {
+                                  return (
+                                    <option value={val.name}>{val.name}</option>
+                                  );
+                                })}
+                              </select>
+                            )
+                              //  :
+                              //   column.accessor === "Collection_id" ? (
+                              //     <select
+                              //       className="form-control"
+                              //       id="floatingInput"
+                              //       placeholder="Collid"
+                              //       onChange={(e) => setNewRow(column.accessor, e.target.value)}
+                              //       value={newRowData[column.accessor]}
+                              //       defaultValue=""
+                              //     >
+                              //       <option disabled selected value="">
+                              //         Select Collection
+                              //       </option>
+                              //       {collectionListing.map((val, index) => (
+                              //         <option key={index} value={val.id}>
+                              //           {val.Coll_name}
+                              //         </option>
+                              //       ))}
+                              //     </select>
+                              //   )
+                              :
+                              column.accessor === "Coll_Id" && tableType === "users" ? (
+                                // <Multiselect
+                                //   options={collectionListing.map((val) => ({
+                                //     value: val.id,
+                                //     label: val.Coll_name
+                                //   }))}
+                                //   selectedValues={newRowData[column.accessor]}
+                                //   onSelect={(selectedList, selectedItem) => {
+                                //     setNewRow(column.accessor, selectedList);
+                                //   }}
+                                //   onRemove={(selectedList, removedItem) => {
+                                //     setNewRow(column.accessor, selectedList);
+                                //   }}
+                                //   displayValue="label"
+                                // />
 
-                              <Multiselect
-                                options={[
-                                  { value: 'all', label: 'Select All' },  // Option for selecting all
-                                  ...collectionListing.map((val) => ({
-                                    value: val.id,
-                                    label: val.Coll_name
-                                  }))
-                                ]}
-                                selectedValues={newRowData[column.accessor] || []}
-                                onSelect={(selectedList, selectedItem) => {
-                                  if (selectedItem && selectedItem.value === 'all') {
-                                    // const allValues = collectionListing.map(val => val);
-                                    const allValues = collectionListing.map(val => ({
+                                <Multiselect
+                                  options={[
+                                    { value: 'all', label: 'Select All' },  // Option for selecting all
+                                    ...collectionListing.map((val) => ({
                                       value: val.id,
                                       label: val.Coll_name
-                                    }));
-                                    setNewRow(column.accessor, allValues);
-                                  } else {
-                                    const filteredList = selectedList.filter(item => item.value !== 'all');
-                                    setNewRow(column.accessor, filteredList);
-                                  }
-                                }}
-                                onRemove={(selectedList, removedItem) => {
-                                  if (removedItem && removedItem.value === 'all') {
-                                    setNewRow(column.accessor, []);
-                                  } else {
-                                    setNewRow(column.accessor, selectedList);
-                                  }
-                                }}
-                                displayValue="label"
-                              />
-
-                              // <Select
-                              //   options={[
-                              //     { value: 'all', label: 'Select All' },  // Option for selecting all
-                              //     ...collectionListing.map((val) => ({
-                              //       value: val.id,
-                              //       label: val.Coll_name
-                              //     }))
-                              //   ]}
-                              //   isMulti
-                              //   value={newRowData[column.accessor] || []}
-                              //   onChange={(selectedOptions) => {
-                              //     if (selectedOptions.some(option => option.value === 'all')) {
-                              //       const allValues = collectionListing.map(val => val.id);
-                              //       setNewRow(column.accessor, allValues);
-                              //     } else {
-                              //       const filteredOptions = selectedOptions.filter(option => option.value !== 'all');
-                              //       setNewRow(column.accessor, filteredOptions);
-                              //     }
-                              //   }}
-                              // />
-
-                            )
-                              : (
-                                <input
-                                  disabled={
-                                    column.accessor === "id" && tableType === "users"
-                                  }
-                                  type={
-                                    (column.accessor === "Coll_date" || column.accessor === "Box_date")
-                                      ? "date"
-                                      : (column.accessor === "Coll_id" && tableType === "users")
-                                        ? "select"
-                                        : "text"
-                                  }
-
-                                  value={newRowData[column.accessor]}
-                                  onChange={(e) =>
-                                    setNewRow(column.accessor, e.target.value)
-                                  }
+                                    }))
+                                  ]}
+                                  selectedValues={newRowData[column.accessor] || []}
+                                  onSelect={(selectedList, selectedItem) => {
+                                    if (selectedItem && selectedItem.value === 'all') {
+                                      // const allValues = collectionListing.map(val => val);
+                                      const allValues = collectionListing.map(val => ({
+                                        value: val.id,
+                                        label: val.Coll_name
+                                      }));
+                                      setNewRow(column.accessor, allValues);
+                                    } else {
+                                      const filteredList = selectedList.filter(item => item.value !== 'all');
+                                      setNewRow(column.accessor, filteredList);
+                                    }
+                                  }}
+                                  onRemove={(selectedList, removedItem) => {
+                                    if (removedItem && removedItem.value === 'all') {
+                                      setNewRow(column.accessor, []);
+                                    } else {
+                                      setNewRow(column.accessor, selectedList);
+                                    }
+                                  }}
+                                  displayValue="label"
                                 />
-                                // <input
-                                //   disabled={
-                                //     column.accessor === "id" && tableType === "users"
-                                //   }
-                                //   type={
-                                //     column.accessor === "Coll_date" ||
-                                //       column.accessor === "Box_date"
-                                //       ? "date"
-                                //       : "text"
-                                //   }
-                                //   value={newRowData[column.accessor]}
-                                //   onChange={(e) =>
-                                //     setNewRow(column.accessor, e.target.value)
-                                //   }
-                                // />
-                              )
-                        }
-                      </td>
-                    )
-                )}
-                <td className="text-center">
-                  {/* Render the Save button for the new row */}
-                  <button
-                    className="btn btn-primary table_save"
-                    onClick={(e) => handleSubmit(e, newRowData)}
-                  >
-                    Save
-                  </button>
-                </td>
-              </tr>
-            )}
-            {rows.slice(state.pageIndex * state.pageSize, (state.pageIndex + 1) * state.pageSize).map((row) => {
-              prepareRow(row);
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map((cell) =>
-                    // Conditionally render cells based on column id
-                    cell.column.id !== "action" ? (
-                      <CellRenderer
-                        cell={cell}
-                        value={cell.render("Cell")}
-                        row={row}
-                        selectOptions={selectOptions}
-                        statusArray={statusArray}
-                        collectionListing={collectionListing}
-                        key={cell.getCellProps().key}
-                      />
-                    ) : (
-                      <td {...cell.getCellProps()}>
-                        {cell.column.render("Cell", { row })}{" "}
-                        {/* Pass the row to the render function */}
-                      </td>
-                    )
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
 
-      </div>
+                                // <Select
+                                //   options={[
+                                //     { value: 'all', label: 'Select All' },  // Option for selecting all
+                                //     ...collectionListing.map((val) => ({
+                                //       value: val.id,
+                                //       label: val.Coll_name
+                                //     }))
+                                //   ]}
+                                //   isMulti
+                                //   value={newRowData[column.accessor] || []}
+                                //   onChange={(selectedOptions) => {
+                                //     if (selectedOptions.some(option => option.value === 'all')) {
+                                //       const allValues = collectionListing.map(val => val.id);
+                                //       setNewRow(column.accessor, allValues);
+                                //     } else {
+                                //       const filteredOptions = selectedOptions.filter(option => option.value !== 'all');
+                                //       setNewRow(column.accessor, filteredOptions);
+                                //     }
+                                //   }}
+                                // />
+
+                              )
+                                : (
+                                  <input
+                                    disabled={
+                                      column.accessor === "id" && tableType === "users"
+                                    }
+                                    type={
+                                      (column.accessor === "Coll_date" || column.accessor === "Box_date")
+                                        ? "date"
+                                        : (column.accessor === "Coll_id" && tableType === "users")
+                                          ? "select"
+                                          : "text"
+                                    }
+
+                                    value={newRowData[column.accessor]}
+                                    onChange={(e) =>
+                                      setNewRow(column.accessor, e.target.value)
+                                    }
+                                  />
+                                  // <input
+                                  //   disabled={
+                                  //     column.accessor === "id" && tableType === "users"
+                                  //   }
+                                  //   type={
+                                  //     column.accessor === "Coll_date" ||
+                                  //       column.accessor === "Box_date"
+                                  //       ? "date"
+                                  //       : "text"
+                                  //   }
+                                  //   value={newRowData[column.accessor]}
+                                  //   onChange={(e) =>
+                                  //     setNewRow(column.accessor, e.target.value)
+                                  //   }
+                                  // />
+                                )
+                          }
+                        </td>
+                      )
+                  )}
+                  <td className="text-center">
+                    {/* Render the Save button for the new row */}
+                    <button
+                      className="btn btn-primary table_save"
+                      onClick={(e) => handleSubmit(e, newRowData)}
+                    >
+                      Save
+                    </button>
+                  </td>
+                </tr>
+              )}
+              {rows.slice(state.pageIndex * state.pageSize, (state.pageIndex + 1) * state.pageSize).map((row) => {
+                prepareRow(row);
+                return (
+                  <tr {...row.getRowProps()}>
+                    {row.cells.map((cell) =>
+                      // Conditionally render cells based on column id
+                      cell.column.id !== "action" ? (
+                        <CellRenderer
+                          cell={cell}
+                          value={cell.render("Cell")}
+                          row={row}
+                          selectOptions={selectOptions}
+                          statusArray={statusArray}
+                          collectionListing={collectionListing}
+                          key={cell.getCellProps().key}
+                        />
+                      ) : (
+                        <td {...cell.getCellProps()}>
+                          {cell.column.render("Cell", { row })}{" "}
+                          {/* Pass the row to the render function */}
+                        </td>
+                      )
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+        </div>
       </>
     );
   }

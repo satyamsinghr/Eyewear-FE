@@ -666,6 +666,7 @@ const FileCollection = () => {
                   data={collectionListing}
                   handleSubmit={handleSubmit}
                   role={role}
+                  tableType='collection'
                 />
               {/* </div> */}
             </div>

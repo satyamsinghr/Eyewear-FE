@@ -1160,6 +1160,7 @@ const Lenses = () => {
                   role={role}
                   submitEdits={submitEdits}
                   collectionListing={collection}
+                  tableType='lens'
                 />
                 {/* <InlineEditingTable ref={childRef} columns={columns} data={collectionListing} handleSubmit={handleSubmit} /> */}
               </div>
