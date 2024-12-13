@@ -77,7 +77,7 @@ const ReactTable = forwardRef(
           data,
           initialState: {
             pageIndex: 0,
-            pageSize: 5,
+            pageSize: 10,
             sortBy: [
               // {
               //   id: "id", // default sorting column

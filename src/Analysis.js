@@ -3,7 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
 import moment from "moment";
 import { API_URL } from "./helper/common";
-
+import { handleSignOut } from './utils/service';
 const Analysis = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -81,7 +81,7 @@ const Analysis = () => {
     const collId = JSON.parse(localStorage.getItem("collId"));
     const lensCollectionId = localStorage.getItem("selectedLensCollectionId");
     setSelectedCollectionId(lensCollectionId);
-  getCollectionData(lensCollectionId);
+    getCollectionData(lensCollectionId);
     setRole(role);
     setCollId(collId)
     if (pointer < 5) {
@@ -116,12 +116,16 @@ const Analysis = () => {
         ...x,
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
-      const collName= collectionData.filter((x) =>x.id ==lensCollectionId );
+      const collName = collectionData.filter((x) => x.id == lensCollectionId);
       // setCollName(collName[0]?.Coll_name)
       setCollName(collName[0]?.Coll_name);
       setCollectionListing(collectionData);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
 
@@ -146,7 +150,11 @@ const Analysis = () => {
         setEyeWearConfig(eyewear);
         // setAxisConfig(data.axisConfig);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -169,7 +177,11 @@ const Analysis = () => {
         setCollectionLensListing(data.Lenses_Data);
         handleLensAlgorithm(data.Lenses_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -186,14 +198,14 @@ const Analysis = () => {
     var lensData = [];
     if (lensData1 && lensData1.length > 0 && patient) {
       if (role == 1) {
-          lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
+        lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
       } else if (collId.includes(patient.CollectionId)) {
-          lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
-      }else{
+        lensData = lensData1.filter((x) => x.CollectionId == patient.CollectionId);
+      } else {
         return false
       }
-  }
-  
+    }
+
 
     if (patient && lensData && lensData.length > 0 && eyewearConfig) {
       const parseToFloat = (value) => {
@@ -226,175 +238,175 @@ const Analysis = () => {
 
         //if (lens.lensId == 'AA4611') {
 
-          // Yellow part
-          let RSphEqPat = RSphPat + RCylPat / 2;
-          let LSphEqPat = LSphPat + LCylPat / 2;
+        // Yellow part
+        let RSphEqPat = RSphPat + RCylPat / 2;
+        let LSphEqPat = LSphPat + LCylPat / 2;
 
-          //green part
-          let {
-            RSphere: RSphE,
-            RCylinder: LSphE,
-            RCylinder: RCylE,
-            LCylinder: LCylE,
-            RAxis: RAxisE,
-            LAxis: LAxisE,
-            RAdd: RAddE,
-            LAdd: LAddE,
-          } = lens;
+        //green part
+        let {
+          RSphere: RSphE,
+          RCylinder: LSphE,
+          RCylinder: RCylE,
+          LCylinder: LCylE,
+          RAxis: RAxisE,
+          LAxis: LAxisE,
+          RAdd: RAddE,
+          LAdd: LAddE,
+        } = lens;
 
-          // Modify the original object with parsed values
-          RSphE = !isNaN(parseToFloat(RSphE)) ? parseToFloat(RSphE) : 0;
-          LSphE = !isNaN(parseToFloat(LSphE)) ? parseToFloat(LSphE) : 0;
-          RCylE = !isNaN(parseToFloat(RCylE)) ? parseToFloat(RCylE) : 0;
-          LCylE = !isNaN(parseToFloat(LCylE)) ? parseToFloat(LCylE) : 0;
-          RAxisE = !isNaN(parseToFloat(RAxisE)) ? parseToFloat(RAxisE) : 0;
-          LAxisE = !isNaN(parseToFloat(LAxisE)) ? parseToFloat(LAxisE) : 0;
-          RAddE = !isNaN(parseToFloat(RAddE)) ? parseToFloat(RAddE) : 0;
-          LAddE = !isNaN(parseToFloat(LAddE)) ? parseToFloat(LAddE) : 0;
+        // Modify the original object with parsed values
+        RSphE = !isNaN(parseToFloat(RSphE)) ? parseToFloat(RSphE) : 0;
+        LSphE = !isNaN(parseToFloat(LSphE)) ? parseToFloat(LSphE) : 0;
+        RCylE = !isNaN(parseToFloat(RCylE)) ? parseToFloat(RCylE) : 0;
+        LCylE = !isNaN(parseToFloat(LCylE)) ? parseToFloat(LCylE) : 0;
+        RAxisE = !isNaN(parseToFloat(RAxisE)) ? parseToFloat(RAxisE) : 0;
+        LAxisE = !isNaN(parseToFloat(LAxisE)) ? parseToFloat(LAxisE) : 0;
+        RAddE = !isNaN(parseToFloat(RAddE)) ? parseToFloat(RAddE) : 0;
+        LAddE = !isNaN(parseToFloat(LAddE)) ? parseToFloat(LAddE) : 0;
 
-          let RSphEqE = RSphE + RCylE / 2;
-          let LSphEqE = LSphE + LCylE / 2;
+        let RSphEqE = RSphE + RCylE / 2;
+        let LSphEqE = LSphE + LCylE / 2;
 
-          let RSphDif = !isNaN(Math.abs(RSphEqPat - RSphEqE)) ? Math.abs(RSphEqPat - RSphEqE) : 0;
-          let LSphDif = !isNaN(Math.abs(LSphEqPat - LSphEqE)) ? Math.abs(LSphEqPat - LSphEqE) : 0;
+        let RSphDif = !isNaN(Math.abs(RSphEqPat - RSphEqE)) ? Math.abs(RSphEqPat - RSphEqE) : 0;
+        let LSphDif = !isNaN(Math.abs(LSphEqPat - LSphEqE)) ? Math.abs(LSphEqPat - LSphEqE) : 0;
 
-          let RSphDifR = !isNaN(Math.abs((RSphDif - RSphPat) / RSphPat)) ? Math.abs((RSphDif - RSphPat) / RSphPat) : 0;
-          let LSphDifR = !isNaN(Math.abs((LSphDif - LSphPat) / LSphPat)) ? Math.abs((LSphDif - LSphPat) / LSphPat) : 0;
+        let RSphDifR = !isNaN(Math.abs((RSphDif - RSphPat) / RSphPat)) ? Math.abs((RSphDif - RSphPat) / RSphPat) : 0;
+        let LSphDifR = !isNaN(Math.abs((LSphDif - LSphPat) / LSphPat)) ? Math.abs((LSphDif - LSphPat) / LSphPat) : 0;
 
-          let RSphFactor = RSphDif * RSphMult;
-          let LSphFactor = LSphDif * LSphMult;
+        let RSphFactor = RSphDif * RSphMult;
+        let LSphFactor = LSphDif * LSphMult;
 
-          //purple color
-          let RCylDif = !isNaN(Math.abs(RCylE - RCylPat)) ? Math.abs(RCylE - RCylPat) : 0;
-          let LCylDif = Math.abs(LCylE - LCylPat);
+        //purple color
+        let RCylDif = !isNaN(Math.abs(RCylE - RCylPat)) ? Math.abs(RCylE - RCylPat) : 0;
+        let LCylDif = Math.abs(LCylE - LCylPat);
 
-          let RCylDifR = !isNaN(Math.abs((RCylDif - RCylPat) / RCylPat)) ? Math.abs((RCylDif - RCylPat) / RCylPat) : 0;
-          let LCylDifR = !isNaN(Math.abs((LCylDif - LCylPat) / LCylPat)) ? Math.abs((LCylDif - LCylPat) / LCylPat) : 0;
+        let RCylDifR = !isNaN(Math.abs((RCylDif - RCylPat) / RCylPat)) ? Math.abs((RCylDif - RCylPat) / RCylPat) : 0;
+        let LCylDifR = !isNaN(Math.abs((LCylDif - LCylPat) / LCylPat)) ? Math.abs((LCylDif - LCylPat) / LCylPat) : 0;
 
-          let RCylFactor = RCylDif * RCylMult;
-          let LCylFactor = LCylDif * LCylMult;
+        let RCylFactor = RCylDif * RCylMult;
+        let LCylFactor = LCylDif * LCylMult;
 
-          //pink color
-          let RAxisMinDif = axisMin(RCylPat);
-          let LAxisMinDif = axisMin(LCylPat);
+        //pink color
+        let RAxisMinDif = axisMin(RCylPat);
+        let LAxisMinDif = axisMin(LCylPat);
 
-          let RAxisMaxDif = axisMax(RCylPat);
-          let LAxisMaxDif = axisMax(LCylPat);
+        let RAxisMaxDif = axisMax(RCylPat);
+        let LAxisMaxDif = axisMax(LCylPat);
 
-          let RAxisDif = !isNaN(Math.abs(RAxisE - RAxisPat)) ? Math.abs(RAxisE - RAxisPat) : 0;
-          let LAxisDif = !isNaN(Math.abs(LAxisE - LAxisPat)) ? Math.abs(LAxisE - LAxisPat) : 0;
+        let RAxisDif = !isNaN(Math.abs(RAxisE - RAxisPat)) ? Math.abs(RAxisE - RAxisPat) : 0;
+        let LAxisDif = !isNaN(Math.abs(LAxisE - LAxisPat)) ? Math.abs(LAxisE - LAxisPat) : 0;
 
-          let RAxisRatio =
-            ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
-          let LAxisRatio =
-            ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
+        let RAxisRatio =
+          ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
+        let LAxisRatio =
+          ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
 
-            if (isNaN(RAxisRatio) || !isFinite(RAxisRatio)) {
-              RAxisRatio = 0;
-            }
-            if (isNaN(LAxisRatio) || !isFinite(LAxisRatio)) {
-              LAxisRatio = 0;
-            }
-          let RAxisFactor;
-          let LAxisFactor;
+        if (isNaN(RAxisRatio) || !isFinite(RAxisRatio)) {
+          RAxisRatio = 0;
+        }
+        if (isNaN(LAxisRatio) || !isFinite(LAxisRatio)) {
+          LAxisRatio = 0;
+        }
+        let RAxisFactor;
+        let LAxisFactor;
 
-          if (RAxisDif <= RAxisMinDif) {
-            RAxisFactor = 0;
-          } else if (RAxisMinDif < RAxisDif && RAxisDif < RAxisMaxDif) {
-            RAxisFactor = RAxisRatio * RAxisMult;
-          } else if (RAxisDif > RAxisMaxDif) {
-            RAxisFactor = RAxisMaxDif;
-          }
+        if (RAxisDif <= RAxisMinDif) {
+          RAxisFactor = 0;
+        } else if (RAxisMinDif < RAxisDif && RAxisDif < RAxisMaxDif) {
+          RAxisFactor = RAxisRatio * RAxisMult;
+        } else if (RAxisDif > RAxisMaxDif) {
+          RAxisFactor = RAxisMaxDif;
+        }
 
-          if (LAxisDif < LAxisMinDif) {
-            LAxisFactor = 0;
-          } else if (LAxisMinDif < LAxisDif && LAxisDif < LAxisMaxDif) {
-            LAxisFactor = LAxisRatio * LAxisMult;
-          } else if (LAxisDif > LAxisMaxDif) {
-            LAxisFactor = LAxisMaxDif;
-          }
+        if (LAxisDif < LAxisMinDif) {
+          LAxisFactor = 0;
+        } else if (LAxisMinDif < LAxisDif && LAxisDif < LAxisMaxDif) {
+          LAxisFactor = LAxisRatio * LAxisMult;
+        } else if (LAxisDif > LAxisMaxDif) {
+          LAxisFactor = LAxisMaxDif;
+        }
 
-          // yellow highlighter
-          let RAddDif = !isNaN(Math.abs(RAddE - LAddPat)) ? Math.abs(RAddE - LAddPat) : 0;
-          let LAddDif = !isNaN(Math.abs(LAddE - LAddPat)) ? Math.abs(LAddE - LAddPat) : 0;
+        // yellow highlighter
+        let RAddDif = !isNaN(Math.abs(RAddE - LAddPat)) ? Math.abs(RAddE - LAddPat) : 0;
+        let LAddDif = !isNaN(Math.abs(LAddE - LAddPat)) ? Math.abs(LAddE - LAddPat) : 0;
 
-          let RAddDifR = !isNaN(Math.abs((RAddDif - RAddPat) / RAddPat)) ? Math.abs((RAddDif - RAddPat) / RAddPat) : 0;
-          let LAddDifR = !isNaN(Math.abs((LAddDif - LAddPat) / LAddPat)) ? Math.abs((LAddDif - LAddPat) / LAddPat) : 0;
+        let RAddDifR = !isNaN(Math.abs((RAddDif - RAddPat) / RAddPat)) ? Math.abs((RAddDif - RAddPat) / RAddPat) : 0;
+        let LAddDifR = !isNaN(Math.abs((LAddDif - LAddPat) / LAddPat)) ? Math.abs((LAddDif - LAddPat) / LAddPat) : 0;
 
-          let RAddFactor = RAddDif * RAddMult;
-          let LAddFactor = LAddDif * LAddMult; //RAddDif & LAddDif missing
+        let RAddFactor = RAddDif * RAddMult;
+        let LAddFactor = LAddDif * LAddMult; //RAddDif & LAddDif missing
 
-          //purple color
-          let RSphEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
-          let LSphEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
+        //purple color
+        let RSphEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
+        let LSphEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
 
-          let RSphEqDifR = !isNaN(Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat)) ? Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat) : 0;
-          let LSphEqDifR = !isNaN(Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat)) ? Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat) : 0;
+        let RSphEqDifR = !isNaN(Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat)) ? Math.abs((RSphEqDif - RSphEqPat) / RSphEqPat) : 0;
+        let LSphEqDifR = !isNaN(Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat)) ? Math.abs((LSphEqDif - LSphEqPat) / LSphEqPat) : 0;
 
-          let RSphEqFactor = RSphEqDif * RSphEqMult;
-          let LSphEqFactor = LSphEqDif * LSphEqMult;
+        let RSphEqFactor = RSphEqDif * RSphEqMult;
+        let LSphEqFactor = LSphEqDif * LSphEqMult;
 
-          if (LAxisFactor == undefined) {
-            LAxisFactor = 0
-          }
-          if (RAxisFactor == undefined) {
-            RAxisFactor = 0
-          }
-          //Main percentage calculation
-          let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RAxisFactor;
-          let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LAxisFactor;
+        if (LAxisFactor == undefined) {
+          LAxisFactor = 0
+        }
+        if (RAxisFactor == undefined) {
+          RAxisFactor = 0
+        }
+        //Main percentage calculation
+        let RMatchPercentageS = 100 - RSphFactor - RCylFactor - RAxisFactor;
+        let LMatchPercentageS = 100 - LSphFactor - LCylFactor - LAxisFactor;
 
-          let MatchPercentageS = (
-            (RMatchPercentageS + LMatchPercentageS) /
-            2
-          ).toFixed(2);
+        let MatchPercentageS = (
+          (RMatchPercentageS + LMatchPercentageS) /
+          2
+        ).toFixed(2);
 
-          let RMatchPercentageB =
-            100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
-          let LMatchPercentageB =
-            100 - LSphFactor - LCylFactor - LAxisFactor - LAddFactor;
+        let RMatchPercentageB =
+          100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
+        let LMatchPercentageB =
+          100 - LSphFactor - LCylFactor - LAxisFactor - LAddFactor;
 
-          let MatchPercentageB = (
-            (RMatchPercentageB + LMatchPercentageB) /
-            2
-          ).toFixed(2);
+        let MatchPercentageB = (
+          (RMatchPercentageB + LMatchPercentageB) /
+          2
+        ).toFixed(2);
 
-          //newly added
+        //newly added
 
-          let RAxisEqPat = RSphPat + RCylPat / 2;
-          let LAxisEqPat = LSphPat + LCylPat / 2;
+        let RAxisEqPat = RSphPat + RCylPat / 2;
+        let LAxisEqPat = LSphPat + LCylPat / 2;
 
-          let RAxisEqE = RSphE + RCylE / 2;
-          let LAxisEqE = LSphE + LCylE / 2;
+        let RAxisEqE = RSphE + RCylE / 2;
+        let LAxisEqE = LSphE + LCylE / 2;
 
-          let RAxisEqDif = !isNaN(Math.abs(RAxisEqE - RAxisEqPat)) ? Math.abs(RAxisEqE - RAxisEqPat) : 0;
-          let LAxisEqDif = !isNaN(Math.abs(LAxisEqE - LAxisEqPat)) ? Math.abs(LAxisEqE - LAxisEqPat) : 0;
+        let RAxisEqDif = !isNaN(Math.abs(RAxisEqE - RAxisEqPat)) ? Math.abs(RAxisEqE - RAxisEqPat) : 0;
+        let LAxisEqDif = !isNaN(Math.abs(LAxisEqE - LAxisEqPat)) ? Math.abs(LAxisEqE - LAxisEqPat) : 0;
 
-          let RAxisEqFactor = RAxisEqDif * RSphEqMult;
-          let LAxisEqFactor = LAxisEqDif * LSphEqMult;
+        let RAxisEqFactor = RAxisEqDif * RSphEqMult;
+        let LAxisEqFactor = LAxisEqDif * LSphEqMult;
 
-          let RCylEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
-          let LCylEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
+        let RCylEqDif = !isNaN(Math.abs(RSphEqE - RSphEqPat)) ? Math.abs(RSphEqE - RSphEqPat) : 0;
+        let LCylEqDif = !isNaN(Math.abs(LSphEqE - LSphEqPat)) ? Math.abs(LSphEqE - LSphEqPat) : 0;
 
-          let RCylEqFactor = RCylEqDif * RSphEqMult;
-          let LCylEqFactor = LCylEqDif * LSphEqMult;
+        let RCylEqFactor = RCylEqDif * RSphEqMult;
+        let LCylEqFactor = LCylEqDif * LSphEqMult;
 
-          let RMatchPercentageEqS =
-            100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
-          let LMatchPercentageEqS =
-            100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
+        let RMatchPercentageEqS =
+          100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
+        let LMatchPercentageEqS =
+          100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
 
-          let MatchPercentageEqS =
-            ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);;
+        let MatchPercentageEqS =
+          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);;
 
-          const lensData = {
-            ...lens,
-            MatchPercentageS: !isNaN(MatchPercentageS) ? parseFloat(MatchPercentageS) : 0, // Convert back to numeric value
-            MatchPercentageB: !isNaN(MatchPercentageB) ? parseFloat(MatchPercentageB) : 0, // Convert back to numeric value
-            MatchPercentageEqS: !isNaN(MatchPercentageEqS) ? parseFloat(MatchPercentageEqS) : 0, // Convert back to numeric value
-          };
+        const lensData = {
+          ...lens,
+          MatchPercentageS: !isNaN(MatchPercentageS) ? parseFloat(MatchPercentageS) : 0, // Convert back to numeric value
+          MatchPercentageB: !isNaN(MatchPercentageB) ? parseFloat(MatchPercentageB) : 0, // Convert back to numeric value
+          MatchPercentageEqS: !isNaN(MatchPercentageEqS) ? parseFloat(MatchPercentageEqS) : 0, // Convert back to numeric value
+        };
 
-          analysedData = [...analysedData, lensData];
+        analysedData = [...analysedData, lensData];
 
         //}
 
@@ -420,23 +432,23 @@ const Analysis = () => {
 
       const newArray = [newPatient];
       const newLensListData = [...newLensList]
-     if (newArray[0].RSphere < 0 || newArray[0].LSphere < 0) {
+      if (newArray[0].RSphere < 0 || newArray[0].LSphere < 0) {
         const mergedArray = [...newArray,];
         SetLenseListing(mergedArray);
       } else {
-          
+
         const selectedLenseStatus = newLensListData.filter(
           (x) => (x.Lens_Status === "available" || (x.Lens_Status === "reading" && x.MatchPercentageS >= 90))
         );
         const readingLenses = selectedLenseStatus
-        .filter((x) => x.Lens_Status === "reading" && x.MatchPercentageS >= 90)
-        .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS) // Sort in descending order
-        .slice(0, 5);
+          .filter((x) => x.Lens_Status === "reading" && x.MatchPercentageS >= 90)
+          .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS) // Sort in descending order
+          .slice(0, 5);
         // const selectedAddData = selectedLenseStatus.filter(
         //   (x) =>
         //     ((x.LAdd != null && x.LAdd !== '0' && x.LAdd !="") || (x.RAdd != null && x.RAdd !== '0' && x.RAdd !=""))
         // );
-  
+
         const availableLenses = selectedLenseStatus
           .filter((x) => x.Lens_Status === "available")
           .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
@@ -529,7 +541,11 @@ const Analysis = () => {
         }
         setCollectionPaientListing(data.Patient_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -546,7 +562,11 @@ const Analysis = () => {
         const data = await getResponse.json();
         setCollectionListing(data.Boxes_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -718,10 +738,10 @@ const Analysis = () => {
       }
     } else {
       let selectedReader = {
-        Lens_Status: selectedStatus === 'readingSelected' ? 'selected' :'reading' ,
+        Lens_Status: selectedStatus === 'readingSelected' ? 'selected' : 'reading',
         lensId: selectedRow.lensId,
         Patient_id: currentPatientId,
-        CollectionId:selectedRow.CollectionId
+        CollectionId: selectedRow.CollectionId
       }
       const response = await fetch(`${API_URL}/v1/selectedReader`, {
         method: "POST",
@@ -826,222 +846,222 @@ const Analysis = () => {
                       lenseListing.map((x, index) => {
                         return (
                           <tr key={x.index} className="data">
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {
-                              id ? (
-                                index === 0 ? x.PatientId : x.lensId
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {
+                                id ? (
+                                  index === 0 ? x.PatientId : x.lensId
 
-                              ) : (
-                                index === 0 ? (
-                                  <input
-                                    type="text"
-                                    ref={patientInputRef}
-                                    value={currentPatientId}
-                                    onChange={(e) => handleInputChange(e)}
-                                  />
                                 ) : (
-                                  x.lensId
+                                  index === 0 ? (
+                                    <input
+                                      type="text"
+                                      ref={patientInputRef}
+                                      value={currentPatientId}
+                                      onChange={(e) => handleInputChange(e)}
+                                    />
+                                  ) : (
+                                    x.lensId
+                                  )
                                 )
-                              )
-                            }
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                           {index === 0 ? "100" : x.MatchPercentageS}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {index === 0 ? "100" : x.MatchPercentageB}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {index === 0
-                              ? "100"
-                              : x.MatchPercentageEqS.toFixed(2)}
-                          </td>
+                              }
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {index === 0 ? "100" : x.MatchPercentageS}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {index === 0 ? "100" : x.MatchPercentageB}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {index === 0
+                                ? "100"
+                                : x.MatchPercentageEqS.toFixed(2)}
+                            </td>
 
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.RSphere}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.RCylinder}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.RAxis}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.RAdd}
-                          </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.RSphere}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.RCylinder}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.RAxis}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.RAdd}
+                            </td>
 
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.LSphere}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.LCylinder}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.LAxis}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {x.LAdd}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {index === 0 ? (
-                              "patient"
-                            ) : (
-                              <select
-                                onChange={(e) => handleStatusChange(e, x)}
-                              >
-                                <option value="">Select Status</option>
-                                {x.Lens_Status === "available" && (
-                                  <>
-                                    <option
-                                      value="available"
-                                      selected={x.Lens_Status === "available"}
-                                    >
-                                      Available
-                                    </option>
-                                    <option
-                                      value="selected"
-                                      selected={x.Lens_Status === "selected"}
-                                    >
-                                      Selected
-                                    </option>
-                                    <option
-                                      value="dispensed"
-                                      selected={x.Lens_Status === "dispensed"}
-                                    >
-                                      Dispensed
-                                    </option>
-                                    <option
-                                      value="missing"
-                                      selected={x.Lens_Status === "missing"}
-                                    >
-                                      Missing
-                                    </option>
-                                    <option
-                                      value="trashed"
-                                      selected={x.Lens_Status === "trashed"}
-                                    >
-                                      Trashed
-                                    </option>
-                                  </>
-                                )}
-                                {x.Lens_Status === "reading" && (
-                                  <>
-                                    <option
-                                      value="readingAvailable"
-                                      selected={x.Lens_Status === "selected" || x.Lens_Status === "reading"}
-                                    >
-                                      Reading Available
-                                    </option>
-                                    <option
-                                      value="readingSelected"
-                                    >
-                                      Reading Selected
-                                    </option>
-                                  </>
-                                )}
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.LSphere}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.LCylinder}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.LAxis}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {x.LAdd}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {index === 0 ? (
+                                "patient"
+                              ) : (
+                                <select
+                                  onChange={(e) => handleStatusChange(e, x)}
+                                >
+                                  <option value="">Select Status</option>
+                                  {x.Lens_Status === "available" && (
+                                    <>
+                                      <option
+                                        value="available"
+                                        selected={x.Lens_Status === "available"}
+                                      >
+                                        Available
+                                      </option>
+                                      <option
+                                        value="selected"
+                                        selected={x.Lens_Status === "selected"}
+                                      >
+                                        Selected
+                                      </option>
+                                      <option
+                                        value="dispensed"
+                                        selected={x.Lens_Status === "dispensed"}
+                                      >
+                                        Dispensed
+                                      </option>
+                                      <option
+                                        value="missing"
+                                        selected={x.Lens_Status === "missing"}
+                                      >
+                                        Missing
+                                      </option>
+                                      <option
+                                        value="trashed"
+                                        selected={x.Lens_Status === "trashed"}
+                                      >
+                                        Trashed
+                                      </option>
+                                    </>
+                                  )}
+                                  {x.Lens_Status === "reading" && (
+                                    <>
+                                      <option
+                                        value="readingAvailable"
+                                        selected={x.Lens_Status === "selected" || x.Lens_Status === "reading"}
+                                      >
+                                        Reading Available
+                                      </option>
+                                      <option
+                                        value="readingSelected"
+                                      >
+                                        Reading Selected
+                                      </option>
+                                    </>
+                                  )}
 
-                              </select>
-                            )}
-                          </td>
+                                </select>
+                              )}
+                            </td>
 
 
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {moment(x.createdAt).format("YYYY-MM-DD")}
-                          </td>
-                          <td
-                            className={
-                              index === 0
-                                ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                                : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
-                            }
-                          >
-                            {moment(x.createdAt).format("hh:mm:ss")}
-                          </td>
-                        </tr>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {moment(x.createdAt).format("YYYY-MM-DD")}
+                            </td>
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
+                              }
+                            >
+                              {moment(x.createdAt).format("hh:mm:ss")}
+                            </td>
+                          </tr>
                         );
                       }) :
                       <tr>

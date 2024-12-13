@@ -3,7 +3,7 @@ import { Button, Modal } from "react-bootstrap";
 import { useParams, useNavigate } from "react-router";
 import moment from "moment";
 import { API_URL } from "./helper/common";
-
+import { handleSignOut } from './utils/service';
 const DispenseComponent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -109,7 +109,7 @@ const DispenseComponent = () => {
     setCollId(collId);
     const lensCollectionId = localStorage.getItem("selectedLensCollectionId");
     setSelectedCollectionId(lensCollectionId);
-  getCollectionData(lensCollectionId);
+    getCollectionData(lensCollectionId);
     if (pointer < 5) {
       loadData();
       setPointer(pointer + 1);
@@ -163,7 +163,11 @@ const DispenseComponent = () => {
       setCollName(collName[0]?.Coll_name);
       setCollectionListing(collectionData);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
   const getConfigurationData = async () => {
@@ -187,7 +191,11 @@ const DispenseComponent = () => {
         setEyeWearConfig(eyewear);
         // setAxisConfig(data.axisConfig);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -397,7 +405,11 @@ const DispenseComponent = () => {
         setCollectionLensListing(data.Lenses_Data);
         handleLensAlgorithm(data.Lenses_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -738,7 +750,11 @@ const DispenseComponent = () => {
         }
         setCollectionPaitedntListing(data.Patient_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -755,7 +771,11 @@ const DispenseComponent = () => {
         const data = await getResponse.json();
         setCollectionListing(data.Boxes_Data);
       } else {
-        console.log("Get Failed");
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     }
   };
@@ -1011,7 +1031,7 @@ const DispenseComponent = () => {
   return (
     <>
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
-        <div className="user_style patient_header">
+      <div className="user_style patient_header">
           <div className="row search_input">
             <div className="col-lg-2">
               <div className="form-floating mb-3"></div>

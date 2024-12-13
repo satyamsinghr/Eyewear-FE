@@ -5,13 +5,14 @@ import moment from "moment";
 import { API_URL } from "./helper/common";
 import { toast } from 'react-toastify';
 import { Button, Modal } from "react-bootstrap";
+import { handleSignOut } from './utils/service';
 const collectionValues = {
   id: "",
   firstName: "",
   lastName: "",
   email: "",
   password: "",
-  Coll_id:[]
+  Coll_id: []
 };
 
 const Users = () => {
@@ -141,8 +142,8 @@ const Users = () => {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      password : user.password,
-       Coll_id:user?.Coll_id?.map(x=>x.id),
+      password: user.password,
+      Coll_id: user?.Coll_id?.map(x => x.id),
     };
     // e.preventDefault();
     if (data.id) {
@@ -166,7 +167,7 @@ const Users = () => {
 
 
   const validateForm = (collection) => {
-    const { firstName, lastName, email, password ,Coll_Id} = collection;
+    const { firstName, lastName, email, password, Coll_Id } = collection;
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     // const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{":;'?/>.<,])(?=.*[^\s]).{8,}$/;
     let error = {};
@@ -181,32 +182,32 @@ const Users = () => {
       error.lastName = "Required !";
       isError = true;
     }
-  
+
     else if (!email) {
       toast.error('Email is Required');
       error.email = "Required !";
       isError = true;
-  } else if (!emailPattern.test(email)) {
+    } else if (!emailPattern.test(email)) {
       toast.error('Email format is invalid');
       error.email = "Invalid email format";
       isError = true;
-  } 
+    }
     else if (!Coll_Id) {
       toast.error('Collection is Required');
       error.lastName = "Required !";
       isError = true;
     }
-    else if (!password  || password.length < 8) {
+    else if (!password || password.length < 8) {
       toast.error('Password must be 8 digit');
       error.password = "Required !";
       isError = true;
-  } 
-  // else if (!passwordPattern.test(password)) {
-  //     // toast.error('Password must be 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.');
-  //     toast.error('Please enter valid Password');
-  //     error.password = "Invalid password format";
-  //     isError = true;
-  // }
+    }
+    // else if (!passwordPattern.test(password)) {
+    //     // toast.error('Password must be 8 characters long and contain at least one uppercase letter, one lowercase letter, one digit, and one special character.');
+    //     toast.error('Please enter valid Password');
+    //     error.password = "Invalid password format";
+    //     isError = true;
+    // }
     setValidation(error);
     return isError;
   };
@@ -258,12 +259,18 @@ const Users = () => {
         };
       });
       setUsers(modifiedUsers);
-    } else {
-      console.log("Get Failed");
+    }else {
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
-  
 
+  useEffect(() => {
+    getdata();
+  }, [userId]);
   const getColldata = async () => {
     const getResponse = await fetch(
       `${API_URL}/v1/collection?userId=${userId}`,
@@ -279,13 +286,17 @@ const Users = () => {
       const data = await getResponse.json();
       const collectionData = data.Collection_Data.map((x) => ({
         ...x,
-        value:x.id,
-        label:x.Coll_name,
+        value: x.id,
+        label: x.Coll_name,
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
       setCollectionListing(collectionData);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
 
@@ -298,7 +309,7 @@ const Users = () => {
         lastName: lastName,
         email: email,
         password: password,
-        Coll_Id:collection?.Coll_Id.map(item => item.value),
+        Coll_Id: collection?.Coll_Id.map(item => item.value),
       };
       const res = await fetch(`${API_URL}/v1/create-users`, {
         method: "POST",
@@ -323,18 +334,18 @@ const Users = () => {
         lastName: "",
         email: "",
         password: "",
-        Coll_id:[],
+        Coll_id: [],
       });
     }
   };
 
   const ActionCell = ({ row, submitEdits, handleDelete }) => (
-      <div>
-        <button
-          className="btn btn-primary me-3"
-          onClick={() => submitEdits(row.original)}
-        >
-          {/* <svg
+    <div>
+      <button
+        className="btn btn-primary me-3"
+        onClick={() => submitEdits(row.original)}
+      >
+        {/* <svg
             xmlns="http://www.w3.org/2000/svg"
             width="25"
             height="25"
@@ -344,25 +355,25 @@ const Users = () => {
           >
             <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z" />
           </svg> */}
-          Edit
-        </button>
-        <button
-          className="btn btn-primary bg-danger"
-          onClick={() => openDeleteModel(row.original.id)}
+        Edit
+      </button>
+      <button
+        className="btn btn-primary bg-danger"
+        onClick={() => openDeleteModel(row.original.id)}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="25"
+          height="25"
+          fill="currentColor"
+          class="bi bi-trash"
+          viewBox="0 0 16 16"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="25"
-            height="25"
-            fill="currentColor"
-            class="bi bi-trash"
-            viewBox="0 0 16 16"
-          >
-            <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
-            <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
-          </svg>
-        </button>
-      </div>
+          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+        </svg>
+      </button>
+    </div>
   );
 
   return (
@@ -372,7 +383,7 @@ const Users = () => {
         <div className="user_style">
           <div className="row mt-4">
             <div className="col-12">
-            <div className="table_card rounded setting_table user_table pt-0 mt-4">
+              <div className="table_card rounded setting_table user_table pt-0 mt-4">
                 <ReactTable
                   tableType={"users"}
                   ref={childRef}
@@ -392,18 +403,18 @@ const Users = () => {
       <Modal show={deleteModel} onHide={closeDeleteModel}>
         <Modal.Header closeButton className=" bg-light">
           <Modal.Title>
-          <div  style={{display:'flex'}}>
-            <div><svg viewBox="0 0 24 24"   width="25"
-            height="25" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M5.31171 10.7615C8.23007 5.58716 9.68925 3 12 3C14.3107 3 15.7699 5.58716 18.6883 10.7615L19.0519 11.4063C21.4771 15.7061 22.6897 17.856 21.5937 19.428C20.4978 21 17.7864 21 12.3637 21H11.6363C6.21356 21 3.50217 21 2.40626 19.428C1.31034 17.856 2.52291 15.7061 4.94805 11.4063L5.31171 10.7615ZM12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V8C11.25 7.58579 11.5858 7.25 12 7.25ZM12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="#ee1b1b"></path> </g></svg></div>
-             <span style={{marginTop:'3px'}}> Delete User</span>
+            <div style={{ display: 'flex' }}>
+              <div><svg viewBox="0 0 24 24" width="25"
+                height="25" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M5.31171 10.7615C8.23007 5.58716 9.68925 3 12 3C14.3107 3 15.7699 5.58716 18.6883 10.7615L19.0519 11.4063C21.4771 15.7061 22.6897 17.856 21.5937 19.428C20.4978 21 17.7864 21 12.3637 21H11.6363C6.21356 21 3.50217 21 2.40626 19.428C1.31034 17.856 2.52291 15.7061 4.94805 11.4063L5.31171 10.7615ZM12 7.25C12.4142 7.25 12.75 7.58579 12.75 8V13C12.75 13.4142 12.4142 13.75 12 13.75C11.5858 13.75 11.25 13.4142 11.25 13V8C11.25 7.58579 11.5858 7.25 12 7.25ZM12 17C12.5523 17 13 16.5523 13 16C13 15.4477 12.5523 15 12 15C11.4477 15 11 15.4477 11 16C11 16.5523 11.4477 17 12 17Z" fill="#ee1b1b"></path> </g></svg></div>
+              <span style={{ marginTop: '3px' }}> Delete User</span>
             </div>
-         
+
           </Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4 px-lg-4">
           <div class="import_file">
-           
-     Are you want to delete the User?
+
+            Are you want to delete the User?
           </div>
         </Modal.Body>
         <Modal.Footer className=" bg-light">

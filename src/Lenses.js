@@ -6,7 +6,7 @@ import moment from "moment";
 import ReactTable from "./ReactTable";
 import { toast } from 'react-toastify';
 import { API_URL } from "./helper/common";
-
+import { handleSignOut } from './utils/service';
 const Lenses = () => {
   const [formData, setFormData] = useState({
     id: "",
@@ -86,7 +86,7 @@ const Lenses = () => {
       accessor: "RAdd",
       className: "px-3 py-3",
     },
- 
+
     {
       Header: "LSphere",
       accessor: "LSphere",
@@ -107,7 +107,7 @@ const Lenses = () => {
       accessor: "LAdd",
       className: "px-3 py-3",
     },
-   {
+    {
       Header: "Lens Type",
       accessor: "Lens_Type",
       className: "px-3 py-3",
@@ -202,7 +202,7 @@ const Lenses = () => {
     else {
       navigate('/')
     }
-   
+
     setCollId(collId)
   }, []);
 
@@ -224,7 +224,7 @@ const Lenses = () => {
     } else {
       getlensByCollId();
     }
-    
+
     getColldata();
   }, [userId, role]);
 
@@ -247,47 +247,25 @@ const Lenses = () => {
         Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
       }));
       setCollectionById(collectionData);
-      let selectedCollId;
-      selectedCollId = selectedCollectionId || collectionData[0].id;
-      handleSelectChange("", selectedCollId)
-    } else {
-      console.log("Get Failed");
-    }
-  }
-
-  const getlensByCollId = async () => {
-    const getResponse = await fetch(
-      `${API_URL}/v1/getCollectionsByIds`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: JSON.parse(localStorage.getItem("token")),
-        },
-        body: JSON.stringify({ collectionIds: collId }),
-      }
-    );
-
-    if (getResponse.ok) {
-      const data = await getResponse.json();
-      const collectionData = data.Collection_Data.map((x) => ({
-        ...x,
-        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
-      }));
-      setCollectionById(collectionData);
       // handleSelectChange("", collectionData[0]?.id)
+      //  handleSelectChange("", selectedCollectionId)
       let selectedCollId;
-      selectedCollId = selectedCollectionId || collectionData[0].id;
+      selectedCollId = selectedCollectionId || collectionData[0]?.id;
       handleSelectChange("", selectedCollId)
     } else {
-      console.log("Post Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   }
-  
   const changeHandle = (e) => {
     setBoxModel({ ...boxModel, [e.target.name]: e.target.value });
   };
-
+  useEffect(() => {
+    getColldata();
+  }, [userId]);
   const getColldata = async () => {
     const getResponse = await fetch(
       `${API_URL}/v1/collection?userId=${userId}`,
@@ -307,7 +285,11 @@ const Lenses = () => {
       }));
       setCollection(collectionData);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
   const handleSelectChange = async (e, id) => {
@@ -340,6 +322,38 @@ const Lenses = () => {
     }
 
   };
+  const getlensByCollId = async () => {
+    const getResponse = await fetch(
+      `${API_URL}/v1/getCollectionsByIds`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+        body: JSON.stringify({ collectionIds: collId }),
+      }
+    );
+
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      const collectionData = data.Collection_Data.map((x) => ({
+        ...x,
+        Coll_date: moment(x.Coll_date).format("YYYY-MM-DD"),
+      }));
+      setCollectionById(collectionData);
+      // handleSelectChange("", collectionData[0]?.id)
+      let selectedCollId;
+      selectedCollId = selectedCollectionId || collectionData[0].id;
+      handleSelectChange("", selectedCollId)
+    } else {
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Post Failed");
+      }
+    }
+  }
 
   const getdata = async (matched) => {
     const queryParams = new URLSearchParams(boxModel).toString();
@@ -424,21 +438,21 @@ const Lenses = () => {
       error.RSphere = "Should not contain alphabets!";
       isError = true;
     }
-  
-    
-    else if ((RCylinder !== null &&/[A-Za-z]/.test(RCylinder)) || (LCylinder !== null &&/[A-Za-z]/.test(LCylinder))) {
+
+
+    else if ((RCylinder !== null && /[A-Za-z]/.test(RCylinder)) || (LCylinder !== null && /[A-Za-z]/.test(LCylinder))) {
       toast.error('Cylinder should not contain alphabets');
       error.RSphere = "Should not contain alphabets!";
       isError = true;
     }
-   
+
     else if ((RAxis !== null && /[A-Za-z]/.test(RAxis)) || (LAxis !== null && /[A-Za-z]/.test(LAxis))) {
       toast.error('Axis should not contain alphabets');
       error.RSphere = "Should not contain alphabets!";
       isError = true;
     }
-   
-    else if ((LAdd !== null &&/[A-Za-z]/.test(LAdd)) ||(RAdd !== null && /[A-Za-z]/.test(RAdd))) {
+
+    else if ((LAdd !== null && /[A-Za-z]/.test(LAdd)) || (RAdd !== null && /[A-Za-z]/.test(RAdd))) {
       toast.error('Add should not contain alphabets');
       error.RSphere = "Should not contain alphabets!";
       isError = true;
@@ -986,30 +1000,30 @@ const Lenses = () => {
     //     console.log("Get Failed");
     //   }
     // } else {
-      const getResponse = await fetch(
-        `${API_URL}/v1/getLensById?lensId=${e.target.value}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: JSON.parse(localStorage.getItem("token")),
-          },
-          // body: JSON.stringify({ collectionIds: collId }),
-          body: JSON.stringify({ collectionIds: selectedCollectionId }),
-        }
-      );
-      if (getResponse.ok) {
-        const data = await getResponse.json();
-        if (e.target.value === "") {
-          setFilteredLens([]);
-          setCurrentLensId("");
-        } else {
-          setFilteredLens(data.Lenses_Data);
-        }
-        setCollectionListing(data.Lenses_Data);
-      } else {
-        console.log("Get Failed");
+    const getResponse = await fetch(
+      `${API_URL}/v1/getLensById?lensId=${e.target.value}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: JSON.parse(localStorage.getItem("token")),
+        },
+        // body: JSON.stringify({ collectionIds: collId }),
+        body: JSON.stringify({ collectionIds: selectedCollectionId }),
       }
+    );
+    if (getResponse.ok) {
+      const data = await getResponse.json();
+      if (e.target.value === "") {
+        setFilteredLens([]);
+        setCurrentLensId("");
+      } else {
+        setFilteredLens(data.Lenses_Data);
+      }
+      setCollectionListing(data.Lenses_Data);
+    } else {
+      console.log("Get Failed");
+    }
     // }
 
   };
@@ -1019,7 +1033,7 @@ const Lenses = () => {
     setCurrentLensId(data.lensId);
     SetSelectedLensId(selectedLensRow.lensId);
     setFilteredLens([]);
-    
+
 
     const newData = {
       lensId: data.lensId,
@@ -1048,7 +1062,7 @@ const Lenses = () => {
 
   return (
     <>
-       <div class="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
+      <div class="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
         <div class="user_style lenses_page">
           <div className="row search_input g-3">
             <div className="col-lg-6 col-md-6 col-sm-12 col-12 mt-lg-0">

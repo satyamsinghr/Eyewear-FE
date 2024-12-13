@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactTable from "./ReactTable";
 import ReactSettingTable from "./ReactSettingTable";
 import { useNavigate } from 'react-router';
-
 import { API_URL } from "./helper/common";
+import { handleSignOut } from './utils/service';
 
 const SettingCollection = () => {
   const navigate = useNavigate();
@@ -154,7 +154,11 @@ const SettingCollection = () => {
     });
       setAxisConfig(sortedAxisConfig);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
   // const fixDecimalValue = (value) => {

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,memo } from "react";
 import ReactTable from "./ReactTable";
 import { useNavigate } from "react-router";
 import moment from "moment";
 import { toast } from 'react-toastify';
 import { Button, Modal } from "react-bootstrap";
 import { API_URL } from "./helper/common";
+import { handleSignOut } from './utils/service';
 const collectionValues = {
   id: "",
   Coll_id: "",
@@ -330,13 +331,18 @@ const FileCollection = () => {
         }
         setCollectionListing(collectionData);
       } else {
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        }
         console.log("Request failed:", getResponse.status);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
-
+  useEffect(() => {
+    getdata();
+}, [userId, role, collId]);
   const getdata = async () => {
     try {
       const requestOptions = {
@@ -366,7 +372,11 @@ const FileCollection = () => {
         }));
         setCollectionListing(collectionData);
       } else {
-        console.log("Request failed:", getResponse.status);
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          console.log("Get Failed");
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -456,7 +466,11 @@ const FileCollection = () => {
         link.click();
         toast.success('File exported successfully.');
       } else {
-        toast.error('No lens data present for this collection');
+        if (getResponse.status === 401) {
+          handleSignOut(navigate);
+        } else {
+          toast.error('No lens data present for this collection');
+        } 
       }
     }
     else {
@@ -775,4 +789,5 @@ const FileCollection = () => {
   );
 };
 
-export default FileCollection;
+// export default FileCollection;
+export default memo(FileCollection);

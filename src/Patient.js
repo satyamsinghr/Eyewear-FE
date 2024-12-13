@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { API_URL } from "./helper/common";
-
+import { handleSignOut } from './utils/service';
 const patientInfo = {
   id: '',
   PatientId: '',
@@ -151,8 +151,7 @@ const Patient = () => {
     else {
       navigate('/')
     }
-  }, []);
-
+  }, [userId]);
 
   const changeHandle = (e) => {
     setPatient({ ...patient, [e.target.name]: e.target.value })
@@ -313,7 +312,9 @@ const Patient = () => {
     }
   }
 
-
+//   useEffect(() => {
+//     getdata();
+// }, [userId]);
 
   const getdata = async (userIds) => {
     const getResponse = await fetch(`${API_URL}/v1/patient?userId=${userIds}`, {
@@ -334,6 +335,11 @@ const Patient = () => {
       setCollectionListing(patientData);
     } else {
       console.log('Get Failed');
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   }
 
@@ -359,7 +365,11 @@ const Patient = () => {
       setCollName(collName[0]?.Coll_name);
       setCollectionListing(collectionData);
     } else {
-      console.log("Get Failed");
+      if (getResponse.status === 401) {
+        handleSignOut(navigate);
+      } else {
+        console.log("Get Failed");
+      }
     }
   };
 
@@ -517,7 +527,7 @@ const Patient = () => {
 
     <>
       <div className="col p-lg-5 px-md-0 px-0" style={{ marginRight: 34 }}>
-        <div className='user_style patient_header'>
+      <div className='user_style patient_header'>
           <div className="row mt-0">
             <div className="col-12">
               <div className="table_card rounded patitnet_table overflow-hidden">
