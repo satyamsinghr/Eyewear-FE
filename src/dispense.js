@@ -443,10 +443,10 @@ const DispenseComponent = () => {
     }else{
       return false
     }
-      const parseToFloat = (value) => {
-        const floatValue = parseFloat(value);
-        return isNaN(floatValue) ? value : floatValue;
-      };
+    const parseToFloat = (value) => {
+      const floatValue = parseFloat(value);
+      return isNaN(floatValue) ? 0 : floatValue; // Return 0 instead of original value if NaN
+    };
 
       //configration
       const RSphMult = parseToFloat(eyewearConfig.RSphMult);
@@ -462,7 +462,7 @@ const DispenseComponent = () => {
 
       //patient input values for example
       const RSphPat = parseToFloat(patient.RSphere);
-      const LSphPat = parseToFloat(patient.LCylinder);
+      const LSphPat = parseToFloat(patient.LSphere);
       const RCylPat = parseToFloat(patient.RCylinder);
       const LCylPat = parseToFloat(patient.LCylinder);
       const RAxisPat = parseToFloat(patient.RAxis);
@@ -478,7 +478,7 @@ const DispenseComponent = () => {
         //green part
         let {
           RSphere: RSphE,
-          RCylinder: LSphE,
+          LSphere: LSphE,
           RCylinder: RCylE,
           LCylinder: LCylE,
           RAxis: RAxisE,
@@ -486,16 +486,15 @@ const DispenseComponent = () => {
           RAdd: RAddE,
           LAdd: LAddE,
         } = lens;
+        RSphE = (RSphE !== null && RSphE !== undefined && !isNaN(parseToFloat(RSphE))) ? parseToFloat(RSphE) : 0;
+        LSphE = (LSphE !== null && LSphE !== undefined && !isNaN(parseToFloat(LSphE))) ? parseToFloat(LSphE) : 0;
+        RCylE = (RCylE !== null && RCylE !== undefined && !isNaN(parseToFloat(RCylE))) ? parseToFloat(RCylE) : 0;
+        LCylE = (LCylE !== null && LCylE !== undefined && !isNaN(parseToFloat(LCylE))) ? parseToFloat(LCylE) : 0;
+        RAxisE = (RAxisE !== null && RAxisE !== undefined && !isNaN(parseToFloat(RAxisE))) ? parseToFloat(RAxisE) : 0;
+        LAxisE = (LAxisE !== null && LAxisE !== undefined && !isNaN(parseToFloat(LAxisE))) ? parseToFloat(LAxisE) : 0;
+        RAddE = (RAddE !== null && RAddE !== undefined && !isNaN(parseToFloat(RAddE))) ? parseToFloat(RAddE) : 0;
+        LAddE = (LAddE !== null && LAddE !== undefined && !isNaN(parseToFloat(LAddE))) ? parseToFloat(LAddE) : 0;
 
-         // Modify the original object with parsed values
-         RSphE = !isNaN(parseToFloat(RSphE)) ? parseToFloat(RSphE) : 0;
-         LSphE = !isNaN(parseToFloat(LSphE)) ? parseToFloat(LSphE) : 0;
-         RCylE = !isNaN(parseToFloat(RCylE)) ? parseToFloat(RCylE) : 0;
-         LCylE = !isNaN(parseToFloat(LCylE)) ? parseToFloat(LCylE) : 0;
-         RAxisE = !isNaN(parseToFloat(RAxisE)) ? parseToFloat(RAxisE) : 0;
-         LAxisE = !isNaN(parseToFloat(LAxisE)) ? parseToFloat(LAxisE) : 0;
-         RAddE = !isNaN(parseToFloat(RAddE)) ? parseToFloat(RAddE) : 0;
-         LAddE = !isNaN(parseToFloat(LAddE)) ? parseToFloat(LAddE) : 0;
 
         let RSphEqE = RSphE + RCylE / 2;
         let LSphEqE = LSphE + LCylE / 2;
@@ -530,9 +529,13 @@ const DispenseComponent = () => {
         let LAxisDif = !isNaN(Math.abs(LAxisE - LAxisPat)) ? Math.abs(LAxisE - LAxisPat) : 0;
 
         let RAxisRatio =
-          ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif;
-        let LAxisRatio =
-          ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif;
+        (RAxisMaxDif - RAxisMinDif) !== 0
+          ? ((RAxisDif - RAxisMinDif) / (RAxisMaxDif - RAxisMinDif)) * RAxisDif
+          : 0;
+          let LAxisRatio =
+          (LAxisMaxDif - LAxisMinDif) !== 0
+            ? ((LAxisDif - LAxisMinDif) / (LAxisMaxDif - LAxisMinDif)) * LAxisDif
+            : 0;
           if (isNaN(RAxisRatio) || !isFinite(RAxisRatio)) {
             RAxisRatio = 0;
           }
@@ -559,7 +562,7 @@ const DispenseComponent = () => {
         }
 
         // yellow highlighter
-        let RAddDif = !isNaN(Math.abs(RAddE - LAddPat)) ? Math.abs(RAddE - LAddPat) : 0;
+        let RAddDif = !isNaN(Math.abs(RAddE - RAddPat)) ? Math.abs(RAddE - RAddPat) : 0;
         let LAddDif = !isNaN(Math.abs(LAddE - LAddPat)) ? Math.abs(LAddE - LAddPat) : 0;
 
         let RAddDifR = !isNaN(Math.abs((RAddDif - RAddPat) / RAddPat)) ? Math.abs((RAddDif - RAddPat) / RAddPat) : 0;
@@ -591,7 +594,7 @@ const DispenseComponent = () => {
         let MatchPercentageS = (
           (RMatchPercentageS + LMatchPercentageS) /
           2
-        ).toFixed(2);
+        ).toFixed(6);
 
         let RMatchPercentageB =
           100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
@@ -601,7 +604,7 @@ const DispenseComponent = () => {
         let MatchPercentageB = (
           (RMatchPercentageB + LMatchPercentageB) /
           2
-        ).toFixed(2);
+        ).toFixed(6);
 
         //newly added
 
@@ -629,7 +632,7 @@ const DispenseComponent = () => {
           100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
 
         let MatchPercentageEqS =
-          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);
+          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(6);
 
         const lensData = {
           ...lens,
@@ -644,11 +647,12 @@ const DispenseComponent = () => {
         (x) => !x.Patient_id || x.Patient_id == patientId
       );
 
-      newLensList.sort(
-        (a, b) =>
-          b.MatchPercentageB - a.MatchPercentageB &&
-          b.MatchPercentageS - a.MatchPercentageS
-      );
+      newLensList.sort((a, b) => {
+        if (b.MatchPercentageB !== a.MatchPercentageB) {
+          return b.MatchPercentageB - a.MatchPercentageB;
+        }
+        return b.MatchPercentageS - a.MatchPercentageS;
+      });
       const newPat = id
         ? collectionPaientListing.filter((x) => x.PatientId === id)
         : collectionPaientListing.filter((x) => x.PatientId === patientId);
@@ -660,71 +664,28 @@ const DispenseComponent = () => {
       };
       const newArray = [newPatient];
       const newLensListData = [...newLensList];
-      const readingLenses = newLensListData
-    .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
+      const readingLenses = newLensListData.sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
       const mergedArray = [...newArray, ...readingLenses];
       SetLenseListing(mergedArray);
     }
   };
 
   const axisMax = (CylPat) => {
-    let value = 0;
-    switch (CylPat) {
-      case -0.5 <= CylPat <= 0.0:
-        value = 30;
-        break;
-
-      case -1.0 <= CylPat < -0.5:
-        value = 24;
-        break;
-
-      case -2.0 <= CylPat < -1.0:
-        value = 16;
-        break;
-
-      case -3.0 <= CylPat < -2.0:
-        value = 12;
-        break;
-
-      case -5.0 <= CylPat < -3.0:
-        value = 8;
-        break;
-
-      default:
-        break;
-    }
-
-    return value;
+    if (CylPat >= -0.5 && CylPat <= 0.0) return 30;
+    if (CylPat >= -1.0 && CylPat < -0.5) return 24;
+    if (CylPat >= -2.0 && CylPat < -1.0) return 16;
+    if (CylPat >= -3.0 && CylPat < -2.0) return 12;
+    if (CylPat >= -5.0 && CylPat < -3.0) return 8;
+    return 0;
   };
-
+  
   const axisMin = (CylPat) => {
-    let value = 0;
-    switch (CylPat) {
-      case -0.5 <= CylPat <= 0.0:
-        value = 7;
-        break;
-
-      case -1.0 <= CylPat < -0.5:
-        value = 6;
-        break;
-
-      case -2.0 <= CylPat < -1.0:
-        value = 4;
-        break;
-
-      case -3.0 <= CylPat < -2.0:
-        value = 3;
-        break;
-
-      case -5.0 <= CylPat < -3.0:
-        value = 2;
-        break;
-
-      default:
-        break;
-    }
-
-    return value;
+    if (CylPat >= -0.5 && CylPat <= 0.0) return 7;
+    if (CylPat >= -1.0 && CylPat < -0.5) return 6;
+    if (CylPat >= -2.0 && CylPat < -1.0) return 4;
+    if (CylPat >= -3.0 && CylPat < -2.0) return 3;
+    if (CylPat >= -5.0 && CylPat < -3.0) return 2;
+    return 0;
   };
 
   const getpatientData = async () => {
@@ -1161,7 +1122,7 @@ const DispenseComponent = () => {
                           >
                             {id === 0
                               ? "100"
-                              : x.MatchPercentageEqS}
+                              : x.MatchPercentageEqS.toFixed(6)}
                           </td>
 
                           <td
