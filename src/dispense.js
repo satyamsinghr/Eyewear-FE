@@ -626,10 +626,12 @@ const DispenseComponent = () => {
         let RCylEqFactor = RCylEqDif * RSphEqMult;
         let LCylEqFactor = LCylEqDif * LSphEqMult;
 
-        let RMatchPercentageEqS =
-          100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
-        let LMatchPercentageEqS =
-          100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
+        // let RMatchPercentageEqS =
+        //   100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
+        // let LMatchPercentageEqS =
+        //   100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
+              let RMatchPercentageEqS = 100 - RSphEqFactor ;
+        let LMatchPercentageEqS = 100 - LSphEqFactor;
 
         let MatchPercentageEqS =
           ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(6);
@@ -1071,8 +1073,8 @@ const DispenseComponent = () => {
                   <tbody>
                  
                     {lenseListing &&
-                      lenseListing.length > 0 ?
-                      lenseListing.map((x, id) => {
+                      lenseListing?.length > 0 ?
+                      lenseListing?.map((x, id) => {
                         return (
                           <tr key={x.id} className="data">
                           <td
@@ -1090,7 +1092,7 @@ const DispenseComponent = () => {
                                 onChange={(e) => {
                                   handleInputChange(e);
                                 }}
-                              /> : x.lensId}
+                              /> : x?.lensId}
 
                           </td>
                           <td
@@ -1101,7 +1103,7 @@ const DispenseComponent = () => {
                             }
                           >
                             {/* {id === 0 ? "100" : x.MatchPercentageB} */}
-                            {id === 0 ? "100" : x.MatchPercentageS}
+                            {id === 0 ? "100" : x?.MatchPercentageS}
                           </td>
                           <td
                             className={
@@ -1110,7 +1112,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {id === 0 ? "100" : x.MatchPercentageB}
+                            {id === 0 ? "100" : x?.MatchPercentageB}
                             {/* {id === 0 ? "100" : "ss"} */}
                           </td>
                           <td
@@ -1120,9 +1122,14 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {id === 0
+                            {/* {id === 0
                               ? "100"
-                              : x.MatchPercentageEqS.toFixed(6)}
+                              : x.MatchPercentageEqS.toFixed(6)} */}
+                              {id === 0
+                                ? "100"
+                                : typeof x?.MatchPercentageEqS === "number"
+                                  ? x?.MatchPercentageEqS.toFixed(6)
+                                  : "N/A"}
                           </td>
 
                           <td
@@ -1132,7 +1139,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.RSphere}
+                            {x?.RSphere}
                           </td>
                           <td
                             className={
@@ -1141,7 +1148,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.RCylinder}
+                            {x?.RCylinder}
                           </td>
                           <td
                             className={
@@ -1150,7 +1157,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.RAxis}
+                            {x?.RAxis}
                           </td>
                           <td
                             className={
@@ -1159,7 +1166,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.RAdd}
+                            {x?.RAdd}
                           </td>
 
                           <td
@@ -1169,7 +1176,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.LSphere}
+                            {x?.LSphere}
                           </td>
                           <td
                             className={
@@ -1178,7 +1185,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.LCylinder}
+                            {x?.LCylinder}
                           </td>
                           <td
                             className={
@@ -1187,7 +1194,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.LAxis}
+                            {x?.LAxis}
                           </td>
                           <td
                             className={
@@ -1196,7 +1203,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {x.LAdd}
+                            {x?.LAdd}
                           </td>
                           <td
                             className={
@@ -1212,23 +1219,23 @@ const DispenseComponent = () => {
                                 onChange={(e) => handleStatusChange(e, x)}
                               >
                                 <option value="">Select Status</option>
-                                {(x.Lens_Status === "selected" || x.Lens_Status === "dispensed") && (
+                                {(x?.Lens_Status === "selected" || x?.Lens_Status === "dispensed") && (
                                   <>
                                     <option
                                       value="available"
-                                      selected={x.Lens_Status === "available"}
+                                      selected={x?.Lens_Status === "available"}
                                     >
                                       Available
                                     </option>
                                     <option
                                       value="selected"
-                                      selected={x.Lens_Status === "selected"}
+                                      selected={x?.Lens_Status === "selected"}
                                     >
                                       Selected
                                     </option>
                                     <option
                                       value="dispensed"
-                                      selected={x.Lens_Status === "dispensed"}
+                                      selected={x?.Lens_Status === "dispensed"}
                                     >
                                       Dispensed
                                     </option>
@@ -1240,13 +1247,13 @@ const DispenseComponent = () => {
                                 </option> */}
                                     <option
                                       value="missing"
-                                      selected={x.Lens_Status === "missing"}
+                                      selected={x?.Lens_Status === "missing"}
                                     >
                                       Missing
                                     </option>
                                     <option
                                       value="trashed"
-                                      selected={x.Lens_Status === "trashed"}
+                                      selected={x?.Lens_Status === "trashed"}
                                     >
                                       Trashed
                                     </option>
@@ -1256,7 +1263,7 @@ const DispenseComponent = () => {
                                   <>
                                     <option
                                       value="readingAvailable"
-                                      selected={x.Lens_Status === "selected" || x.Lens_Status === "reading"}
+                                      selected={x?.Lens_Status === "selected" || x?.Lens_Status === "reading"}
                                     >
                                       Reading Available
                                     </option>
@@ -1279,7 +1286,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {moment(x.createdAt).format("YYYY-MM-DD")}
+                            {moment(x?.createdAt).format("YYYY-MM-DD")}
                           </td>
                           <td
                             className={
@@ -1288,7 +1295,7 @@ const DispenseComponent = () => {
                                 : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                             }
                           >
-                            {moment(x.createdAt).format("hh:mm:ss")}
+                            {moment(x?.createdAt).format("hh:mm:ss")}
                           </td>
                         </tr>
                         );

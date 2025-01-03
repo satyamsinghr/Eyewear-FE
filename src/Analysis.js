@@ -396,11 +396,12 @@ const Analysis = () => {
         let RCylEqFactor = RCylEqDif * RSphEqMult;
         let LCylEqFactor = LCylEqDif * LSphEqMult;
 
-        let RMatchPercentageEqS =
-          100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
-        let LMatchPercentageEqS =
-          100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
-
+        // let RMatchPercentageEqS =
+        //   100 - RSphEqFactor - RCylEqFactor - RAxisEqFactor;
+        // let LMatchPercentageEqS =
+        //   100 - LSphEqFactor - LCylEqFactor - LAxisEqFactor;
+        let RMatchPercentageEqS = 100 - RSphEqFactor;
+        let LMatchPercentageEqS = 100 - LSphEqFactor;
         let MatchPercentageEqS =
           ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(6);;
 
@@ -811,8 +812,8 @@ const Analysis = () => {
                   </thead>
                   <tbody>
                     {lenseListing &&
-                      lenseListing.length > 0 ?
-                      lenseListing.map((x, index) => {
+                      lenseListing?.length > 0 ?
+                      lenseListing?.map((x, index) => {
                         return (
                           <tr key={x.index} className="data">
                             <td
@@ -824,7 +825,7 @@ const Analysis = () => {
                             >
                               {
                                 id ? (
-                                  index === 0 ? x.PatientId : x.lensId
+                                  index === 0 ? x?.PatientId : x?.lensId
 
                                 ) : (
                                   index === 0 ? (
@@ -835,7 +836,7 @@ const Analysis = () => {
                                       onChange={(e) => handleInputChange(e)}
                                     />
                                   ) : (
-                                    x.lensId
+                                    x?.lensId
                                   )
                                 )
                               }
@@ -847,7 +848,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {index === 0 ? "100" : x.MatchPercentageS}
+                              {index === 0 ? "100" : x?.MatchPercentageS}
                             </td>
                             <td
                               className={
@@ -856,7 +857,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {index === 0 ? "100" : x.MatchPercentageB}
+                              {index === 0 ? "100" : x?.MatchPercentageB}
                             </td>
                             <td
                               className={
@@ -865,9 +866,14 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
+                              {/* {index === 0
+                                ? "100"
+                                : x.MatchPercentageEqS.toFixed(6)} */}
                               {index === 0
                                 ? "100"
-                                : x.MatchPercentageEqS.toFixed(6)}
+                                : typeof x?.MatchPercentageEqS === "number"
+                                  ? x?.MatchPercentageEqS.toFixed(6)
+                                  : "N/A"}
                             </td>
 
                             <td
@@ -877,7 +883,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.RSphere}
+                              {x?.RSphere}
                             </td>
                             <td
                               className={
@@ -886,7 +892,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.RCylinder}
+                              {x?.RCylinder}
                             </td>
                             <td
                               className={
@@ -895,7 +901,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.RAxis}
+                              {x?.RAxis}
                             </td>
                             <td
                               className={
@@ -904,7 +910,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.RAdd}
+                              {x?.RAdd}
                             </td>
 
                             <td
@@ -914,7 +920,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.LSphere}
+                              {x?.LSphere}
                             </td>
                             <td
                               className={
@@ -923,7 +929,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.LCylinder}
+                              {x?.LCylinder}
                             </td>
                             <td
                               className={
@@ -932,7 +938,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.LAxis}
+                              {x?.LAxis}
                             </td>
                             <td
                               className={
@@ -941,7 +947,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {x.LAdd}
+                              {x?.LAdd}
                             </td>
                             <td
                               className={
@@ -957,35 +963,35 @@ const Analysis = () => {
                                   onChange={(e) => handleStatusChange(e, x)}
                                 >
                                   <option value="">Select Status</option>
-                                  {x.Lens_Status === "available" && (
+                                  {x?.Lens_Status === "available" && (
                                     <>
                                       <option
                                         value="available"
-                                        selected={x.Lens_Status === "available"}
+                                        selected={x?.Lens_Status === "available"}
                                       >
                                         Available
                                       </option>
                                       <option
                                         value="selected"
-                                        selected={x.Lens_Status === "selected"}
+                                        selected={x?.Lens_Status === "selected"}
                                       >
                                         Selected
                                       </option>
                                       <option
                                         value="dispensed"
-                                        selected={x.Lens_Status === "dispensed"}
+                                        selected={x?.Lens_Status === "dispensed"}
                                       >
                                         Dispensed
                                       </option>
                                       <option
                                         value="missing"
-                                        selected={x.Lens_Status === "missing"}
+                                        selected={x?.Lens_Status === "missing"}
                                       >
                                         Missing
                                       </option>
                                       <option
                                         value="trashed"
-                                        selected={x.Lens_Status === "trashed"}
+                                        selected={x?.Lens_Status === "trashed"}
                                       >
                                         Trashed
                                       </option>
@@ -995,7 +1001,7 @@ const Analysis = () => {
                                     <>
                                       <option
                                         value="readingAvailable"
-                                        selected={x.Lens_Status === "selected" || x.Lens_Status === "reading"}
+                                        selected={x?.Lens_Status === "selected" || x?.Lens_Status === "reading"}
                                       >
                                         Reading Available
                                       </option>
@@ -1019,7 +1025,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {moment(x.createdAt).format("YYYY-MM-DD")}
+                              {moment(x?.createdAt).format("YYYY-MM-DD")}
                             </td>
                             <td
                               className={
@@ -1028,7 +1034,7 @@ const Analysis = () => {
                                   : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2 "
                               }
                             >
-                              {moment(x.createdAt).format("hh:mm:ss")}
+                              {moment(x?.createdAt).format("hh:mm:ss")}
                             </td>
                           </tr>
                         );
