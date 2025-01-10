@@ -594,7 +594,7 @@ const DispenseComponent = () => {
         let MatchPercentageS = (
           (RMatchPercentageS + LMatchPercentageS) /
           2
-        ).toFixed(6);
+        ).toFixed(2);
 
         let RMatchPercentageB =
           100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
@@ -604,7 +604,7 @@ const DispenseComponent = () => {
         let MatchPercentageB = (
           (RMatchPercentageB + LMatchPercentageB) /
           2
-        ).toFixed(6);
+        ).toFixed(2);
 
         //newly added
 
@@ -634,7 +634,7 @@ const DispenseComponent = () => {
         let LMatchPercentageEqS = 100 - LSphEqFactor;
 
         let MatchPercentageEqS =
-          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(6);
+          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);
 
         const lensData = {
           ...lens,
@@ -650,9 +650,10 @@ const DispenseComponent = () => {
       );
 
       newLensList.sort((a, b) => {
-        if (b.MatchPercentageB !== a.MatchPercentageB) {
-          return b.MatchPercentageB - a.MatchPercentageB;
-        }
+        // if (b.MatchPercentageB !== a.MatchPercentageB) {
+        //   return b.MatchPercentageB - a.MatchPercentageB;
+        // }
+
         return b.MatchPercentageS - a.MatchPercentageS;
       });
       const newPat = id
@@ -667,7 +668,13 @@ const DispenseComponent = () => {
       const newArray = [newPatient];
       const newLensListData = [...newLensList];
       const readingLenses = newLensListData.sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
-      const mergedArray = [...newArray, ...readingLenses];
+      // const mergedArray = [...newArray, ...readingLenses];
+      const mergedArray = [...newArray, ...readingLenses].map(item => ({
+        ...item,
+        Lens_Label: (item.RAdd === "0" || item.RAdd === null) && (item.LAdd === "0" || item.LAdd === null) 
+          ? "Single Vision" 
+          : "Bifocal"
+      }));;
       SetLenseListing(mergedArray);
     }
   };
@@ -1017,7 +1024,7 @@ const DispenseComponent = () => {
                       <th colSpan={4} className="text-center">
                         Left Lens
                       </th>
-                      <th colSpan={3} className="text-center"></th>
+                      <th colSpan={4} className="text-center"></th>
                     </tr>
                     <tr>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -1061,6 +1068,9 @@ const DispenseComponent = () => {
 
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         Status
+                      </th>
+                      <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
+                      Lens_Label
                       </th>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         Date
@@ -1128,7 +1138,7 @@ const DispenseComponent = () => {
                               {id === 0
                                 ? "100"
                                 : typeof x?.MatchPercentageEqS === "number"
-                                  ? x?.MatchPercentageEqS.toFixed(6)
+                                  ? x?.MatchPercentageEqS.toFixed(2)
                                   : "N/A"}
                           </td>
 
@@ -1278,7 +1288,15 @@ const DispenseComponent = () => {
                               </select>
                             )}
                           </td>
-
+                          <td
+                              className={
+                                id === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2"
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2"
+                              }
+                            >
+                              {x.Lens_Label}
+                            </td>
                           <td
                             className={
                               id === 0
@@ -1324,7 +1342,7 @@ const DispenseComponent = () => {
                         <td></td>
                         <td></td>
                         <td></td>
-                        {/* <td></td> */}
+                        <td></td>
                       </tr>
                     }
                   </tbody>

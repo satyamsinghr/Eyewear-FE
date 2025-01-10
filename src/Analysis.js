@@ -364,7 +364,7 @@ const Analysis = () => {
         let MatchPercentageS = (
           (RMatchPercentageS + LMatchPercentageS) /
           2
-        ).toFixed(6);
+        ).toFixed(2);
 
         let RMatchPercentageB =
           100 - RSphFactor - RCylFactor - RAxisFactor - RAddFactor;
@@ -374,7 +374,7 @@ const Analysis = () => {
         let MatchPercentageB = (
           (RMatchPercentageB + LMatchPercentageB) /
           2
-        ).toFixed(6);
+        ).toFixed(2);
 
         //newly added
 
@@ -403,7 +403,7 @@ const Analysis = () => {
         let RMatchPercentageEqS = 100 - RSphEqFactor;
         let LMatchPercentageEqS = 100 - LSphEqFactor;
         let MatchPercentageEqS =
-          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(6);;
+          ((RMatchPercentageEqS + LMatchPercentageEqS) / 2).toFixed(2);;
 
         const lensData = {
           ...lens,
@@ -427,9 +427,9 @@ const Analysis = () => {
       //     b.MatchPercentageS - a.MatchPercentageS
       // );
       newLensList.sort((a, b) => {
-        if (b.MatchPercentageB !== a.MatchPercentageB) {
-          return b.MatchPercentageB - a.MatchPercentageB;
-        }
+        // if (b.MatchPercentageB !== a.MatchPercentageB) {
+        //   return b.MatchPercentageB - a.MatchPercentageB;
+        // }
         return b.MatchPercentageS - a.MatchPercentageS;
       });
       const newPat = id
@@ -464,7 +464,17 @@ const Analysis = () => {
         const availableLenses = selectedLenseStatus
           .filter((x) => x.Lens_Status === "available")
           .sort((a, b) => b.MatchPercentageS - a.MatchPercentageS)
-        const mergedArray = [...newArray, ...readingLenses, ...availableLenses].slice(0, 21);
+        // const mergedArray = [...newArray, ...readingLenses, ...availableLenses].slice(0, 21);
+        const mergedArray = [
+          ...newArray,
+          ...readingLenses,
+          ...availableLenses
+        ].slice(0, 21).map(item => ({
+          ...item,
+          Lens_Label: (item.RAdd === "0" || item.RAdd === null) && (item.LAdd === "0" || item.LAdd === null) 
+            ? "Single Vision" 
+            : "Bifocal"
+        }));
         SetLenseListing(mergedArray);
       }
     }
@@ -478,7 +488,7 @@ const Analysis = () => {
     if (CylPat >= -5.0 && CylPat < -3.0) return 8;
     return 0;
   };
-  
+
   const axisMin = (CylPat) => {
     if (CylPat >= -0.5 && CylPat <= 0.0) return 7;
     if (CylPat >= -1.0 && CylPat < -0.5) return 6;
@@ -757,7 +767,7 @@ const Analysis = () => {
                       <th colSpan={4} className="text-center">
                         Left Lens
                       </th>
-                      <th colSpan={3} className="text-center"></th>
+                      <th colSpan={4} className="text-center"></th>
                     </tr>
                     <tr>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
@@ -801,6 +811,9 @@ const Analysis = () => {
 
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         Status
+                      </th>
+                      <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
+                        Lens_Label
                       </th>
                       <th className="py-3 px-2 font- text-basecolor-900 text-lg font-semibold text-left">
                         Date
@@ -872,7 +885,7 @@ const Analysis = () => {
                               {index === 0
                                 ? "100"
                                 : typeof x?.MatchPercentageEqS === "number"
-                                  ? x?.MatchPercentageEqS.toFixed(6)
+                                  ? x?.MatchPercentageEqS.toFixed(2)
                                   : "N/A"}
                             </td>
 
@@ -1016,7 +1029,15 @@ const Analysis = () => {
                                 </select>
                               )}
                             </td>
-
+                            <td
+                              className={
+                                index === 0
+                                  ? "data_highlighted py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2"
+                                  : "data py-xl-3 py-lg-2 py-2 px-xl-2 px-lg-2 px-2"
+                              }
+                            >
+                              {x.Lens_Label}
+                            </td>
 
                             <td
                               className={
@@ -1049,6 +1070,8 @@ const Analysis = () => {
                               handleInputChange(e);
                             }}
                           />
+                        </td>
+                        <td>
                         </td>
                         <td>
                         </td>
